@@ -1,0 +1,1068 @@
+const BANK = Array.isArray(window.HANZI_BANK) ? window.HANZI_BANK : [];
+const STORAGE_KEY = "hanzi-literacy-v2";
+const GROUP_SIZE = 100;
+const GROUP_COUNT = Math.ceil(BANK.length / GROUP_SIZE);
+const QUICK_TARGET = 200;
+const SHARE_URL = window.location.protocol === "file:" ? window.location.href.split("#")[0] : `${window.location.origin}${window.location.pathname}`;
+
+const app = document.querySelector("#app");
+let state = load();
+let screen = "home";
+let audioContext = null;
+
+function createChild(nickname = "小朋友") {
+  const id = `child-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
+  return {
+    id,
+    nickname,
+    groups: {},
+    quick: null,
+    quickHistory: [],
+    wrongbook: {},
+    review: null,
+  };
+}
+
+function defaultState() {
+  return {
+    version: 2,
+    soundOn: true,
+    activeChildId: null,
+    children: {},
+  };
+}
+
+function normalizeState(raw) {
+  if (!raw || typeof raw !== "object") return defaultState();
+  if (raw.children && raw.activeChildId) return { ...defaultState(), ...raw };
+
+  const child = createChild("小朋友");
+  child.groups = raw.groups || {};
+  child.quick = raw.quick || null;
+  child.quickHistory = raw.quickHistory || [];
+  child.wrongbook = raw.wrongbook || buildWrongbookFromGroups(child.groups);
+  return {
+    version: 2,
+    soundOn: raw.soundOn !== false,
+    activeChildId: child.id,
+    children: { [child.id]: child },
+  };
+}
+
+function buildWrongbookFromGroups(groups) {
+  const wrongbook = {};
+  Object.values(groups || {}).forEach((group) => {
+    Object.entries(group.answers || {}).forEach(([id, status]) => {
+      if (status === "unknown") wrongbook[id] = { id: Number(id), source: "group", updatedAt: Date.now() };
+    });
+  });
+  return wrongbook;
+}
+
+function load() {
+  try {
+    return normalizeState(JSON.parse(localStorage.getItem(STORAGE_KEY)));
+  } catch {
+    return defaultState();
+  }
+}
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function child() {
+  if (!state.children[state.activeChildId]) {
+    const next = createChild("小朋友");
+    state.activeChildId = next.id;
+    state.children[next.id] = next;
+    save();
+  }
+  return state.children[state.activeChildId];
+}
+
+function html(value) {
+  return String(value).replace(/[&<>"']/g, (char) => {
+    const map = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" };
+    return map[char];
+  });
+}
+
+function itemById(id) {
+  return BANK[id - 1];
+}
+
+function groupRange(groupIndex) {
+  const start = groupIndex * GROUP_SIZE;
+  const end = Math.min(start + GROUP_SIZE, BANK.length);
+  return BANK.slice(start, end);
+}
+
+function getGroup(groupIndex) {
+  const current = child();
+  const key = String(groupIndex);
+  if (!current.groups[key]) {
+    current.groups[key] = {
+      groupIndex,
+      currentOffset: 0,
+      answers: {},
+      order: groupRange(groupIndex).map((item) => item.id),
+      undoStack: [],
+      completedAt: null,
+    };
+  }
+  return current.groups[key];
+}
+
+function groupProgress(groupIndex) {
+  const group = child().groups[String(groupIndex)];
+  if (!group) return { answered: 0, known: 0, total: groupRange(groupIndex).length, done: false };
+  const values = Object.values(group.answers || {});
+  const total = group.order.length;
+  return {
+    answered: values.length,
+    known: values.filter((v) => v === "known").length,
+    total,
+    done: values.length >= total,
+  };
+}
+
+function updateWrongbook(id, status, source) {
+  const current = child();
+  if (status === "unknown") {
+    current.wrongbook[id] = { id: Number(id), source, updatedAt: Date.now() };
+  } else {
+    delete current.wrongbook[id];
+  }
+}
+
+function footerHtml() {
+  return `
+    <footer class="site-footer">
+      <p>使用中有问题或建议，可添加微信：<strong>ylstf08</strong></p>
+      <p>数据只保存在本机浏览器。换设备或清理缓存，可能会丢失记录。</p>
+    </footer>
+  `;
+}
+
+function currentSummary() {
+  const current = child();
+  const groupStats = Array.from({ length: GROUP_COUNT }, (_, i) => groupProgress(i));
+  const completedGroups = groupStats.filter((g) => g.done).length;
+  const groupAnswered = groupStats.reduce((sum, g) => sum + g.answered, 0);
+  const groupKnown = groupStats.reduce((sum, g) => sum + g.known, 0);
+  const latestQuick = current.quickHistory?.[0] || null;
+  const wrongCount = Object.keys(current.wrongbook || {}).length;
+  const estimated = latestQuick?.estimated ?? groupKnown;
+  const range = latestQuick ? `${latestQuick.low}-${latestQuick.high}` : "完成快速估算后显示";
+
+  return {
+    nickname: current.nickname,
+    date: new Date().toLocaleDateString("zh-CN"),
+    estimated,
+    range,
+    latestQuick,
+    wrongCount,
+    completedGroups,
+    groupAnswered,
+    groupKnown,
+  };
+}
+
+function shell(content) {
+  const current = child();
+  const kids = Object.values(state.children);
+  return `
+    <header class="topbar">
+      <div class="brand">
+        <div class="planet">字</div>
+        <div>
+          <h1>识字闯关星球</h1>
+          <p>儿童识字量测评｜书法郭爸团队出品</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <label class="kid-switch">
+          <span>当前孩子</span>
+          <select data-action="switch-child">
+            ${kids.map((kid) => `<option value="${kid.id}" ${kid.id === current.id ? "selected" : ""}>${html(kid.nickname)}</option>`).join("")}
+          </select>
+        </label>
+        <button class="sound-toggle" data-action="add-child">加孩子</button>
+        <button class="sound-toggle" data-action="toggle-sound">${state.soundOn ? "音效开" : "音效关"}</button>
+      </div>
+    </header>
+    ${content}
+  `;
+}
+
+function renderHome() {
+  if (!state.activeChildId || !state.children[state.activeChildId]) {
+    renderOnboarding();
+    return;
+  }
+  screen = "home";
+  const current = child();
+  const totalAnswered = Object.keys(current.groups).reduce((sum, key) => {
+    return sum + Object.keys(current.groups[key].answers || {}).length;
+  }, 0);
+  const totalKnown = Object.keys(current.groups).reduce((sum, key) => {
+    return sum + Object.values(current.groups[key].answers || {}).filter((v) => v === "known").length;
+  }, 0);
+  const completedGroups = Array.from({ length: GROUP_COUNT }, (_, i) => groupProgress(i)).filter((g) => g.done).length;
+  const quickProgress = current.quick && !current.quick.finished ? current.quick.answers.length : 0;
+  const wrongCount = Object.keys(current.wrongbook || {}).length;
+
+  app.innerHTML = shell(`
+    <section class="hero">
+      <div class="panel">
+        <span class="tag">★ ${html(current.nickname)} 的识字测评</span>
+        <h2 class="hero-title">看看孩子<br /><span>认识</span><span>多少字</span></h2>
+        <p class="hero-copy">
+          孩子看屏幕上的汉字并读出来，家长按真实情况点“认识”或“不认识”。
+          快速估算约 10-20 分钟，可暂停继续；分组闯关每组 100 字，适合分多次慢慢测。
+        </p>
+        <div class="mode-grid">
+          <button class="mode" data-action="quick-start">
+            <div class="badge">测</div>
+            <h2>快速估算</h2>
+            <p>一次测 200 个字，完成后给出大致识字量范围。按错了可以撤回。</p>
+            <span class="btn primary">${quickProgress ? "继续快速估算" : "开始快速估算"}</span>
+          </button>
+          <button class="mode" data-action="group-start-next">
+            <div class="badge">闯</div>
+            <h2>分组闯关</h2>
+            <p>每组 100 个字，可分多天完成。系统会记录认识和不认识的字。</p>
+            <span class="btn warn">继续闯关</span>
+          </button>
+        </div>
+      </div>
+
+      <aside class="stack">
+        <section class="card">
+          <h3>当前记录</h3>
+          <div class="stats">
+            <div class="stat"><span>已完成小组</span><strong>${completedGroups}/${GROUP_COUNT}</strong></div>
+            <div class="stat"><span>逐字已测</span><strong>${totalAnswered}/${BANK.length}</strong></div>
+            <div class="stat"><span>已确认认识</span><strong>${totalKnown}</strong></div>
+            <div class="stat"><span>不认识的字</span><strong>${wrongCount}</strong></div>
+          </div>
+          <div class="side-actions">
+            <button class="btn soft" data-action="wrongbook">查看不认识的字</button>
+            <button class="btn primary" data-action="guide">怎么测？</button>
+            <button class="btn ghost" data-action="report">生成测评报告</button>
+          </div>
+        </section>
+        <section class="card">
+          <h3>测试说明</h3>
+          <p>本测试参考《通用规范汉字表》及《义务教育语文课程标准》中小学阶段识字要求，围绕常用汉字设计测评。</p>
+          <p>数据只保存在本机浏览器，不会上传服务器。建议同一个孩子固定使用同一台设备。</p>
+        </section>
+      </aside>
+    </section>
+
+    <section class="group-section">
+      <div class="group-header">
+        <div>
+          <h2>25 个识字小组</h2>
+          <p class="muted">每组 100 字，完成一组就休息一下。</p>
+        </div>
+        <button class="btn ghost" data-action="reset-child">清空当前孩子记录</button>
+      </div>
+      <div class="group-grid">
+        ${Array.from({ length: GROUP_COUNT }, (_, i) => groupTile(i)).join("")}
+      </div>
+    </section>
+    ${footerHtml()}
+  `);
+}
+
+function renderOnboarding() {
+  screen = "onboarding";
+  app.innerHTML = `
+    <section class="onboarding">
+      <div class="planet">字</div>
+      <p class="tag">儿童识字量测评｜书法郭爸团队出品</p>
+      <h1>欢迎来到识字闯关星球</h1>
+      <p class="hero-copy">请输入孩子昵称。之后测评记录、不认识的字和闯关进度都会按孩子分别保存。</p>
+      <div class="name-form">
+        <input id="child-name-input" type="text" maxlength="20" placeholder="例如：乐乐、小宇、一年级哥哥" autocomplete="off" />
+        <button class="btn primary" data-action="create-first-child">开始使用</button>
+      </div>
+      <p class="muted">数据只保存在这台设备的浏览器里，不会上传服务器。</p>
+      <p class="feedback">使用中有问题或建议，可添加微信：<strong>ylstf08</strong></p>
+    </section>
+  `;
+  setTimeout(() => document.querySelector("#child-name-input")?.focus(), 0);
+}
+
+function renderGuide() {
+  screen = "guide";
+  app.innerHTML = shell(`
+    <section class="result-card guide-card">
+      <span class="tag">★ 家长使用说明</span>
+      <h2>怎么测？</h2>
+      <div class="guide-list">
+        <p><strong>1. 孩子读字：</strong>屏幕每次只显示一个汉字，让孩子直接读出来。</p>
+        <p><strong>2. 家长判断：</strong>孩子能基本读出常见读音，就点“认识”；卡住、猜测、需要提示，都点“不认识”。</p>
+        <p><strong>3. 快速估算：</strong>一次 200 题，通常约 10-20 分钟，可暂停后继续。完成后会给出大致识字量范围。</p>
+        <p><strong>4. 分组闯关：</strong>每组 100 字，可分多天完成，适合认真摸底。</p>
+        <p><strong>5. 按错可撤回：</strong>快速估算和分组闯关都可以撤回最近 2 步。</p>
+        <p><strong>6. 不认识的字：</strong>点过“不认识”的字会自动进入列表，之后可以单独重测或全部重测。</p>
+        <p><strong>7. 数据保存：</strong>记录只保存在本机浏览器。换设备或清理浏览器缓存，可能会丢失记录。</p>
+      </div>
+      <details class="method-detail">
+        <summary>了解估算方法</summary>
+        <p>系统会从不同难度的汉字中抽样，根据孩子在各难度层的表现，估算 2500 字中的大致掌握量。结果适合作为家庭阅读和识字练习参考，不是逐字精确统计。</p>
+      </details>
+      <p class="feedback">使用中有问题或建议，可添加微信：<strong>ylstf08</strong></p>
+      <div class="actions">
+        <button class="btn primary" data-action="home">回首页</button>
+      </div>
+    </section>
+  `);
+}
+
+function groupTile(groupIndex) {
+  const progress = groupProgress(groupIndex);
+  const pct = Math.round((progress.answered / progress.total) * 100);
+  const cls = progress.done ? "done" : progress.answered ? "active" : "";
+  return `
+    <button class="group-tile ${cls}" data-action="group-start" data-group="${groupIndex}">
+      <span class="group-num">第 ${groupIndex + 1} 组</span>
+      <span class="muted">${progress.answered}/${progress.total} 字</span>
+      <div class="mini-progress"><span style="width:${pct}%"></span></div>
+    </button>
+  `;
+}
+
+function startNextGroup() {
+  const next = Array.from({ length: GROUP_COUNT }, (_, i) => i).find((i) => !groupProgress(i).done);
+  startGroup(typeof next === "number" ? next : GROUP_COUNT - 1);
+}
+
+function startGroup(groupIndex) {
+  const group = getGroup(groupIndex);
+  if (groupProgress(groupIndex).done) {
+    renderGroupResult(groupIndex);
+    return;
+  }
+  while (group.currentOffset < group.order.length && group.answers[group.order[group.currentOffset]]) {
+    group.currentOffset += 1;
+  }
+  save();
+  renderGroupTest(groupIndex);
+}
+
+function currentGroupItem(group) {
+  return itemById(group.order[group.currentOffset]);
+}
+
+function answerGroup(status) {
+  const groupIndex = Number(screen.replace("group-", ""));
+  const group = getGroup(groupIndex);
+  const item = currentGroupItem(group);
+  if (!item) return renderGroupResult(groupIndex);
+
+  const previous = group.answers[item.id];
+  const previousWrongbook = child().wrongbook[item.id] ? { ...child().wrongbook[item.id] } : null;
+  group.answers[item.id] = status;
+  group.undoStack.push({ id: item.id, offset: group.currentOffset, previous, previousWrongbook });
+  group.undoStack = group.undoStack.slice(-2);
+  group.currentOffset += 1;
+  updateWrongbook(item.id, status, "group");
+  play(status === "known" ? "good" : "bad");
+
+  if (group.currentOffset >= group.order.length) {
+    group.completedAt = Date.now();
+    save();
+    play("finish");
+    renderGroupResult(groupIndex);
+    return;
+  }
+
+  save();
+  renderGroupTest(groupIndex);
+}
+
+function undoGroup() {
+  const groupIndex = Number(screen.replace("group-", ""));
+  const group = getGroup(groupIndex);
+  const last = group.undoStack.pop();
+  if (!last) return;
+  if (last.previous) {
+    group.answers[last.id] = last.previous;
+  } else {
+    delete group.answers[last.id];
+  }
+  if (last.previousWrongbook) child().wrongbook[last.id] = last.previousWrongbook;
+  else delete child().wrongbook[last.id];
+  group.currentOffset = last.offset;
+  group.completedAt = null;
+  play("undo");
+  save();
+  renderGroupTest(groupIndex);
+}
+
+function renderGroupTest(groupIndex) {
+  screen = `group-${groupIndex}`;
+  const group = getGroup(groupIndex);
+  const item = currentGroupItem(group);
+  const progress = groupProgress(groupIndex);
+  const pct = Math.round((progress.answered / progress.total) * 100);
+
+  app.innerHTML = shell(`
+    <section class="test-layout">
+      <div class="test-card">
+        <div class="test-top">
+          <div>
+            <h2>第 ${groupIndex + 1} 组</h2>
+            <p class="muted">第 ${progress.answered + 1} 题 / ${progress.total} 题</p>
+          </div>
+          <button class="btn ghost" data-action="home">暂停</button>
+        </div>
+        <div class="progress"><span style="width:${pct}%"></span></div>
+        <div class="hanzi-stage">
+          <div class="hanzi">${html(item.char)}</div>
+        </div>
+        <div class="judge-row">
+          <button class="btn good" data-action="group-known">认识</button>
+          <button class="btn bad" data-action="group-unknown">不认识</button>
+        </div>
+      </div>
+
+      <aside class="stack">
+        <section class="card">
+          <h3>这一组</h3>
+          <div class="stats">
+            <div class="stat"><span>已测</span><strong>${progress.answered}</strong></div>
+            <div class="stat"><span>认识</span><strong>${progress.known}</strong></div>
+            <div class="stat"><span>剩余</span><strong>${progress.total - progress.answered}</strong></div>
+          </div>
+          <div class="side-actions">
+            <button class="btn warn" data-action="group-undo" ${group.undoStack.length ? "" : "disabled"}>撤回最近一步</button>
+            <button class="btn ghost" data-action="home">回到小组列表</button>
+          </div>
+        </section>
+        <section class="card">
+          <h3>键盘操作</h3>
+          <p>电脑上可按 1 表示认识，按 2 表示不认识，按 Backspace 撤回。</p>
+        </section>
+      </aside>
+    </section>
+  `);
+}
+
+function renderGroupResult(groupIndex) {
+  screen = "result";
+  const progress = groupProgress(groupIndex);
+  const pct = progress.total ? Math.round((progress.known / progress.total) * 100) : 0;
+
+  app.innerHTML = shell(`
+    <section class="result-card">
+      <span class="tag">★ 第 ${groupIndex + 1} 组完成</span>
+      <h2>这一组认识</h2>
+      <div class="big-number">${progress.known}</div>
+      <p class="hero-copy">本组共 ${progress.total} 字，认识率 ${pct}%。完成一组就很棒，可以休息一下再继续。</p>
+      <div class="metric-grid">
+        <div class="metric"><span>已测</span><strong>${progress.answered}</strong></div>
+        <div class="metric"><span>认识</span><strong>${progress.known}</strong></div>
+        <div class="metric"><span>不认识</span><strong>${progress.total - progress.known}</strong></div>
+      </div>
+      <div class="actions">
+        <button class="btn primary" data-action="group-next" data-group="${groupIndex}">下一组</button>
+        <button class="btn soft" data-action="wrongbook">查看不认识的字</button>
+        <button class="btn ghost" data-action="report">生成测评报告</button>
+        <button class="btn ghost" data-action="home">回首页</button>
+      </div>
+    </section>
+  `);
+}
+
+function startQuick(forceNew = false) {
+  const current = child();
+  if (forceNew || !current.quick || current.quick.finished) {
+    current.quick = { level: 2, answers: [], usedIds: [], undoStack: [], currentId: null, finished: false };
+  }
+  if (!current.quick.undoStack) current.quick.undoStack = [];
+  if (!current.quick.currentId) current.quick.currentId = pickQuick();
+  save();
+  renderQuick();
+}
+
+function pickQuick() {
+  const quick = child().quick;
+  const used = new Set(quick.usedIds);
+  const level = Math.max(1, Math.min(10, quick.level));
+  const sameLevel = BANK.filter((item) => item.level === level && !used.has(item.id));
+  const pool = sameLevel.length ? sameLevel : BANK.filter((item) => !used.has(item.id));
+  return pool[Math.floor(Math.random() * pool.length)]?.id || null;
+}
+
+function answerQuick(known) {
+  const current = child();
+  const quick = current.quick;
+  const item = itemById(quick.currentId);
+  const answer = {
+    id: item.id,
+    level: item.level,
+    known,
+    previousLevel: quick.level,
+    previousWrongbook: current.wrongbook[item.id] ? { ...current.wrongbook[item.id] } : null,
+  };
+  quick.answers.push(answer);
+  quick.usedIds.push(item.id);
+  quick.undoStack.push(answer);
+  quick.undoStack = quick.undoStack.slice(-2);
+  quick.level = Math.max(1, Math.min(10, quick.level + (known ? 1 : -1)));
+  quick.currentId = quick.answers.length >= QUICK_TARGET ? null : pickQuick();
+  updateWrongbook(item.id, known ? "known" : "unknown", "quick");
+  play(known ? "good" : "bad");
+  save();
+  if (quick.answers.length >= QUICK_TARGET) finishQuick();
+  else renderQuick();
+}
+
+function undoQuick() {
+  const quick = child().quick;
+  const last = quick?.undoStack?.pop();
+  if (!last) return;
+  quick.answers = quick.answers.filter((answer) => answer !== last);
+  quick.usedIds = quick.usedIds.filter((id) => id !== last.id);
+  quick.level = last.previousLevel;
+  quick.currentId = last.id;
+  if (last.previousWrongbook) child().wrongbook[last.id] = last.previousWrongbook;
+  else delete child().wrongbook[last.id];
+  play("undo");
+  save();
+  renderQuick();
+}
+
+function estimateQuick() {
+  const quick = child().quick;
+  const answers = quick?.answers || [];
+  let score = 0;
+  let previous = 1;
+  for (let level = 1; level <= 10; level += 1) {
+    const group = answers.filter((a) => a.level === level);
+    const rate = group.length ? group.filter((a) => a.known).length / group.length : previous * 0.78;
+    previous = rate;
+    score += rate * 250;
+  }
+  const known = answers.filter((a) => a.known).length;
+  const margin = answers.length >= QUICK_TARGET ? 110 : 220;
+  return {
+    estimated: Math.max(0, Math.min(2500, Math.round(score / 10) * 10)),
+    low: Math.max(0, Math.round((score - margin) / 10) * 10),
+    high: Math.min(2500, Math.round((score + margin) / 10) * 10),
+    known,
+    total: answers.length,
+  };
+}
+
+function finishQuick() {
+  const current = child();
+  const result = { createdAt: Date.now(), ...estimateQuick() };
+  current.quick.finished = true;
+  current.quickHistory.unshift(result);
+  current.quickHistory = current.quickHistory.slice(0, 10);
+  save();
+  renderQuickResult(result);
+}
+
+function renderQuick() {
+  screen = "quick";
+  const quick = child().quick;
+  const item = itemById(quick.currentId);
+  const pct = Math.round((quick.answers.length / QUICK_TARGET) * 100);
+  const estimate = estimateQuick();
+
+  app.innerHTML = shell(`
+    <section class="test-layout">
+      <div class="test-card">
+        <div class="test-top">
+          <div>
+            <h2>快速估算</h2>
+            <p class="muted">第 ${quick.answers.length + 1} 题 / ${QUICK_TARGET} 题</p>
+          </div>
+          <button class="btn ghost" data-action="home">暂停</button>
+        </div>
+        <div class="progress"><span style="width:${pct}%"></span></div>
+        <div class="hanzi-stage"><div class="hanzi">${html(item.char)}</div></div>
+        <div class="judge-row">
+          <button class="btn good" data-action="quick-known">认识</button>
+          <button class="btn bad" data-action="quick-unknown">不认识</button>
+        </div>
+      </div>
+      <aside class="stack">
+        <section class="card">
+          <h3>当前估算</h3>
+          <div class="big-number" style="font-size:3.2rem;">${estimate.estimated}</div>
+          <p>完成 ${QUICK_TARGET} 题后会生成正式估算。孩子累了可以暂停，下次继续。</p>
+          <div class="side-actions">
+            <button class="btn warn" data-action="quick-undo" ${quick.undoStack.length ? "" : "disabled"}>撤回最近一步</button>
+          </div>
+        </section>
+        <section class="card">
+          <h3>怎么判断</h3>
+          <p>孩子能基本读出常见读音，就点“认识”；卡住、猜测或需要提示，就点“不认识”。</p>
+        </section>
+      </aside>
+    </section>
+  `);
+}
+
+function renderQuickResult(result) {
+  screen = "result";
+  app.innerHTML = shell(`
+    <section class="result-card">
+      <span class="tag">★ 200 题快速估算完成</span>
+      <h2>大约认识</h2>
+      <div class="big-number">${result.estimated}</div>
+      <p class="hero-copy">这是抽样估算，不是逐字精确统计。合理参考范围约为 ${result.low} - ${result.high} 字。</p>
+      <div class="metric-grid">
+        <div class="metric"><span>完成题数</span><strong>${result.total}</strong></div>
+        <div class="metric"><span>判断认识</span><strong>${result.known}</strong></div>
+        <div class="metric"><span>认识率</span><strong>${Math.round((result.known / result.total) * 100)}%</strong></div>
+      </div>
+      <div class="actions">
+        <button class="btn primary" data-action="home">回首页</button>
+        <button class="btn soft" data-action="wrongbook">查看不认识的字</button>
+        <button class="btn ghost" data-action="report">生成测评报告</button>
+        <button class="btn warn" data-action="quick-new">重新估算</button>
+      </div>
+    </section>
+  `);
+}
+
+function renderReport() {
+  screen = "report";
+  const summary = currentSummary();
+  app.innerHTML = shell(`
+    <section class="result-card report-page">
+      <span class="tag">★ 测评报告</span>
+      <h2>${html(summary.nickname)} 的识字小结</h2>
+      <p class="hero-copy">可以生成一张图片，保存后发给家人或家长群。图片会带上当前网页链接的二维码。</p>
+      <div class="report-preview" id="report-preview">
+        <div class="report-card-view">
+          <p class="report-brand">识字闯关星球</p>
+          <h3>${html(summary.nickname)} 的识字量小结</h3>
+          <div class="report-main-number">${summary.estimated}</div>
+          <p>大致认识字数</p>
+          <div class="report-metrics">
+            <span>参考范围：${html(summary.range)}</span>
+            <span>不认识的字：${summary.wrongCount}</span>
+            <span>已完成小组：${summary.completedGroups}/${GROUP_COUNT}</span>
+            <span>逐字已测：${summary.groupAnswered}/${BANK.length}</span>
+          </div>
+          <div class="report-qr-row">
+            <img alt="网站二维码" src="${qrImageUrl(SHARE_URL)}" />
+            <p>扫码体验<br />儿童识字量测评｜书法郭爸团队出品</p>
+          </div>
+        </div>
+      </div>
+      <canvas id="report-canvas" class="report-canvas" width="900" height="1200"></canvas>
+      <div class="actions">
+        <button class="btn primary" data-action="download-report">下载报告图片</button>
+        <button class="btn ghost" data-action="home">回首页</button>
+      </div>
+      <p class="feedback">正式部署到 EdgeOne 后，二维码会指向线上访问地址。</p>
+    </section>
+  `);
+  drawReportCanvas();
+}
+
+function qrImageUrl(url) {
+  return `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=12&data=${encodeURIComponent(url)}`;
+}
+
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.crossOrigin = "anonymous";
+    image.onload = () => resolve(image);
+    image.onerror = reject;
+    image.src = src;
+  });
+}
+
+function drawWrappedText(ctx, text, x, y, maxWidth, lineHeight) {
+  let line = "";
+  for (const char of text) {
+    const test = line + char;
+    if (ctx.measureText(test).width > maxWidth && line) {
+      ctx.fillText(line, x, y);
+      line = char;
+      y += lineHeight;
+    } else {
+      line = test;
+    }
+  }
+  if (line) ctx.fillText(line, x, y);
+  return y;
+}
+
+async function drawReportCanvas() {
+  const canvas = document.querySelector("#report-canvas");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  const summary = currentSummary();
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "#dff3ff";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "#fffdf5";
+  roundRect(ctx, 54, 54, 792, 1092, 34);
+  ctx.fill();
+  ctx.strokeStyle = "#25313a";
+  ctx.lineWidth = 8;
+  ctx.stroke();
+
+  ctx.fillStyle = "#263238";
+  ctx.font = "700 42px PingFang SC, Microsoft YaHei, sans-serif";
+  ctx.fillText("识字闯关星球", 100, 130);
+  ctx.font = "500 24px PingFang SC, Microsoft YaHei, sans-serif";
+  ctx.fillStyle = "#66717a";
+  ctx.fillText("儿童识字量测评｜书法郭爸团队出品", 100, 170);
+
+  ctx.fillStyle = "#263238";
+  ctx.font = "800 52px PingFang SC, Microsoft YaHei, sans-serif";
+  drawWrappedText(ctx, `${summary.nickname} 的识字量小结`, 100, 250, 700, 62);
+
+  ctx.fillStyle = "#2586c4";
+  ctx.font = "900 150px PingFang SC, Microsoft YaHei, sans-serif";
+  ctx.fillText(String(summary.estimated), 100, 430);
+  ctx.fillStyle = "#263238";
+  ctx.font = "700 32px PingFang SC, Microsoft YaHei, sans-serif";
+  ctx.fillText("大致认识字数", 100, 480);
+
+  const metrics = [
+    ["参考范围", summary.range],
+    ["不认识的字", `${summary.wrongCount} 个`],
+    ["已完成小组", `${summary.completedGroups}/${GROUP_COUNT}`],
+    ["逐字已测", `${summary.groupAnswered}/${BANK.length}`],
+  ];
+  ctx.font = "700 28px PingFang SC, Microsoft YaHei, sans-serif";
+  metrics.forEach(([label, value], index) => {
+    const x = 100 + (index % 2) * 350;
+    const y = 570 + Math.floor(index / 2) * 120;
+    ctx.fillStyle = "#fff8e5";
+    roundRect(ctx, x, y - 44, 300, 86, 18);
+    ctx.fill();
+    ctx.strokeStyle = "#25313a";
+    ctx.lineWidth = 4;
+    ctx.stroke();
+    ctx.fillStyle = "#66717a";
+    ctx.font = "500 22px PingFang SC, Microsoft YaHei, sans-serif";
+    ctx.fillText(label, x + 22, y - 10);
+    ctx.fillStyle = "#263238";
+    ctx.font = "800 28px PingFang SC, Microsoft YaHei, sans-serif";
+    ctx.fillText(String(value), x + 22, y + 26);
+  });
+
+  ctx.fillStyle = "#66717a";
+  ctx.font = "500 23px PingFang SC, Microsoft YaHei, sans-serif";
+  drawWrappedText(ctx, "说明：本结果适合作为家庭阅读和识字练习参考。数据由家长陪同孩子读字后记录，不是逐字官方认证统计。", 100, 825, 700, 36);
+
+  try {
+    const qr = await loadImage(qrImageUrl(SHARE_URL));
+    ctx.drawImage(qr, 100, 910, 180, 180);
+  } catch {
+    ctx.fillStyle = "#ffffff";
+    roundRect(ctx, 100, 910, 180, 180, 16);
+    ctx.fill();
+    ctx.strokeStyle = "#25313a";
+    ctx.stroke();
+    ctx.fillStyle = "#263238";
+    ctx.font = "700 22px PingFang SC, Microsoft YaHei, sans-serif";
+    ctx.fillText("扫码入口", 145, 995);
+  }
+  ctx.fillStyle = "#263238";
+  ctx.font = "700 28px PingFang SC, Microsoft YaHei, sans-serif";
+  ctx.fillText("扫码体验识字测评", 310, 960);
+  ctx.fillStyle = "#66717a";
+  ctx.font = "500 22px PingFang SC, Microsoft YaHei, sans-serif";
+  drawWrappedText(ctx, SHARE_URL, 310, 1005, 430, 32);
+  ctx.fillText(`生成日期：${summary.date}`, 310, 1085);
+}
+
+function roundRect(ctx, x, y, width, height, radius) {
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + width - radius, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+  ctx.lineTo(x + width, y + height - radius);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  ctx.lineTo(x + radius, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+  ctx.lineTo(x, y + radius);
+  ctx.quadraticCurveTo(x, y, x + radius, y);
+  ctx.closePath();
+}
+
+function downloadReport() {
+  drawReportCanvas().then(() => {
+    const canvas = document.querySelector("#report-canvas");
+    if (!canvas) return;
+    const link = document.createElement("a");
+    link.download = `${child().nickname}-识字量测评报告.png`;
+    try {
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    } catch {
+      alert("报告图片生成失败。可以先截图保存，或部署到线上后再试一次。");
+    }
+  });
+}
+
+function renderWrongbook() {
+  screen = "wrongbook";
+  const ids = Object.keys(child().wrongbook || {}).map(Number).sort((a, b) => a - b);
+  app.innerHTML = shell(`
+    <section class="result-card">
+      <span class="tag">★ ${html(child().nickname)} 的识字记录</span>
+      <h2>不认识的字</h2>
+      <div class="big-number">${ids.length}</div>
+      <p class="hero-copy">这里汇总快速估算和分组闯关中点过“不认识”的字。重测时如果点“认识”，会自动从列表移除。</p>
+      <div class="actions">
+        <button class="btn primary" data-action="wrongbook-review-all" ${ids.length ? "" : "disabled"}>重测这些字</button>
+        <button class="btn ghost" data-action="home">回首页</button>
+      </div>
+      <div class="wrong-grid">
+        ${ids.length ? ids.map((id) => wrongTile(id)).join("") : '<p class="muted">暂时没有记录不认识的字。</p>'}
+      </div>
+    </section>
+  `);
+}
+
+function wrongTile(id) {
+  const item = itemById(id);
+  if (!item) return "";
+  return `
+    <button class="wrong-tile" data-action="wrongbook-review-one" data-id="${id}">
+      <strong>${html(item.char)}</strong>
+      <span>重测这个字</span>
+    </button>
+  `;
+}
+
+function startWrongReview(ids) {
+  const validIds = ids.map(Number).filter((id) => itemById(id));
+  if (!validIds.length) return renderWrongbook();
+  child().review = { order: validIds, currentOffset: 0, undoStack: [] };
+  save();
+  renderWrongReview();
+}
+
+function answerWrongReview(status) {
+  const review = child().review;
+  const id = review.order[review.currentOffset];
+  const previousWrongbook = child().wrongbook[id] ? { ...child().wrongbook[id] } : null;
+  updateWrongbook(id, status, "review");
+  review.undoStack.push({ id, offset: review.currentOffset, previousWrongbook });
+  review.undoStack = review.undoStack.slice(-2);
+  review.currentOffset += 1;
+  play(status === "known" ? "good" : "bad");
+  save();
+  if (review.currentOffset >= review.order.length) renderWrongbook();
+  else renderWrongReview();
+}
+
+function undoWrongReview() {
+  const review = child().review;
+  const last = review?.undoStack?.pop();
+  if (!last) return;
+  if (last.previousWrongbook) child().wrongbook[last.id] = last.previousWrongbook;
+  else delete child().wrongbook[last.id];
+  review.currentOffset = last.offset;
+  play("undo");
+  save();
+  renderWrongReview();
+}
+
+function renderWrongReview() {
+  screen = "wrong-review";
+  const review = child().review;
+  const id = review.order[review.currentOffset];
+  const item = itemById(id);
+  const pct = Math.round((review.currentOffset / review.order.length) * 100);
+  app.innerHTML = shell(`
+    <section class="test-layout">
+      <div class="test-card">
+        <div class="test-top">
+          <div>
+            <h2>不认识的字重测</h2>
+            <p class="muted">第 ${review.currentOffset + 1} 题 / ${review.order.length} 题</p>
+          </div>
+          <button class="btn ghost" data-action="wrongbook">退出</button>
+        </div>
+        <div class="progress"><span style="width:${pct}%"></span></div>
+        <div class="hanzi-stage"><div class="hanzi">${html(item.char)}</div></div>
+        <div class="judge-row">
+          <button class="btn good" data-action="wrong-known">认识</button>
+          <button class="btn bad" data-action="wrong-unknown">不认识</button>
+        </div>
+      </div>
+      <aside class="stack">
+        <section class="card">
+          <h3>重测说明</h3>
+          <p>点“认识”后，这个字会从列表移除；点“不认识”会继续保留。</p>
+          <div class="side-actions">
+            <button class="btn warn" data-action="wrong-undo" ${review.undoStack.length ? "" : "disabled"}>撤回最近一步</button>
+          </div>
+        </section>
+      </aside>
+    </section>
+  `);
+}
+
+function addChild() {
+  const nickname = prompt("给孩子起个昵称：", "");
+  if (!nickname || !nickname.trim()) return;
+  const next = createChild(nickname.trim().slice(0, 20));
+  state.children[next.id] = next;
+  state.activeChildId = next.id;
+  save();
+  renderHome();
+}
+
+function createFirstChild() {
+  const input = document.querySelector("#child-name-input");
+  const nickname = input?.value?.trim();
+  if (!nickname) {
+    input?.focus();
+    return;
+  }
+  const next = createChild(nickname.slice(0, 20));
+  state.children[next.id] = next;
+  state.activeChildId = next.id;
+  save();
+  renderHome();
+}
+
+function switchChild(id) {
+  if (!state.children[id]) return;
+  state.activeChildId = id;
+  save();
+  renderHome();
+}
+
+function resetChild() {
+  if (!confirm(`确定清空“${child().nickname}”的本机记录吗？其他孩子不会受影响。`)) return;
+  const current = child();
+  state.children[current.id] = { ...createChild(current.nickname), id: current.id };
+  save();
+  renderHome();
+}
+
+function play(type) {
+  if (!state.soundOn) return;
+  try {
+    audioContext = audioContext || new (window.AudioContext || window.webkitAudioContext)();
+    const now = audioContext.currentTime;
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    const settings = {
+      good: [660, 880, 0.12],
+      bad: [260, 220, 0.16],
+      finish: [523, 784, 0.22],
+      undo: [420, 360, 0.1],
+    }[type] || [440, 440, 0.1];
+    osc.type = type === "bad" ? "triangle" : "sine";
+    osc.frequency.setValueAtTime(settings[0], now);
+    osc.frequency.exponentialRampToValueAtTime(settings[1], now + settings[2]);
+    gain.gain.setValueAtTime(0.001, now);
+    gain.gain.exponentialRampToValueAtTime(0.12, now + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + settings[2]);
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+    osc.start(now);
+    osc.stop(now + settings[2] + 0.03);
+  } catch {
+    // Browsers may block audio until a user gesture; click-triggered playback will work later.
+  }
+}
+
+function rerenderCurrent() {
+  if (screen === "home") renderHome();
+  else if (screen === "onboarding") renderOnboarding();
+  else if (screen === "guide") renderGuide();
+  else if (screen === "report") renderReport();
+  else if (screen === "quick") renderQuick();
+  else if (screen.startsWith("group-")) renderGroupTest(Number(screen.replace("group-", "")));
+  else if (screen === "wrongbook") renderWrongbook();
+  else if (screen === "wrong-review") renderWrongReview();
+  else renderHome();
+}
+
+function toggleSound() {
+  state.soundOn = !state.soundOn;
+  save();
+  if (state.soundOn) play("good");
+  rerenderCurrent();
+}
+
+app.addEventListener("click", (event) => {
+  const target = event.target.closest("[data-action]");
+  if (!target) return;
+  const action = target.dataset.action;
+  if (action === "home") renderHome();
+  if (action === "guide") renderGuide();
+  if (action === "report") renderReport();
+  if (action === "download-report") downloadReport();
+  if (action === "toggle-sound") toggleSound();
+  if (action === "add-child") addChild();
+  if (action === "create-first-child") createFirstChild();
+  if (action === "reset-child") resetChild();
+  if (action === "group-start-next") startNextGroup();
+  if (action === "group-start") startGroup(Number(target.dataset.group));
+  if (action === "group-known") answerGroup("known");
+  if (action === "group-unknown") answerGroup("unknown");
+  if (action === "group-undo") undoGroup();
+  if (action === "group-next") startGroup(Math.min(Number(target.dataset.group) + 1, GROUP_COUNT - 1));
+  if (action === "quick-start") startQuick();
+  if (action === "quick-new") startQuick(true);
+  if (action === "quick-known") answerQuick(true);
+  if (action === "quick-unknown") answerQuick(false);
+  if (action === "quick-undo") undoQuick();
+  if (action === "wrongbook") renderWrongbook();
+  if (action === "wrongbook-review-all") startWrongReview(Object.keys(child().wrongbook || {}));
+  if (action === "wrongbook-review-one") startWrongReview([target.dataset.id]);
+  if (action === "wrong-known") answerWrongReview("known");
+  if (action === "wrong-unknown") answerWrongReview("unknown");
+  if (action === "wrong-undo") undoWrongReview();
+});
+
+app.addEventListener("change", (event) => {
+  const target = event.target.closest("[data-action]");
+  if (!target) return;
+  if (target.dataset.action === "switch-child") switchChild(target.value);
+});
+
+document.addEventListener("keydown", (event) => {
+  if (screen === "onboarding" && event.key === "Enter") {
+    createFirstChild();
+  }
+  if (screen === "quick") {
+    if (event.key === "1" || event.key === "ArrowLeft") answerQuick(true);
+    if (event.key === "2" || event.key === "ArrowRight") answerQuick(false);
+    if (event.key === "Backspace") undoQuick();
+  }
+  if (screen.startsWith("group-")) {
+    if (event.key === "1" || event.key === "ArrowLeft") answerGroup("known");
+    if (event.key === "2" || event.key === "ArrowRight") answerGroup("unknown");
+    if (event.key === "Backspace") undoGroup();
+  }
+  if (screen === "wrong-review") {
+    if (event.key === "1" || event.key === "ArrowLeft") answerWrongReview("known");
+    if (event.key === "2" || event.key === "ArrowRight") answerWrongReview("unknown");
+    if (event.key === "Backspace") undoWrongReview();
+  }
+});
+
+if (!BANK.length) {
+  app.innerHTML = "<p>字库没有加载成功，请检查 data/hanzi.js。</p>";
+} else {
+  const groupMatch = location.hash.match(/^#group-(\d+)$/);
+  if (groupMatch) startGroup(Math.min(Number(groupMatch[1]), GROUP_COUNT - 1));
+  else renderHome();
+}
