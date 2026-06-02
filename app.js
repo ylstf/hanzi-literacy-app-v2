@@ -195,7 +195,7 @@ function shell(content) {
           </select>
         </label>
         <button class="sound-toggle" data-action="add-child">加孩子</button>
-        <button class="sound-toggle" data-action="toggle-sound">${state.soundOn ? "音效开" : "音效关"}</button>
+        <button class="sound-toggle sound-control" data-action="toggle-sound">${state.soundOn ? "音效开" : "音效关"}</button>
       </div>
     </header>
     ${content}
@@ -679,7 +679,7 @@ function renderQuickResult(result) {
         <button class="btn primary" data-action="home">回首页</button>
         <button class="btn review" data-action="wrongbook">查看不认识的字</button>
         <button class="btn ghost" data-action="report-quick">查看快速估算报告</button>
-        <button class="btn warn" data-action="quick-new">重新估算</button>
+        <button class="btn caution" data-action="quick-new">重新估算</button>
       </div>
     </section>
   `);

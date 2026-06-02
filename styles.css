@@ -38,6 +38,7 @@ button {
   border: 0;
   font: inherit;
   cursor: pointer;
+  touch-action: manipulation;
 }
 
 input,
@@ -420,12 +421,16 @@ select {
   background: var(--orange);
 }
 
+.caution {
+  background: #ffd9a8;
+}
+
 .soft {
   background: var(--pink);
 }
 
 .review {
-  background: var(--orange);
+  background: var(--pink);
 }
 
 .ghost {
@@ -1187,6 +1192,14 @@ select {
     width: 100%;
   }
 
+  .sound-control {
+    display: none;
+  }
+
+  .top-actions .sound-toggle:not(.sound-control) {
+    grid-column: 1 / -1;
+  }
+
   .mode-grid,
   .judge-row,
   .metric-grid {
@@ -1199,6 +1212,11 @@ select {
 
   .mode-actions {
     display: grid;
+  }
+
+  .home-mode-grid .mode-actions {
+    width: 100%;
+    min-width: 0;
   }
 
   .name-form {
