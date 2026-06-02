@@ -3,7 +3,7 @@ const STORAGE_KEY = "hanzi-literacy-v2";
 const GROUP_SIZE = 100;
 const GROUP_COUNT = Math.ceil(BANK.length / GROUP_SIZE);
 const QUICK_TARGET = 200;
-const SHARE_URL = window.location.protocol === "file:" ? window.location.href.split("#")[0] : `${window.location.origin}${window.location.pathname}`;
+const SHARE_URL = "https://www.beijingheshiedu.com/";
 
 const app = document.querySelector("#app");
 let state = load();
@@ -146,6 +146,7 @@ function footerHtml() {
     <footer class="site-footer">
       <p>问题和建议：微信 <strong>ylstf08</strong></p>
       <p>数据仅保存在本机浏览器 · 结果供家庭阅读和识字练习参考</p>
+      <p><a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">京ICP备2025151450号</a></p>
     </footer>
   `;
 }
@@ -486,18 +487,17 @@ function renderGroupTest(groupIndex) {
             <div class="stat"><span>剩余</span><strong>${progress.total - progress.answered}</strong></div>
           </div>
           <div class="side-actions">
-            <button class="btn warn" data-action="group-undo" ${group.undoStack.length ? "" : "disabled"}>撤回最近一步 <span class="desktop-only">Backspace</span></button>
+            <button class="btn warn" data-action="group-undo" ${group.undoStack.length ? "" : "disabled"}>撤回最近一步</button>
             <button class="btn ghost" data-action="home">暂停并回首页</button>
           </div>
         </section>
         <section class="card desktop-only-block">
           <h3>键盘操作</h3>
-          <p>电脑上可按 1 表示认识，按 2 表示不认识，按 Backspace 撤回。</p>
+          <p>电脑上可按 1 表示认识，按 2 表示不认识，按退格键撤回。</p>
         </section>
       </aside>
     </section>
   `);
-  scrollToTop();
 }
 
 function renderGroupResult(groupIndex) {
@@ -649,7 +649,7 @@ function renderQuick() {
           <div class="progress-number">${quick.answers.length}/${QUICK_TARGET}</div>
           <p>完成 ${QUICK_TARGET} 题后再显示正式结果，孩子累了可以暂停，下次继续。</p>
           <div class="side-actions">
-            <button class="btn warn" data-action="quick-undo" ${quick.undoStack.length ? "" : "disabled"}>撤回最近一步 <span class="desktop-only">Backspace</span></button>
+            <button class="btn warn" data-action="quick-undo" ${quick.undoStack.length ? "" : "disabled"}>撤回最近一步</button>
             <button class="btn ghost" data-action="home">暂停并回首页</button>
           </div>
         </section>
@@ -660,7 +660,6 @@ function renderQuick() {
       </aside>
     </section>
   `);
-  scrollToTop();
 }
 
 function renderQuickResult(result) {
@@ -1051,7 +1050,7 @@ function renderWrongReview() {
           <h3>重测说明</h3>
           <p>点“认识”后，这个字会从列表移除；点“不认识”会继续保留。</p>
           <div class="side-actions">
-            <button class="btn warn" data-action="wrong-undo" ${review.undoStack.length ? "" : "disabled"}>撤回最近一步 <span class="desktop-only">Backspace</span></button>
+            <button class="btn warn" data-action="wrong-undo" ${review.undoStack.length ? "" : "disabled"}>撤回最近一步</button>
             <button class="btn ghost" data-action="wrongbook">退出重测</button>
             <button class="btn ghost" data-action="home">回首页</button>
           </div>
@@ -1070,8 +1069,8 @@ function addChild() {
         <p>输入孩子昵称，之后记录会按孩子分别保存。</p>
         <input id="new-child-name-input" type="text" maxlength="20" placeholder="例如：乐乐、小宇、一年级哥哥" autocomplete="off" />
         <div class="modal-actions">
-          <button class="btn ghost" type="button" data-action="close-modal">取消</button>
           <button class="btn primary" type="submit">确认添加</button>
+          <button class="btn ghost" type="button" data-action="close-modal">取消</button>
         </div>
       </form>
     </div>
