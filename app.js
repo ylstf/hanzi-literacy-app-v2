@@ -820,11 +820,14 @@ function renderReport(kind = null) {
       </div>
       <canvas id="report-canvas" class="report-canvas" width="900" height="1200"></canvas>
       <div id="report-image-panel" class="report-image-panel" hidden>
-        <p class="hero-copy">报告图片已生成。微信里请长按下方图片保存到相册；普通浏览器可点击下载。</p>
         <img id="report-image" class="report-image" alt="生成的测评报告图片" />
+        <div class="save-tip">
+          <strong>长按上方图片保存到相册</strong>
+          <span>如果长按没有保存入口，再试试浏览器下载。</span>
+        </div>
       </div>
       <div class="actions report-save-actions">
-        <a id="report-download-link" class="btn ghost" href="#" download hidden>普通浏览器下载</a>
+        <a id="report-download-link" class="btn ghost report-download-secondary" href="#" download hidden>浏览器下载试试</a>
         <button id="report-generate-button" class="btn report-action" data-action="download-report">生成报告图片</button>
         <button class="btn ghost" data-action="home">回首页</button>
       </div>
