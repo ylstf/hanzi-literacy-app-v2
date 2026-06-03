@@ -11,6 +11,7 @@
 - Footer text may be centered because it is low-priority support information and should stay short.
 - Page footers should not repeat the producer name if the top brand area already shows it. Keep feedback and data/local-storage notes there.
 - Report pages use this pattern: title centered, description left aligned in a centered narrow column, report card centered.
+- List and guide pages use a constrained left-aligned content column so headings, explanatory text, actions, and grids share a stable visual rhythm on wide screens.
 
 ## Button And Label Meaning
 
@@ -24,5 +25,7 @@
 - Pink is for unknown/not-recognized judgment and related caution states.
 - Pink is also used for reviewing unrecognized characters, because it matches the "not recognized" meaning.
 - Orange is reserved for undo, reset, or caution actions. Avoid placing multiple strong orange buttons together.
+- Soft peach/orange is used for final report-image actions such as downloading the report image; ordinary report navigation stays neutral white.
+- Disabled buttons should have muted text, muted border, pale background, and reduced shadow. Disabled undo buttons may keep a pale orange background so they transition gently into the active orange undo state.
 - Yellow is for the word-by-word challenge area, completed groups, and warm progress surfaces.
 - White buttons are secondary navigation or neutral choices.

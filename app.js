@@ -3,7 +3,22 @@ const STORAGE_KEY = "hanzi-literacy-v2";
 const GROUP_SIZE = 100;
 const GROUP_COUNT = Math.ceil(BANK.length / GROUP_SIZE);
 const QUICK_TARGET = 200;
+const UNDO_LIMIT = 10;
 const SHARE_URL = "https://www.beijingheshiedu.com/";
+const QUICK_MILESTONES = {
+  50: {
+    title: "太棒了，已经完成 50 题啦！",
+    body: "可以喝口水，也可以继续挑战。孩子状态舒服时，结果会更稳定。",
+  },
+  100: {
+    title: "真厉害，已经完成一半啦！",
+    body: "坚持到这里很不容易。想休息一下也没关系，进度会自动保存。",
+  },
+  150: {
+    title: "快到终点啦！",
+    body: "再完成 50 题就能生成测评结果。稳稳来，不着急。",
+  },
+};
 
 const app = document.querySelector("#app");
 let state = load();
@@ -30,6 +45,7 @@ function defaultState() {
     soundOn: true,
     activeChildId: null,
     children: {},
+    lastRoute: "home",
   };
 }
 
@@ -70,6 +86,11 @@ function load() {
 
 function save() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function setRoute(route) {
+  state.lastRoute = route;
+  save();
 }
 
 function scrollToTop() {
@@ -141,6 +162,35 @@ function updateWrongbook(id, status, source) {
   }
 }
 
+function updateSavedAnswers(id, status) {
+  const current = child();
+  const numericId = Number(id);
+  let touchedQuick = false;
+
+  Object.values(current.groups || {}).forEach((group) => {
+    if (group.answers && Object.prototype.hasOwnProperty.call(group.answers, numericId)) {
+      group.answers[numericId] = status;
+    }
+  });
+
+  if (current.quick?.answers?.length) {
+    current.quick.answers.forEach((answer) => {
+      if (answer.id === numericId) {
+        answer.known = status === "known";
+        touchedQuick = true;
+      }
+    });
+  }
+
+  if (touchedQuick && current.quick?.finished && current.quickHistory?.length) {
+    current.quickHistory[0] = {
+      ...current.quickHistory[0],
+      ...estimateQuick(),
+      refreshedAt: Date.now(),
+    };
+  }
+}
+
 function footerHtml() {
   return `
     <footer class="site-footer">
@@ -158,6 +208,9 @@ function currentSummary() {
   const groupAnswered = groupStats.reduce((sum, g) => sum + g.answered, 0);
   const groupKnown = groupStats.reduce((sum, g) => sum + g.known, 0);
   const latestQuick = current.quickHistory?.[0] || null;
+  const quickKnown = latestQuick?.known ?? 0;
+  const quickTotal = latestQuick?.total ?? 0;
+  const quickUnknown = Math.max(0, quickTotal - quickKnown);
   const wrongCount = Object.keys(current.wrongbook || {}).length;
   const estimated = latestQuick?.estimated ?? groupKnown;
   const range = latestQuick ? `${latestQuick.low}-${latestQuick.high}` : "完成快速估算后显示";
@@ -168,6 +221,8 @@ function currentSummary() {
     estimated,
     range,
     latestQuick,
+    quickKnown,
+    quickUnknown,
     wrongCount,
     completedGroups,
     groupAnswered,
@@ -199,18 +254,31 @@ function shell(content) {
       </div>
     </header>
     ${content}
+    ${footerHtml()}
   `;
 }
 
-function pageNav(title, rightLabel = "暂停", rightAction = "home") {
+function pageNav(title, rightLabel = "回首页", rightAction = "home") {
   const right = rightLabel ? `<button class="btn ghost" data-action="${rightAction}">${html(rightLabel)}</button>` : '<span class="nav-spacer"></span>';
   return `
     <nav class="page-nav" aria-label="页面导航">
-      <button class="btn ghost" data-action="home">首页</button>
+      <button class="btn ghost" data-action="back">返回</button>
       <strong>${html(title)}</strong>
       ${right}
     </nav>
   `;
+}
+
+function goBack() {
+  if (screen === "wrong-review") return renderWrongbook();
+  return renderHome();
+}
+
+function nextGroupActionLabel(groupIndex) {
+  const progress = groupProgress(groupIndex);
+  if (progress.answered === 0) return `从第 ${groupIndex + 1} 组开始`;
+  if (!progress.done) return `继续第 ${groupIndex + 1} 组`;
+  return `查看第 ${groupIndex + 1} 组`;
 }
 
 function renderHome() {
@@ -219,6 +287,7 @@ function renderHome() {
     return;
   }
   screen = "home";
+  setRoute("home");
   const current = child();
   const totalAnswered = Object.keys(current.groups).reduce((sum, key) => {
     return sum + Object.keys(current.groups[key].answers || {}).length;
@@ -231,6 +300,7 @@ function renderHome() {
   const latestQuick = current.quickHistory?.[0] || null;
   const wrongCount = Object.keys(current.wrongbook || {}).length;
   const nextGroup = Array.from({ length: GROUP_COUNT }, (_, i) => i).find((i) => !groupProgress(i).done) ?? GROUP_COUNT - 1;
+  const nextGroupLabel = nextGroupActionLabel(nextGroup);
   const reportLabel = latestQuick && totalAnswered ? "查看测评报告" : latestQuick ? "生成快速估算报告" : totalAnswered ? "查看当前记录" : "完成测评后生成报告";
 
   app.innerHTML = shell(`
@@ -249,7 +319,7 @@ function renderHome() {
           <div class="mode">
             <div class="badge">测</div>
             <h2>快速估算</h2>
-            <p>${quickProgress ? `已完成 ${quickProgress}/200 题，继续后会接着上次进度。` : "适合第一次摸底，完成后可生成快速估算报告。"}</p>
+            <p>${quickProgress ? `已完成 ${quickProgress}/200 题，继续后会接着上次进度。` : "适合第一次摸底，预计约 10-15 分钟；孩子累了可以暂停，下次继续。"}</p>
             <div class="mode-actions">
               <button class="btn primary" data-action="quick-start">${quickProgress ? "继续快速估算" : "开始快速估算"}</button>
               <button class="btn ghost" data-action="report-quick" ${latestQuick ? "" : "disabled"}>${latestQuick ? "生成快速估算报告" : "完成后生成报告"}</button>
@@ -260,7 +330,7 @@ function renderHome() {
             <h2>逐字闯关</h2>
             <p>每组 100 字，按实际结果逐字保存。可以按顺序测，也可以选择任意小组。</p>
             <div class="mode-actions">
-              <button class="btn soft" data-action="group-start-next">继续第 ${nextGroup + 1} 组</button>
+              <button class="btn soft" data-action="group-start-next">${nextGroupLabel}</button>
               <button class="btn ghost" data-action="group-list">选择小组</button>
               <button class="btn ghost" data-action="report-group" ${totalAnswered ? "" : "disabled"}>${totalAnswered ? "生成逐字闯关报告" : "测过后生成报告"}</button>
             </div>
@@ -293,7 +363,6 @@ function renderHome() {
         <button class="btn ghost" data-action="reset-child">清空当前孩子记录</button>
       </details>
     </section>
-    ${footerHtml()}
   `);
   scrollToTop();
 }
@@ -313,6 +382,7 @@ function renderOnboarding() {
       <p class="muted">数据只保存在这台设备的浏览器里，不会上传服务器。</p>
       <p class="feedback">问题和建议：微信 <strong>ylstf08</strong></p>
     </section>
+    ${footerHtml()}
   `;
   setTimeout(() => document.querySelector("#child-name-input")?.focus(), 0);
   scrollToTop();
@@ -320,16 +390,17 @@ function renderOnboarding() {
 
 function renderGuide() {
   screen = "guide";
+  setRoute("guide");
   app.innerHTML = shell(`
-    <section class="result-card guide-card">
-      ${pageNav("规则与来源", null)}
+    <section class="result-card guide-card guide-page">
+      ${pageNav("规则与来源")}
       <h2>测评规则与字库来源</h2>
       <div class="guide-list">
         <p><strong>1. 孩子读字：</strong>屏幕每次只显示一个汉字，让孩子直接读出来。</p>
         <p><strong>2. 家长判断：</strong>孩子能基本读出常见读音，就点“认识”；卡住、猜测、需要提示，都点“不认识”。</p>
-        <p><strong>3. 快速估算：</strong>一次 200 题，通常约 10-20 分钟，可暂停后继续。完成后会给出大致识字量范围。</p>
+        <p><strong>3. 快速估算：</strong>一次 200 题，通常约 10-15 分钟，可暂停后继续。完成后会给出大致识字量范围。</p>
         <p><strong>4. 逐字闯关：</strong>每组 100 字，可分多天完成；可以按顺序测，也可以选择任意小组。</p>
-        <p><strong>5. 按错可撤回：</strong>快速估算和分组闯关都可以撤回最近 2 步。</p>
+        <p><strong>5. 按错可撤回：</strong>快速估算、分组闯关和“不认识的字”重测都可以撤回最近 10 步，电脑上也可按 3 撤回。</p>
         <p><strong>6. 不认识的字：</strong>点过“不认识”的字会自动进入列表，之后可以单独重测或全部重测。</p>
         <p><strong>7. 数据保存：</strong>记录只保存在本机浏览器。换设备或清理浏览器缓存，可能会丢失记录。</p>
       </div>
@@ -343,9 +414,6 @@ function renderGuide() {
         <p>当前字库共 2500 个常用汉字，底稿参考《现代汉语常用字表》常用字部分整理。</p>
         <p>本工具适合作为家庭阅读和识字练习参考，不是官方测评。后续可继续校对为更贴近小学阶段的专用字表。</p>
       </details>
-      <div class="actions">
-        <button class="btn primary" data-action="home">回首页</button>
-      </div>
     </section>
   `);
   scrollToTop();
@@ -353,16 +421,14 @@ function renderGuide() {
 
 function renderGroupList() {
   screen = "group-list";
+  setRoute("group-list");
   app.innerHTML = shell(`
-    <section class="result-card group-list-page">
-      ${pageNav("选择小组", null)}
+    <section class="result-card group-list-page list-page">
+      ${pageNav("选择小组")}
       <h2>选择识字小组</h2>
       <p class="hero-copy">每组 100 字。可以按顺序测，也可以根据孩子情况选择任意小组。</p>
       <div class="group-grid">
         ${Array.from({ length: GROUP_COUNT }, (_, i) => groupTile(i)).join("")}
-      </div>
-      <div class="actions bottom-actions">
-        <button class="btn ghost" data-action="home">回首页</button>
       </div>
     </section>
   `);
@@ -414,7 +480,7 @@ function answerGroup(status) {
   const previousWrongbook = child().wrongbook[item.id] ? { ...child().wrongbook[item.id] } : null;
   group.answers[item.id] = status;
   group.undoStack.push({ id: item.id, offset: group.currentOffset, previous, previousWrongbook });
-  group.undoStack = group.undoStack.slice(-2);
+  group.undoStack = group.undoStack.slice(-UNDO_LIMIT);
   group.currentOffset += 1;
   updateWrongbook(item.id, status, "group");
   play(status === "known" ? "good" : "bad");
@@ -422,7 +488,6 @@ function answerGroup(status) {
   if (group.currentOffset >= group.order.length) {
     group.completedAt = Date.now();
     save();
-    play("finish");
     renderGroupResult(groupIndex);
     celebrate(`第 ${groupIndex + 1} 组完成啦！`);
     return;
@@ -453,6 +518,7 @@ function undoGroup() {
 
 function renderGroupTest(groupIndex) {
   screen = `group-${groupIndex}`;
+  setRoute(`group-${groupIndex}`);
   const group = getGroup(groupIndex);
   const item = currentGroupItem(group);
   const progress = groupProgress(groupIndex);
@@ -461,7 +527,7 @@ function renderGroupTest(groupIndex) {
   app.innerHTML = shell(`
     <section class="test-layout">
       <div class="test-card">
-        ${pageNav(`第 ${groupIndex + 1} 组`)}
+        ${pageNav(`第 ${groupIndex + 1} 组`, "暂停并回首页")}
         <div class="test-top">
           <div>
             <h2>第 ${groupIndex + 1} 组</h2>
@@ -493,7 +559,7 @@ function renderGroupTest(groupIndex) {
         </section>
         <section class="card desktop-only-block">
           <h3>键盘操作</h3>
-          <p>电脑上可按 1 表示认识，按 2 表示不认识，按退格键撤回。</p>
+          <p>电脑上可按 1 表示认识，按 2 表示不认识，按 3 撤回。</p>
         </section>
       </aside>
     </section>
@@ -502,6 +568,7 @@ function renderGroupTest(groupIndex) {
 
 function renderGroupResult(groupIndex) {
   screen = "result";
+  setRoute(`group-result-${groupIndex}`);
   const progress = groupProgress(groupIndex);
   const pct = progress.total ? Math.round((progress.known / progress.total) * 100) : 0;
 
@@ -530,9 +597,11 @@ function renderGroupResult(groupIndex) {
 function startQuick(forceNew = false) {
   const current = child();
   if (forceNew || !current.quick || current.quick.finished) {
-    current.quick = { level: 2, answers: [], usedIds: [], undoStack: [], currentId: null, finished: false };
+    current.quick = { level: 2, answers: [], usedIds: [], undoStack: [], redoIds: [], milestones: [], currentId: null, finished: false };
   }
   if (!current.quick.undoStack) current.quick.undoStack = [];
+  if (!current.quick.redoIds) current.quick.redoIds = [];
+  if (!current.quick.milestones) current.quick.milestones = [];
   if (!current.quick.currentId) current.quick.currentId = pickQuick();
   save();
   renderQuick();
@@ -551,6 +620,7 @@ function answerQuick(known) {
   const current = child();
   const quick = current.quick;
   const item = itemById(quick.currentId);
+  if (quick.redoIds?.[0] === item.id) quick.redoIds.shift();
   const answer = {
     id: item.id,
     level: item.level,
@@ -561,14 +631,17 @@ function answerQuick(known) {
   quick.answers.push(answer);
   quick.usedIds.push(item.id);
   quick.undoStack.push(answer);
-  quick.undoStack = quick.undoStack.slice(-2);
+  quick.undoStack = quick.undoStack.slice(-UNDO_LIMIT);
   quick.level = Math.max(1, Math.min(10, quick.level + (known ? 1 : -1)));
-  quick.currentId = quick.answers.length >= QUICK_TARGET ? null : pickQuick();
+  quick.currentId = quick.answers.length >= QUICK_TARGET ? null : quick.redoIds[0] || pickQuick();
   updateWrongbook(item.id, known ? "known" : "unknown", "quick");
   play(known ? "good" : "bad");
   save();
   if (quick.answers.length >= QUICK_TARGET) finishQuick();
-  else renderQuick();
+  else {
+    renderQuick();
+    maybeShowQuickMilestone(quick.answers.length);
+  }
 }
 
 function undoQuick() {
@@ -578,6 +651,7 @@ function undoQuick() {
   quick.answers = quick.answers.filter((answer) => answer !== last);
   quick.usedIds = quick.usedIds.filter((id) => id !== last.id);
   quick.level = last.previousLevel;
+  quick.redoIds = [last.id, ...(quick.redoIds || []).filter((id) => id !== last.id)].slice(0, UNDO_LIMIT);
   quick.currentId = last.id;
   if (last.previousWrongbook) child().wrongbook[last.id] = last.previousWrongbook;
   else delete child().wrongbook[last.id];
@@ -619,8 +693,31 @@ function finishQuick() {
   celebrate("完成快速估算啦！");
 }
 
+function maybeShowQuickMilestone(count) {
+  const quick = child().quick;
+  const milestone = QUICK_MILESTONES[count];
+  if (!milestone || quick.milestones?.includes(count)) return;
+  quick.milestones = [...(quick.milestones || []), count];
+  save();
+  play("milestone");
+  document.querySelector(".modal-layer")?.remove();
+  app.insertAdjacentHTML("beforeend", `
+    <div class="modal-layer stage-layer" role="dialog" aria-modal="true" aria-labelledby="stage-title">
+      <section class="modal-card stage-card">
+        <h2 id="stage-title">${html(milestone.title)}</h2>
+        <p>${html(milestone.body)}</p>
+        <div class="modal-actions">
+          <button class="btn primary" type="button" data-action="stage-continue">继续测评</button>
+          <button class="btn ghost" type="button" data-action="stage-rest">休息一下</button>
+        </div>
+      </section>
+    </div>
+  `);
+}
+
 function renderQuick() {
   screen = "quick";
+  setRoute("quick");
   const quick = child().quick;
   const item = itemById(quick.currentId);
   const pct = Math.round((quick.answers.length / QUICK_TARGET) * 100);
@@ -629,7 +726,7 @@ function renderQuick() {
   app.innerHTML = shell(`
     <section class="test-layout">
       <div class="test-card">
-        ${pageNav("快速估算")}
+        ${pageNav("快速估算", "暂停并回首页")}
         <div class="test-top">
           <div>
             <h2>快速估算</h2>
@@ -655,7 +752,7 @@ function renderQuick() {
         </section>
         <section class="card">
           <h3>怎么判断</h3>
-          <p>孩子能基本读出常见读音，就点“认识”；卡住、猜测或需要提示，就点“不认识”。</p>
+          <p>孩子能基本读出常见读音，就点“认识”；卡住、猜测或需要提示，就点“不认识”。电脑上可按 1、2、3 操作。</p>
         </section>
       </aside>
     </section>
@@ -664,6 +761,7 @@ function renderQuick() {
 
 function renderQuickResult(result) {
   screen = "result";
+  setRoute("quick-result");
   app.innerHTML = shell(`
     <section class="result-card">
       <span class="tag">★ 200 题快速估算完成</span>
@@ -696,10 +794,11 @@ function renderReport(kind = null) {
   if (!kind) kind = hasQuick ? "quick" : hasGroup ? "group" : "current";
 
   activeReportKind = kind;
+  setRoute(`report-${kind}`);
   const report = buildReportData(kind, summary);
   app.innerHTML = shell(`
     <section class="result-card report-page">
-      ${pageNav("测评报告", null)}
+      ${pageNav("测评报告")}
       ${reportTabsHtml(kind, hasQuick, hasGroup)}
       <h2>${html(report.heading)}</h2>
       <p class="hero-copy">${html(report.intro)}</p>
@@ -721,7 +820,7 @@ function renderReport(kind = null) {
       </div>
       <canvas id="report-canvas" class="report-canvas" width="900" height="1200"></canvas>
       <div class="actions">
-        <button class="btn primary" data-action="download-report">下载报告图片</button>
+        <button class="btn report-action" data-action="download-report">下载报告图片</button>
         <button class="btn ghost" data-action="home">回首页</button>
       </div>
     </section>
@@ -752,10 +851,13 @@ function buildReportData(kind, summary) {
       metrics: [
         ["参考范围", `${summary.latestQuick.low}-${summary.latestQuick.high} 字`],
         ["完成题数", `${summary.latestQuick.total}/${QUICK_TARGET}`],
-        ["判断认识", `${summary.latestQuick.known} 个`],
-        ["不认识的字", `${summary.wrongCount} 个`],
+        ["200题中认识", `${summary.quickKnown} 个`],
+        ["200题中不认识", `${summary.quickUnknown} 个`],
+        ["当前不认识的字", `${summary.wrongCount} 个`],
       ],
-      advice: "建议结合亲子阅读继续观察，隔一段时间后再复测一次。",
+      advice: summary.latestQuick.refreshedAt
+        ? "这份报告已根据后续重测刷新。建议把“不认识的字”当作后续亲子阅读练习清单。"
+        : "建议结合亲子阅读继续观察，也可以先重测“不认识的字”，再刷新报告。",
     };
   }
 
@@ -862,9 +964,9 @@ async function drawReportCanvas(kind = activeReportKind) {
   ctx.font = "700 28px PingFang SC, Microsoft YaHei, sans-serif";
   report.metrics.forEach(([label, value], index) => {
     const x = 100 + (index % 2) * 350;
-    const y = 570 + Math.floor(index / 2) * 120;
+    const y = 560 + Math.floor(index / 2) * 96;
     ctx.fillStyle = "#fff8e5";
-    roundRect(ctx, x, y - 44, 300, 86, 18);
+    roundRect(ctx, x, y - 38, 300, 76, 18);
     ctx.fill();
     ctx.strokeStyle = "#25313a";
     ctx.lineWidth = 4;
@@ -879,7 +981,7 @@ async function drawReportCanvas(kind = activeReportKind) {
 
   ctx.fillStyle = "#66717a";
   ctx.font = "500 23px PingFang SC, Microsoft YaHei, sans-serif";
-  drawWrappedText(ctx, report.advice, 100, 825, 700, 36);
+  drawWrappedText(ctx, report.advice, 100, 835, 700, 36);
 
   try {
     const qr = await loadImage(qrImageUrl(SHARE_URL));
@@ -934,6 +1036,7 @@ function downloadReport() {
 }
 
 function celebrate(message = "完成啦！") {
+  play("finish");
   document.querySelector(".confetti-layer")?.remove();
   const layer = document.createElement("div");
   const colors = ["#73c7f3", "#9edb8f", "#ffd84d", "#ff8d7a", "#ffc8dc"];
@@ -955,22 +1058,20 @@ function celebrate(message = "完成啦！") {
 
 function renderWrongbook() {
   screen = "wrongbook";
+  setRoute("wrongbook");
   const ids = Object.keys(child().wrongbook || {}).map(Number).sort((a, b) => a - b);
   app.innerHTML = shell(`
-    <section class="result-card">
+    <section class="result-card list-page wrongbook-page">
+      ${pageNav("不认识的字", "暂停并回首页")}
       <p class="eyebrow">${html(child().nickname)} 的识字记录</p>
       <h2>不认识的字</h2>
       <div class="big-number">${ids.length}</div>
-      <p class="hero-copy">这里汇总快速估算和分组闯关中点过“不认识”的字。重测时如果点“认识”，会自动从列表移除。</p>
+      <p class="hero-copy">这里汇总快速估算和分组闯关中点过“不认识”的字。它更像后续练习清单，重测时如果点“认识”，会自动从列表移除并刷新记录。</p>
       <div class="actions">
         <button class="btn primary" data-action="wrongbook-review-all" ${ids.length ? "" : "disabled"}>重测这些字</button>
-        <button class="btn ghost" data-action="home">回首页</button>
       </div>
       <div class="wrong-grid">
         ${ids.length ? ids.map((id) => wrongTile(id)).join("") : '<p class="muted">暂时没有记录不认识的字。</p>'}
-      </div>
-      <div class="actions bottom-actions">
-        <button class="btn ghost" data-action="home">回首页</button>
       </div>
     </section>
   `);
@@ -1000,9 +1101,16 @@ function answerWrongReview(status) {
   const review = child().review;
   const id = review.order[review.currentOffset];
   const previousWrongbook = child().wrongbook[id] ? { ...child().wrongbook[id] } : null;
+  const previousGroupAnswers = Object.entries(child().groups || {})
+    .filter(([, group]) => group.answers && Object.prototype.hasOwnProperty.call(group.answers, Number(id)))
+    .map(([groupKey, group]) => [groupKey, group.answers[Number(id)]]);
+  const previousQuickAnswers = (child().quick?.answers || [])
+    .filter((answer) => answer.id === Number(id))
+    .map((answer) => answer.known);
   updateWrongbook(id, status, "review");
-  review.undoStack.push({ id, offset: review.currentOffset, previousWrongbook });
-  review.undoStack = review.undoStack.slice(-2);
+  updateSavedAnswers(id, status);
+  review.undoStack.push({ id, offset: review.currentOffset, previousWrongbook, previousGroupAnswers, previousQuickAnswers });
+  review.undoStack = review.undoStack.slice(-UNDO_LIMIT);
   review.currentOffset += 1;
   play(status === "known" ? "good" : "bad");
   save();
@@ -1016,6 +1124,26 @@ function undoWrongReview() {
   if (!last) return;
   if (last.previousWrongbook) child().wrongbook[last.id] = last.previousWrongbook;
   else delete child().wrongbook[last.id];
+  (last.previousGroupAnswers || []).forEach(([groupIndex, status]) => {
+    const group = child().groups[groupIndex];
+    if (group?.answers) group.answers[last.id] = status;
+  });
+  if (last.previousQuickAnswers?.length && child().quick?.answers?.length) {
+    let index = 0;
+    child().quick.answers.forEach((answer) => {
+      if (answer.id === Number(last.id) && index < last.previousQuickAnswers.length) {
+        answer.known = last.previousQuickAnswers[index];
+        index += 1;
+      }
+    });
+    if (child().quick.finished && child().quickHistory?.length) {
+      child().quickHistory[0] = {
+        ...child().quickHistory[0],
+        ...estimateQuick(),
+        refreshedAt: Date.now(),
+      };
+    }
+  }
   review.currentOffset = last.offset;
   play("undo");
   save();
@@ -1024,6 +1152,7 @@ function undoWrongReview() {
 
 function renderWrongReview() {
   screen = "wrong-review";
+  setRoute("wrong-review");
   const review = child().review;
   const id = review.order[review.currentOffset];
   const item = itemById(id);
@@ -1031,7 +1160,7 @@ function renderWrongReview() {
   app.innerHTML = shell(`
     <section class="test-layout">
       <div class="test-card">
-        ${pageNav("不认识的字重测", "退出", "wrongbook")}
+        ${pageNav("不认识的字重测", "暂停并回首页")}
         <div class="test-top">
           <div>
             <h2>不认识的字重测</h2>
@@ -1048,11 +1177,10 @@ function renderWrongReview() {
       <aside class="stack">
         <section class="card">
           <h3>重测说明</h3>
-          <p>点“认识”后，这个字会从列表移除；点“不认识”会继续保留。</p>
+          <p>点“认识”后，这个字会从列表移除，并同步刷新已经保存的测评记录；点“不认识”会继续保留。</p>
           <div class="side-actions">
             <button class="btn warn" data-action="wrong-undo" ${review.undoStack.length ? "" : "disabled"}>撤回最近一步</button>
-            <button class="btn ghost" data-action="wrongbook">退出重测</button>
-            <button class="btn ghost" data-action="home">回首页</button>
+            <button class="btn ghost" data-action="home">暂停并回首页</button>
           </div>
         </section>
       </aside>
@@ -1136,7 +1264,8 @@ function play(type) {
     const settings = {
       good: [660, 880, 0.12],
       bad: [260, 220, 0.16],
-      finish: [523, 784, 0.22],
+      finish: [523, 1046, 0.32],
+      milestone: [784, 1175, 0.18],
       undo: [420, 360, 0.1],
     }[type] || [440, 440, 0.1];
     osc.type = type === "bad" ? "triangle" : "sine";
@@ -1167,6 +1296,41 @@ function rerenderCurrent() {
   else renderHome();
 }
 
+function restoreLastRoute() {
+  if (!state.activeChildId || !state.children[state.activeChildId]) return renderOnboarding();
+  const route = state.lastRoute || "home";
+
+  if (route === "guide") return renderGuide();
+  if (route === "group-list") return renderGroupList();
+  if (route === "quick") {
+    const quick = child().quick;
+    if (quick?.finished && child().quickHistory?.[0]) return renderQuickResult(child().quickHistory[0]);
+    if (quick?.currentId) return renderQuick();
+    return renderHome();
+  }
+  if (route === "quick-result") {
+    const latestQuick = child().quickHistory?.[0];
+    return latestQuick ? renderQuickResult(latestQuick) : renderHome();
+  }
+  if (route === "wrongbook") return renderWrongbook();
+  if (route === "wrong-review") {
+    const review = child().review;
+    if (review?.order?.length && review.currentOffset < review.order.length) return renderWrongReview();
+    return renderWrongbook();
+  }
+
+  const groupMatch = route.match(/^group-(\d+)$/);
+  if (groupMatch) return startGroup(Math.min(Number(groupMatch[1]), GROUP_COUNT - 1));
+
+  const groupResultMatch = route.match(/^group-result-(\d+)$/);
+  if (groupResultMatch) return renderGroupResult(Math.min(Number(groupResultMatch[1]), GROUP_COUNT - 1));
+
+  const reportMatch = route.match(/^report-(quick|group|current)$/);
+  if (reportMatch) return renderReport(reportMatch[1]);
+
+  return renderHome();
+}
+
 function toggleSound() {
   state.soundOn = !state.soundOn;
   save();
@@ -1178,6 +1342,7 @@ app.addEventListener("click", (event) => {
   const target = event.target.closest("[data-action]");
   if (!target) return;
   const action = target.dataset.action;
+  if (action === "back") goBack();
   if (action === "home") renderHome();
   if (action === "guide") renderGuide();
   if (action === "group-list") renderGroupList();
@@ -1185,6 +1350,11 @@ app.addEventListener("click", (event) => {
   if (action === "report-quick") renderReport("quick");
   if (action === "report-group") renderReport("group");
   if (action === "download-report") downloadReport();
+  if (action === "stage-continue") closeModal();
+  if (action === "stage-rest") {
+    closeModal();
+    renderHome();
+  }
   if (action === "toggle-sound") toggleSound();
   if (action === "add-child") addChild();
   if (action === "close-modal") closeModal();
@@ -1224,23 +1394,25 @@ app.addEventListener("change", (event) => {
 });
 
 document.addEventListener("keydown", (event) => {
+  const typing = ["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName);
   if (screen === "onboarding" && event.key === "Enter") {
     createFirstChild();
   }
+  if (document.querySelector(".modal-layer") || typing) return;
   if (screen === "quick") {
     if (event.key === "1" || event.key === "ArrowLeft") answerQuick(true);
     if (event.key === "2" || event.key === "ArrowRight") answerQuick(false);
-    if (event.key === "Backspace") undoQuick();
+    if (event.key === "3" || event.key === "Backspace") undoQuick();
   }
   if (screen.startsWith("group-")) {
     if (event.key === "1" || event.key === "ArrowLeft") answerGroup("known");
     if (event.key === "2" || event.key === "ArrowRight") answerGroup("unknown");
-    if (event.key === "Backspace") undoGroup();
+    if (event.key === "3" || event.key === "Backspace") undoGroup();
   }
   if (screen === "wrong-review") {
     if (event.key === "1" || event.key === "ArrowLeft") answerWrongReview("known");
     if (event.key === "2" || event.key === "ArrowRight") answerWrongReview("unknown");
-    if (event.key === "Backspace") undoWrongReview();
+    if (event.key === "3" || event.key === "Backspace") undoWrongReview();
   }
 });
 
@@ -1249,5 +1421,5 @@ if (!BANK.length) {
 } else {
   const groupMatch = location.hash.match(/^#group-(\d+)$/);
   if (groupMatch) startGroup(Math.min(Number(groupMatch[1]), GROUP_COUNT - 1));
-  else renderHome();
+  else restoreLastRoute();
 }
