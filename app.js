@@ -819,8 +819,15 @@ function renderReport(kind = null) {
         </div>
       </div>
       <canvas id="report-canvas" class="report-canvas" width="900" height="1200"></canvas>
+      <div id="report-image-panel" class="report-image-panel" hidden>
+        <p class="hero-copy">报告图片已生成。微信里请长按下方图片保存到相册；如果下载无反应，可用浏览器打开后再保存。</p>
+        <img id="report-image" class="report-image" alt="生成的测评报告图片" />
+        <div class="actions">
+          <a id="report-download-link" class="btn ghost" href="#" download>普通浏览器下载</a>
+        </div>
+      </div>
       <div class="actions">
-        <button class="btn report-action" data-action="download-report">下载报告图片</button>
+        <button id="report-generate-button" class="btn report-action" data-action="download-report">生成可保存图片</button>
         <button class="btn ghost" data-action="home">回首页</button>
       </div>
     </section>
@@ -1023,12 +1030,23 @@ function downloadReport() {
   drawReportCanvas(activeReportKind).then(() => {
     const canvas = document.querySelector("#report-canvas");
     if (!canvas) return;
-    const link = document.createElement("a");
+    const panel = document.querySelector("#report-image-panel");
+    const image = document.querySelector("#report-image");
+    const link = document.querySelector("#report-download-link");
+    const button = document.querySelector("#report-generate-button");
     const report = buildReportData(activeReportKind, currentSummary());
-    link.download = `${child().nickname}-${report.title}.png`;
     try {
-      link.href = canvas.toDataURL("image/png");
-      link.click();
+      const dataUrl = canvas.toDataURL("image/png");
+      if (image) image.src = dataUrl;
+      if (link) {
+        link.href = dataUrl;
+        link.download = `${child().nickname}-${report.title}.png`;
+      }
+      if (panel) {
+        panel.hidden = false;
+        panel.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+      if (button) button.textContent = "重新生成图片";
     } catch {
       alert("报告图片生成失败。可以先截图保存，或部署到线上后再试一次。");
     }

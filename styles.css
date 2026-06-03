@@ -1073,6 +1073,31 @@ select {
   background: #ffffff;
 }
 
+.report-image-panel {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  margin: 22px auto;
+}
+
+.report-image-panel[hidden] {
+  display: none;
+}
+
+.report-image-panel > .hero-copy {
+  max-width: 520px;
+  margin: 0;
+}
+
+.report-image {
+  width: min(100%, 450px);
+  height: auto;
+  border: 3px solid var(--line);
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: var(--shadow);
+}
+
 .confetti-layer {
   pointer-events: none;
   position: fixed;
