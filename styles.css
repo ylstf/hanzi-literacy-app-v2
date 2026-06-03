@@ -1098,6 +1098,10 @@ select {
   box-shadow: var(--shadow);
 }
 
+.report-save-actions {
+  justify-content: center;
+}
+
 .confetti-layer {
   pointer-events: none;
   position: fixed;

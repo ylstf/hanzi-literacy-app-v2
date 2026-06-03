@@ -822,11 +822,9 @@ function renderReport(kind = null) {
       <div id="report-image-panel" class="report-image-panel" hidden>
         <p class="hero-copy">报告图片已生成。微信里请长按下方图片保存到相册；如果下载无反应，可用浏览器打开后再保存。</p>
         <img id="report-image" class="report-image" alt="生成的测评报告图片" />
-        <div class="actions">
-          <a id="report-download-link" class="btn ghost" href="#" download>普通浏览器下载</a>
-        </div>
       </div>
-      <div class="actions">
+      <div class="actions report-save-actions">
+        <a id="report-download-link" class="btn ghost" href="#" download hidden>普通浏览器下载</a>
         <button id="report-generate-button" class="btn report-action" data-action="download-report">生成可保存图片</button>
         <button class="btn ghost" data-action="home">回首页</button>
       </div>
@@ -1041,6 +1039,7 @@ function downloadReport() {
       if (link) {
         link.href = dataUrl;
         link.download = `${child().nickname}-${report.title}.png`;
+        link.hidden = false;
       }
       if (panel) {
         panel.hidden = false;
