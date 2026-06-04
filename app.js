@@ -1166,7 +1166,7 @@ function renderReport(kind = null) {
           <div class="report-metrics">
             ${report.metrics.map(([label, value]) => `<span><small>${html(label)}</small>${html(value)}</span>`).join("")}
           </div>
-          <p class="report-advice">${html(report.advice)}</p>
+          ${report.hideCardAdvice ? "" : `<p class="report-advice">${html(report.advice)}</p>`}
           <div class="report-qr-row">
             <img alt="网站二维码" src="${qrImageUrl(SHARE_URL)}" />
             <p>扫码体验<br />儿童识字量测评</p>
@@ -1231,6 +1231,7 @@ function buildReportData(kind, summary) {
       mainLabel: `粗略范围：${summary.latestGentle.range} 字`,
       stageName: summary.latestGentle.stageName,
       rangeValue: summary.latestGentle.range,
+      hideCardAdvice: true,
       metrics: [
         ["完成题数", `${summary.latestGentle.total}/${GENTLE_TARGET}`],
         ["判断认识", `${summary.gentleKnown} 个`],
@@ -1390,7 +1391,7 @@ async function drawReportCanvas(kind = activeReportKind) {
   ctx.font = "700 28px PingFang SC, Microsoft YaHei, sans-serif";
   report.metrics.forEach(([label, value], index) => {
     const x = 100 + (index % 2) * 350;
-    const y = (isGentleReport ? 640 : 560) + Math.floor(index / 2) * 96;
+    const y = 560 + Math.floor(index / 2) * 96;
     ctx.fillStyle = "#fff8e5";
     roundRect(ctx, x, y - 38, 300, 76, 18);
     ctx.fill();
@@ -1405,30 +1406,32 @@ async function drawReportCanvas(kind = activeReportKind) {
     ctx.fillText(String(value), x + 22, y + 26);
   });
 
-  ctx.fillStyle = "#66717a";
-  ctx.font = "500 23px PingFang SC, Microsoft YaHei, sans-serif";
-  drawWrappedText(ctx, report.advice, 100, isGentleReport ? 925 : 835, 700, 36);
+  if (!report.hideCardAdvice) {
+    ctx.fillStyle = "#66717a";
+    ctx.font = "500 23px PingFang SC, Microsoft YaHei, sans-serif";
+    drawWrappedText(ctx, report.advice, 100, 835, 700, 36);
+  }
 
   try {
     const qr = await loadImage(qrImageUrl(SHARE_URL));
-    ctx.drawImage(qr, 100, isGentleReport ? 995 : 910, 150, 150);
+    ctx.drawImage(qr, 100, 910, 180, 180);
   } catch {
     ctx.fillStyle = "#ffffff";
-    roundRect(ctx, 100, isGentleReport ? 995 : 910, 150, 150, 16);
+    roundRect(ctx, 100, 910, 180, 180, 16);
     ctx.fill();
     ctx.strokeStyle = "#25313a";
     ctx.stroke();
     ctx.fillStyle = "#263238";
     ctx.font = "700 22px PingFang SC, Microsoft YaHei, sans-serif";
-    ctx.fillText("扫码入口", 128, isGentleReport ? 1078 : 995);
+    ctx.fillText("扫码入口", 145, 995);
   }
   ctx.fillStyle = "#263238";
   ctx.font = "700 28px PingFang SC, Microsoft YaHei, sans-serif";
-  ctx.fillText("扫码体验识字测评", isGentleReport ? 280 : 310, isGentleReport ? 1038 : 960);
+  ctx.fillText("扫码体验识字测评", 310, 960);
   ctx.fillStyle = "#66717a";
   ctx.font = "500 22px PingFang SC, Microsoft YaHei, sans-serif";
-  drawWrappedText(ctx, SHARE_URL, isGentleReport ? 280 : 310, isGentleReport ? 1080 : 1005, isGentleReport ? 460 : 430, 32);
-  ctx.fillText(`生成日期：${summary.date}`, isGentleReport ? 280 : 310, isGentleReport ? 1135 : 1085);
+  drawWrappedText(ctx, SHARE_URL, 310, 1005, 430, 32);
+  ctx.fillText(`生成日期：${summary.date}`, 310, 1085);
 }
 
 function roundRect(ctx, x, y, width, height, radius) {
