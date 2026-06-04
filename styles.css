@@ -1050,9 +1050,9 @@ select {
 
 .report-stage-main strong {
   color: var(--green-dark);
-  font-size: clamp(1.18rem, 5.1vw, 1.62rem);
+  font-size: clamp(2rem, 9vw, 3rem);
   font-weight: 900;
-  line-height: 1.22;
+  line-height: 1.05;
   overflow-wrap: anywhere;
 }
 
@@ -1067,8 +1067,9 @@ select {
   padding: 8px 12px;
   background: #ffffff;
   color: var(--ink);
-  font-size: 1.05rem;
+  font-size: 0.98rem;
   font-weight: 900;
+  line-height: 1.35;
 }
 
 .report-metrics {

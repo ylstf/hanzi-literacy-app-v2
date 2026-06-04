@@ -934,7 +934,7 @@ function renderGentleResult(result) {
         <div class="metric"><span>完成题数</span><strong>${result.total}/${GENTLE_TARGET}</strong></div>
         <div class="metric"><span>判断认识</span><strong>${result.known}</strong></div>
         <div class="metric"><span>粗略范围</span><strong>${html(result.range)} 字</strong></div>
-        <div class="metric"><span>当前不认识的字</span><strong>${Object.keys(child().wrongbook || {}).length}</strong></div>
+        <div class="metric"><span>待复习字</span><strong>${Object.keys(child().wrongbook || {}).length}</strong></div>
       </div>
       <p class="hero-copy">${html(result.advice)}</p>
       <div class="actions">
@@ -1202,9 +1202,9 @@ function reportStageMainHtml(report) {
 
   return `
     <div class="report-stage-main">
-      <small>识字阶段</small>
-      <strong>${html(report.stageName)}</strong>
-      <span><b>粗略范围</b>${html(report.rangeValue)} 字</span>
+      <small>粗略范围</small>
+      <strong>${html(report.rangeValue)} 字</strong>
+      <span><b>识字阶段</b>${html(report.stageName)}</span>
     </div>
   `;
 }
@@ -1236,7 +1236,7 @@ function buildReportData(kind, summary) {
         ["完成题数", `${summary.latestGentle.total}/${GENTLE_TARGET}`],
         ["判断认识", `${summary.gentleKnown} 个`],
         ["本次不认识", `${summary.gentleUnknown} 个`],
-        ["当前不认识的字", `${summary.wrongCount} 个`],
+        ["待复习字", `${summary.wrongCount} 个`],
         ["当前日期", summary.date],
       ],
       advice: summary.latestGentle.refreshedAt
@@ -1256,9 +1256,9 @@ function buildReportData(kind, summary) {
       metrics: [
         ["参考范围", `${summary.latestQuick.low}-${summary.latestQuick.high} 字`],
         ["完成题数", `${summary.latestQuick.total}/${QUICK_TARGET}`],
-        ["200题中认识", `${summary.quickKnown} 个`],
-        ["200题中不认识", `${summary.quickUnknown} 个`],
-        ["当前不认识的字", `${summary.wrongCount} 个`],
+        ["本次认识", `${summary.quickKnown} 个`],
+        ["本次不认识", `${summary.quickUnknown} 个`],
+        ["待复习字", `${summary.wrongCount} 个`],
       ],
       advice: summary.latestQuick.refreshedAt
         ? "这份报告已根据后续重测刷新。建议把“不认识的字”当作后续亲子阅读练习清单。"
@@ -1277,7 +1277,7 @@ function buildReportData(kind, summary) {
       metrics: [
         ["逐字已测", `${summary.groupAnswered}/${BANK.length}`],
         ["已完成小组", `${summary.completedGroups}/${GROUP_COUNT}`],
-        ["不认识的字", `${summary.wrongCount} 个`],
+        ["待复习字", `${summary.wrongCount} 个`],
         ["当前日期", summary.date],
       ],
       advice: "建议继续下一组，或先重测不认识的字。",
@@ -1294,7 +1294,7 @@ function buildReportData(kind, summary) {
     metrics: [
       ["逐字已测", `${summary.groupAnswered}/${BANK.length}`],
       ["已完成小组", `${summary.completedGroups}/${GROUP_COUNT}`],
-      ["不认识的字", `${summary.wrongCount} 个`],
+      ["待复习字", `${summary.wrongCount} 个`],
       ["完整估算", "未完成"],
     ],
     advice: "可以先完成 50 题轻松摸底，或继续完成 200 题完整估算，再生成更完整的报告。",
@@ -1363,22 +1363,22 @@ async function drawReportCanvas(kind = activeReportKind) {
   if (isGentleReport) {
     ctx.fillStyle = "#66717a";
     ctx.font = "800 26px PingFang SC, Microsoft YaHei, sans-serif";
-    ctx.fillText("识字阶段", 100, 360);
+    ctx.fillText("粗略范围", 100, 360);
     ctx.fillStyle = "#378b4d";
-    ctx.font = "900 46px PingFang SC, Microsoft YaHei, sans-serif";
-    const stageEndY = drawWrappedText(ctx, String(report.stageName || report.mainNumber), 100, 420, 700, 56);
+    ctx.font = "900 82px PingFang SC, Microsoft YaHei, sans-serif";
+    ctx.fillText(`${report.rangeValue || report.mainLabel.replace("粗略范围：", "")} 字`, 100, 440);
     ctx.fillStyle = "#f0ffe9";
-    roundRect(ctx, 100, stageEndY + 22, 390, 66, 18);
+    roundRect(ctx, 100, 468, 570, 70, 18);
     ctx.fill();
     ctx.strokeStyle = "#25313a";
     ctx.lineWidth = 4;
     ctx.stroke();
     ctx.fillStyle = "#66717a";
     ctx.font = "700 22px PingFang SC, Microsoft YaHei, sans-serif";
-    ctx.fillText("粗略范围", 124, stageEndY + 55);
+    ctx.fillText("识字阶段", 124, 510);
     ctx.fillStyle = "#263238";
-    ctx.font = "900 30px PingFang SC, Microsoft YaHei, sans-serif";
-    ctx.fillText(`${report.rangeValue || report.mainLabel.replace("粗略范围：", "")} 字`, 250, stageEndY + 57);
+    ctx.font = "900 26px PingFang SC, Microsoft YaHei, sans-serif";
+    ctx.fillText(String(report.stageName || report.mainNumber), 250, 512);
   } else {
     ctx.fillStyle = isGroupReport ? "#d66a94" : "#2586c4";
     ctx.font = "900 150px PingFang SC, Microsoft YaHei, sans-serif";
