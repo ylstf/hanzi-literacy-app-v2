@@ -1033,26 +1033,27 @@ select {
 
 .report-stage-main {
   display: grid;
-  gap: 8px;
-  margin: 18px 0 12px;
-  padding: 14px;
-  border: 3px solid rgba(37, 49, 58, 0.18);
-  border-radius: 16px;
-  background: rgba(240, 255, 233, 0.72);
+  gap: 9px;
+  margin: 18px 0 14px;
+  padding: 14px 15px 14px 18px;
+  border: 2px solid rgba(37, 49, 58, 0.16);
+  border-left: 7px solid var(--green-dark);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.82);
 }
 
 .report-stage-main small,
 .report-stage-main span b {
   color: var(--muted);
-  font-size: 0.86rem;
+  font-size: 0.82rem;
   font-weight: 900;
 }
 
 .report-stage-main strong {
-  color: var(--green-dark);
-  font-size: clamp(1.55rem, 7vw, 2.15rem);
+  color: var(--ink);
+  font-size: clamp(1.25rem, 5.2vw, 1.55rem);
   font-weight: 900;
-  line-height: 1.2;
+  line-height: 1.28;
   overflow-wrap: anywhere;
 }
 
@@ -1063,11 +1064,11 @@ select {
   width: fit-content;
   max-width: 100%;
   border: 2px solid var(--line);
-  border-radius: 12px;
-  padding: 8px 12px;
-  background: #ffffff;
+  border-radius: 999px;
+  padding: 7px 11px;
+  background: rgba(240, 255, 233, 0.84);
   color: var(--ink);
-  font-size: 1.05rem;
+  font-size: 0.98rem;
   font-weight: 900;
 }
 

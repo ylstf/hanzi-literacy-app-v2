@@ -1204,7 +1204,7 @@ function reportStageMainHtml(report) {
     <div class="report-stage-main">
       <small>识字阶段</small>
       <strong>${html(report.stageName)}</strong>
-      <span><b>粗略范围</b>${html(report.rangeValue)} 字</span>
+      <span><b>参考范围</b>${html(report.rangeValue)} 字</span>
     </div>
   `;
 }
@@ -1228,7 +1228,7 @@ function buildReportData(kind, summary) {
       cardTitle: `${summary.nickname} 的轻松摸底报告`,
       intro: "这份报告来自 50 题轻松摸底，适合低龄或识字量较少的孩子，结果是粗略参考。",
       mainNumber: summary.latestGentle.stageName,
-      mainLabel: `粗略范围：${summary.latestGentle.range} 字`,
+      mainLabel: `参考范围：${summary.latestGentle.range} 字`,
       stageName: summary.latestGentle.stageName,
       rangeValue: summary.latestGentle.range,
       metrics: [
@@ -1360,24 +1360,34 @@ async function drawReportCanvas(kind = activeReportKind) {
   drawWrappedText(ctx, report.cardTitle, 100, 250, 700, 62);
 
   if (isGentleReport) {
-    ctx.fillStyle = "#66717a";
-    ctx.font = "800 26px PingFang SC, Microsoft YaHei, sans-serif";
-    ctx.fillText("识字阶段", 100, 360);
-    ctx.fillStyle = "#378b4d";
-    ctx.font = "900 58px PingFang SC, Microsoft YaHei, sans-serif";
-    const stageEndY = drawWrappedText(ctx, String(report.stageName || report.mainNumber), 100, 430, 700, 68);
-    ctx.fillStyle = "#f0ffe9";
-    roundRect(ctx, 100, stageEndY + 26, 390, 72, 20);
+    ctx.fillStyle = "rgba(255, 255, 255, 0.86)";
+    roundRect(ctx, 100, 330, 650, 184, 22);
     ctx.fill();
-    ctx.strokeStyle = "#25313a";
+    ctx.strokeStyle = "rgba(37, 49, 58, 0.28)";
     ctx.lineWidth = 4;
     ctx.stroke();
+    ctx.fillStyle = "#378b4d";
+    roundRect(ctx, 100, 330, 14, 184, 7);
+    ctx.fill();
+
     ctx.fillStyle = "#66717a";
-    ctx.font = "700 22px PingFang SC, Microsoft YaHei, sans-serif";
-    ctx.fillText("粗略范围", 124, stageEndY + 58);
+    ctx.font = "800 24px PingFang SC, Microsoft YaHei, sans-serif";
+    ctx.fillText("识字阶段", 136, 374);
     ctx.fillStyle = "#263238";
-    ctx.font = "900 30px PingFang SC, Microsoft YaHei, sans-serif";
-    ctx.fillText(`${report.rangeValue || report.mainLabel.replace("粗略范围：", "")} 字`, 250, stageEndY + 60);
+    ctx.font = "900 42px PingFang SC, Microsoft YaHei, sans-serif";
+    const stageEndY = drawWrappedText(ctx, String(report.stageName || report.mainNumber), 136, 434, 560, 50);
+    ctx.fillStyle = "#f0ffe9";
+    roundRect(ctx, 136, stageEndY + 18, 340, 58, 29);
+    ctx.fill();
+    ctx.strokeStyle = "#25313a";
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    ctx.fillStyle = "#66717a";
+    ctx.font = "800 20px PingFang SC, Microsoft YaHei, sans-serif";
+    ctx.fillText("参考范围", 160, stageEndY + 53);
+    ctx.fillStyle = "#263238";
+    ctx.font = "900 26px PingFang SC, Microsoft YaHei, sans-serif";
+    ctx.fillText(`${report.rangeValue || report.mainLabel.replace("粗略范围：", "").replace("参考范围：", "")} 字`, 272, stageEndY + 54);
   } else {
     ctx.fillStyle = isGroupReport ? "#d66a94" : "#2586c4";
     ctx.font = "900 150px PingFang SC, Microsoft YaHei, sans-serif";
