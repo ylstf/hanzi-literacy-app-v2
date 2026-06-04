@@ -337,12 +337,16 @@ select {
   transform: translateY(-3px);
 }
 
-.mode:nth-child(2) {
+.mode:nth-child(1) {
   background: #fff0c4;
 }
 
+.mode:nth-child(2) {
+  background: #eaf7ff;
+}
+
 .mode:nth-child(3) {
-  background: #f0ffe9;
+  background: #ffe1ec;
 }
 
 .badge {
@@ -358,12 +362,16 @@ select {
   transform: rotate(-7deg);
 }
 
+.mode:nth-child(1) .badge {
+  background: var(--yellow);
+}
+
 .mode:nth-child(2) .badge {
-  background: var(--pink);
+  background: var(--blue);
 }
 
 .mode:nth-child(3) .badge {
-  background: var(--green);
+  background: var(--pink);
 }
 
 .mode h2 {
@@ -754,7 +762,7 @@ select {
 }
 
 .gentle-stage-name {
-  color: var(--green-dark);
+  color: #c97a00;
 }
 
 .metric-grid {
@@ -1010,6 +1018,8 @@ select {
 
 .report-card-view.gentle-report .report-main-number {
   color: #c97a00;
+  font-size: clamp(3.2rem, 13vw, 4.2rem);
+  white-space: nowrap;
 }
 
 .report-card-view.group-report .report-main-number {
@@ -1042,6 +1052,10 @@ select {
   margin: 16px 0;
 }
 
+.report-metrics.gentle-metrics span:first-child {
+  grid-column: 1 / -1;
+}
+
 .report-metrics span {
   display: grid;
   gap: 2px;
@@ -1050,6 +1064,7 @@ select {
   padding: 8px 10px;
   background: #ffffff;
   font-weight: 800;
+  line-height: 1.35;
 }
 
 .report-metrics small {

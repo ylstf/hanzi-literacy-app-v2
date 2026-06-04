@@ -1163,7 +1163,7 @@ function renderReport(kind = null) {
           <p class="report-brand">儿童识字量测评工具｜书法郭爸团队出品</p>
           <h3>${html(report.cardTitle)}</h3>
           ${reportStageMainHtml(report)}
-          <div class="report-metrics">
+          <div class="report-metrics ${kind === "gentle" ? "gentle-metrics" : ""}">
             ${report.metrics.map(([label, value]) => `<span><small>${html(label)}</small>${html(value)}</span>`).join("")}
           </div>
           ${report.hideCardAdvice ? "" : `<p class="report-advice">${html(report.advice)}</p>`}
@@ -1227,7 +1227,6 @@ function buildReportData(kind, summary) {
         ["判断认识", `${summary.gentleKnown} 个`],
         ["本次不认识", `${summary.gentleUnknown} 个`],
         ["待复习字", `${summary.wrongCount} 个`],
-        ["当前日期", summary.date],
       ],
       advice: summary.latestGentle.refreshedAt
         ? "这份报告已根据后续重测刷新。可以先从字少、图多、重复句式多的读物开始，让阅读保持轻松。"
@@ -1352,7 +1351,7 @@ async function drawReportCanvas(kind = activeReportKind) {
 
   ctx.fillStyle = isGentleReport ? "#c97a00" : isGroupReport ? "#d66a94" : "#2586c4";
   ctx.font = isGentleReport
-    ? "900 128px PingFang SC, Microsoft YaHei, sans-serif"
+    ? "900 116px PingFang SC, Microsoft YaHei, sans-serif"
     : "900 150px PingFang SC, Microsoft YaHei, sans-serif";
   ctx.fillText(String(report.mainNumber), 100, 430);
   ctx.fillStyle = "#263238";
@@ -1361,10 +1360,13 @@ async function drawReportCanvas(kind = activeReportKind) {
 
   ctx.font = "700 28px PingFang SC, Microsoft YaHei, sans-serif";
   report.metrics.forEach(([label, value], index) => {
-    const x = 100 + (index % 2) * 350;
-    const y = 560 + Math.floor(index / 2) * 96;
+    const fullStage = isGentleReport && index === 0;
+    const metricIndex = isGentleReport ? index - 1 : index;
+    const x = fullStage ? 100 : 100 + (metricIndex % 2) * 350;
+    const y = fullStage ? 560 : (isGentleReport ? 656 : 560) + Math.floor(metricIndex / 2) * 96;
+    const width = fullStage ? 650 : 300;
     ctx.fillStyle = "#fff8e5";
-    roundRect(ctx, x, y - 38, 300, 76, 18);
+    roundRect(ctx, x, y - 38, width, 76, 18);
     ctx.fill();
     ctx.strokeStyle = "#25313a";
     ctx.lineWidth = 4;
@@ -1373,8 +1375,10 @@ async function drawReportCanvas(kind = activeReportKind) {
     ctx.font = "500 22px PingFang SC, Microsoft YaHei, sans-serif";
     ctx.fillText(label, x + 22, y - 10);
     ctx.fillStyle = "#263238";
-    ctx.font = "800 28px PingFang SC, Microsoft YaHei, sans-serif";
-    ctx.fillText(String(value), x + 22, y + 26);
+    ctx.font = fullStage
+      ? "800 26px PingFang SC, Microsoft YaHei, sans-serif"
+      : "800 28px PingFang SC, Microsoft YaHei, sans-serif";
+    drawWrappedText(ctx, String(value), x + 22, y + 26, width - 44, fullStage ? 32 : 34);
   });
 
   if (!report.hideCardAdvice) {
