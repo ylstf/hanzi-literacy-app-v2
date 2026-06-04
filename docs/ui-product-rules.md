@@ -21,11 +21,23 @@
 
 ## Color Semantics
 
-- Blue is for quick estimate and primary testing actions.
-- Pink is for unknown/not-recognized judgment and related caution states.
-- Pink is also used for reviewing unrecognized characters, because it matches the "not recognized" meaning.
-- Orange is reserved for undo, reset, or caution actions. Avoid placing multiple strong orange buttons together.
+- The home mode cards use very pale color blocks, close to white, so the page stays light and the cards do not merge into heavy areas.
+- Home mode card backgrounds are: gentle baseline `#fff7dd`, full estimate `#eaf7ff`, word-by-word challenge `#fff3f8`.
+- Home mode badges carry the mode identity more strongly than the card backgrounds: `摸` uses yellow, `估` uses blue, and `闯` uses pink.
+- Blue is for full estimate and primary testing actions.
+- Pink is for word-by-word challenge, unknown/not-recognized judgment, and reviewing unrecognized characters.
+- Orange is reserved for undo, reset, caution actions, and warm report accents. Avoid placing multiple strong orange buttons together.
 - Soft peach/orange is used for final report-image actions such as downloading the report image; ordinary report navigation stays neutral white.
+- Green should not be introduced as a main mode or report identity color. Keep it out of large content blocks unless a future feature explicitly defines a success-only use.
 - Disabled buttons should have muted text, muted border, pale background, and reduced shadow. Disabled undo buttons may keep a pale orange background so they transition gently into the active orange undo state.
-- Yellow is for the word-by-word challenge area, completed groups, and warm progress surfaces.
+- Yellow is for gentle baseline, completed groups, and warm progress surfaces.
 - White buttons are secondary navigation or neutral choices.
+
+## Report Rules
+
+- Report cards share the same visual structure: main result, result label, metric cards, advice, and QR area.
+- Report identity colors are: gentle baseline yellow-orange `#c97a00`, full estimate blue, and word-by-word challenge pink/rose.
+- Metric cards stay white with dark borders. Do not tint metric cards by report type.
+- Gentle baseline reports use the rough range as the main result, such as `400-700`, with the label `粗略识字范围`.
+- Gentle baseline reports keep `识字阶段` as a metric card. It may span the full width when the stage text needs more breathing room.
+- Report metric wording uses `本次认识`, `本次不认识`, and `待复习字`. User-facing feature and page names still use `不认识的字`.
