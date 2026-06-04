@@ -1162,8 +1162,7 @@ function renderReport(kind = null) {
         <div class="report-card-view ${kind === "group" ? "group-report" : ""} ${kind === "gentle" ? "gentle-report" : ""}">
           <p class="report-brand">儿童识字量测评工具｜书法郭爸团队出品</p>
           <h3>${html(report.cardTitle)}</h3>
-          <div class="report-main-number">${html(report.mainNumber)}</div>
-          <p>${html(report.mainLabel)}</p>
+          ${reportStageMainHtml(report)}
           <div class="report-metrics">
             ${report.metrics.map(([label, value]) => `<span><small>${html(label)}</small>${html(value)}</span>`).join("")}
           </div>
@@ -1193,6 +1192,23 @@ function renderReport(kind = null) {
   scrollToTop();
 }
 
+function reportStageMainHtml(report) {
+  if (!report.stageName) {
+    return `
+      <div class="report-main-number">${html(report.mainNumber)}</div>
+      <p>${html(report.mainLabel)}</p>
+    `;
+  }
+
+  return `
+    <div class="report-stage-main">
+      <small>识字阶段</small>
+      <strong>${html(report.stageName)}</strong>
+      <span><b>粗略范围</b>${html(report.rangeValue)} 字</span>
+    </div>
+  `;
+}
+
 function reportTabsHtml(active, hasGentle, hasQuick, hasGroup) {
   if (!hasGentle && !hasQuick && !hasGroup) return "";
   return `
@@ -1213,6 +1229,8 @@ function buildReportData(kind, summary) {
       intro: "这份报告来自 50 题轻松摸底，适合低龄或识字量较少的孩子，结果是粗略参考。",
       mainNumber: summary.latestGentle.stageName,
       mainLabel: `粗略范围：${summary.latestGentle.range} 字`,
+      stageName: summary.latestGentle.stageName,
+      rangeValue: summary.latestGentle.range,
       metrics: [
         ["完成题数", `${summary.latestGentle.total}/${GENTLE_TARGET}`],
         ["判断认识", `${summary.gentleKnown} 个`],
@@ -1341,20 +1359,38 @@ async function drawReportCanvas(kind = activeReportKind) {
   ctx.font = "800 52px PingFang SC, Microsoft YaHei, sans-serif";
   drawWrappedText(ctx, report.cardTitle, 100, 250, 700, 62);
 
-  ctx.fillStyle = isGentleReport ? "#378b4d" : isGroupReport ? "#d66a94" : "#2586c4";
-  ctx.font = isGentleReport
-    ? "900 72px PingFang SC, Microsoft YaHei, sans-serif"
-    : "900 150px PingFang SC, Microsoft YaHei, sans-serif";
-  if (isGentleReport) drawWrappedText(ctx, String(report.mainNumber), 100, 410, 700, 82);
-  else ctx.fillText(String(report.mainNumber), 100, 430);
-  ctx.fillStyle = "#263238";
-  ctx.font = "700 32px PingFang SC, Microsoft YaHei, sans-serif";
-  ctx.fillText(report.mainLabel, 100, 480);
+  if (isGentleReport) {
+    ctx.fillStyle = "#66717a";
+    ctx.font = "800 26px PingFang SC, Microsoft YaHei, sans-serif";
+    ctx.fillText("识字阶段", 100, 360);
+    ctx.fillStyle = "#378b4d";
+    ctx.font = "900 58px PingFang SC, Microsoft YaHei, sans-serif";
+    const stageEndY = drawWrappedText(ctx, String(report.stageName || report.mainNumber), 100, 430, 700, 68);
+    ctx.fillStyle = "#f0ffe9";
+    roundRect(ctx, 100, stageEndY + 26, 390, 72, 20);
+    ctx.fill();
+    ctx.strokeStyle = "#25313a";
+    ctx.lineWidth = 4;
+    ctx.stroke();
+    ctx.fillStyle = "#66717a";
+    ctx.font = "700 22px PingFang SC, Microsoft YaHei, sans-serif";
+    ctx.fillText("粗略范围", 124, stageEndY + 58);
+    ctx.fillStyle = "#263238";
+    ctx.font = "900 30px PingFang SC, Microsoft YaHei, sans-serif";
+    ctx.fillText(`${report.rangeValue || report.mainLabel.replace("粗略范围：", "")} 字`, 250, stageEndY + 60);
+  } else {
+    ctx.fillStyle = isGroupReport ? "#d66a94" : "#2586c4";
+    ctx.font = "900 150px PingFang SC, Microsoft YaHei, sans-serif";
+    ctx.fillText(String(report.mainNumber), 100, 430);
+    ctx.fillStyle = "#263238";
+    ctx.font = "700 32px PingFang SC, Microsoft YaHei, sans-serif";
+    ctx.fillText(report.mainLabel, 100, 480);
+  }
 
   ctx.font = "700 28px PingFang SC, Microsoft YaHei, sans-serif";
   report.metrics.forEach(([label, value], index) => {
     const x = 100 + (index % 2) * 350;
-    const y = 560 + Math.floor(index / 2) * 96;
+    const y = (isGentleReport ? 640 : 560) + Math.floor(index / 2) * 96;
     ctx.fillStyle = "#fff8e5";
     roundRect(ctx, x, y - 38, 300, 76, 18);
     ctx.fill();
@@ -1371,28 +1407,28 @@ async function drawReportCanvas(kind = activeReportKind) {
 
   ctx.fillStyle = "#66717a";
   ctx.font = "500 23px PingFang SC, Microsoft YaHei, sans-serif";
-  drawWrappedText(ctx, report.advice, 100, 835, 700, 36);
+  drawWrappedText(ctx, report.advice, 100, isGentleReport ? 925 : 835, 700, 36);
 
   try {
     const qr = await loadImage(qrImageUrl(SHARE_URL));
-    ctx.drawImage(qr, 100, 910, 180, 180);
+    ctx.drawImage(qr, 100, isGentleReport ? 995 : 910, 150, 150);
   } catch {
     ctx.fillStyle = "#ffffff";
-    roundRect(ctx, 100, 910, 180, 180, 16);
+    roundRect(ctx, 100, isGentleReport ? 995 : 910, 150, 150, 16);
     ctx.fill();
     ctx.strokeStyle = "#25313a";
     ctx.stroke();
     ctx.fillStyle = "#263238";
     ctx.font = "700 22px PingFang SC, Microsoft YaHei, sans-serif";
-    ctx.fillText("扫码入口", 145, 995);
+    ctx.fillText("扫码入口", 128, isGentleReport ? 1078 : 995);
   }
   ctx.fillStyle = "#263238";
   ctx.font = "700 28px PingFang SC, Microsoft YaHei, sans-serif";
-  ctx.fillText("扫码体验识字测评", 310, 960);
+  ctx.fillText("扫码体验识字测评", isGentleReport ? 280 : 310, isGentleReport ? 1038 : 960);
   ctx.fillStyle = "#66717a";
   ctx.font = "500 22px PingFang SC, Microsoft YaHei, sans-serif";
-  drawWrappedText(ctx, SHARE_URL, 310, 1005, 430, 32);
-  ctx.fillText(`生成日期：${summary.date}`, 310, 1085);
+  drawWrappedText(ctx, SHARE_URL, isGentleReport ? 280 : 310, isGentleReport ? 1080 : 1005, isGentleReport ? 460 : 430, 32);
+  ctx.fillText(`生成日期：${summary.date}`, isGentleReport ? 280 : 310, isGentleReport ? 1135 : 1085);
 }
 
 function roundRect(ctx, x, y, width, height, radius) {
