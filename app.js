@@ -1193,19 +1193,9 @@ function renderReport(kind = null) {
 }
 
 function reportStageMainHtml(report) {
-  if (!report.stageName) {
-    return `
-      <div class="report-main-number">${html(report.mainNumber)}</div>
-      <p>${html(report.mainLabel)}</p>
-    `;
-  }
-
   return `
-    <div class="report-stage-main">
-      <small>粗略范围</small>
-      <strong>${html(report.rangeValue)} 字</strong>
-      <span><b>识字阶段</b>${html(report.stageName)}</span>
-    </div>
+    <div class="report-main-number">${html(report.mainNumber)}</div>
+    <p>${html(report.mainLabel)}</p>
   `;
 }
 
@@ -1227,12 +1217,12 @@ function buildReportData(kind, summary) {
       heading: `${summary.nickname} 的轻松摸底结果`,
       cardTitle: `${summary.nickname} 的轻松摸底报告`,
       intro: "这份报告来自 50 题轻松摸底，适合低龄或识字量较少的孩子，结果是粗略参考。",
-      mainNumber: summary.latestGentle.stageName,
-      mainLabel: `粗略范围：${summary.latestGentle.range} 字`,
+      mainNumber: summary.latestGentle.range,
+      mainLabel: "粗略识字范围",
       stageName: summary.latestGentle.stageName,
       rangeValue: summary.latestGentle.range,
-      hideCardAdvice: true,
       metrics: [
+        ["识字阶段", summary.latestGentle.stageName],
         ["完成题数", `${summary.latestGentle.total}/${GENTLE_TARGET}`],
         ["判断认识", `${summary.gentleKnown} 个`],
         ["本次不认识", `${summary.gentleUnknown} 个`],
@@ -1240,8 +1230,8 @@ function buildReportData(kind, summary) {
         ["当前日期", summary.date],
       ],
       advice: summary.latestGentle.refreshedAt
-        ? "这份报告已根据后续重测刷新。不认识也没关系，可以把这些字放进日常阅读和亲子游戏里慢慢熟悉。"
-        : summary.latestGentle.advice,
+        ? "这份报告已根据后续重测刷新。可以先从字少、图多、重复句式多的读物开始，让阅读保持轻松。"
+        : "可以先从字少、图多、重复句式多的读物开始，让阅读保持轻松。",
     };
   }
 
@@ -1360,33 +1350,14 @@ async function drawReportCanvas(kind = activeReportKind) {
   ctx.font = "800 52px PingFang SC, Microsoft YaHei, sans-serif";
   drawWrappedText(ctx, report.cardTitle, 100, 250, 700, 62);
 
-  if (isGentleReport) {
-    ctx.fillStyle = "#66717a";
-    ctx.font = "800 26px PingFang SC, Microsoft YaHei, sans-serif";
-    ctx.fillText("粗略范围", 100, 360);
-    ctx.fillStyle = "#378b4d";
-    ctx.font = "900 82px PingFang SC, Microsoft YaHei, sans-serif";
-    ctx.fillText(`${report.rangeValue || report.mainLabel.replace("粗略范围：", "")} 字`, 100, 440);
-    ctx.fillStyle = "#f0ffe9";
-    roundRect(ctx, 100, 468, 570, 70, 18);
-    ctx.fill();
-    ctx.strokeStyle = "#25313a";
-    ctx.lineWidth = 4;
-    ctx.stroke();
-    ctx.fillStyle = "#66717a";
-    ctx.font = "700 22px PingFang SC, Microsoft YaHei, sans-serif";
-    ctx.fillText("识字阶段", 124, 510);
-    ctx.fillStyle = "#263238";
-    ctx.font = "900 26px PingFang SC, Microsoft YaHei, sans-serif";
-    ctx.fillText(String(report.stageName || report.mainNumber), 250, 512);
-  } else {
-    ctx.fillStyle = isGroupReport ? "#d66a94" : "#2586c4";
-    ctx.font = "900 150px PingFang SC, Microsoft YaHei, sans-serif";
-    ctx.fillText(String(report.mainNumber), 100, 430);
-    ctx.fillStyle = "#263238";
-    ctx.font = "700 32px PingFang SC, Microsoft YaHei, sans-serif";
-    ctx.fillText(report.mainLabel, 100, 480);
-  }
+  ctx.fillStyle = isGentleReport ? "#c97a00" : isGroupReport ? "#d66a94" : "#2586c4";
+  ctx.font = isGentleReport
+    ? "900 128px PingFang SC, Microsoft YaHei, sans-serif"
+    : "900 150px PingFang SC, Microsoft YaHei, sans-serif";
+  ctx.fillText(String(report.mainNumber), 100, 430);
+  ctx.fillStyle = "#263238";
+  ctx.font = "700 32px PingFang SC, Microsoft YaHei, sans-serif";
+  ctx.fillText(report.mainLabel, 100, 480);
 
   ctx.font = "700 28px PingFang SC, Microsoft YaHei, sans-serif";
   report.metrics.forEach(([label, value], index) => {
