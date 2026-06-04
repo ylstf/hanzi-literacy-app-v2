@@ -3,6 +3,7 @@ const STORAGE_KEY = "hanzi-literacy-v2";
 const GROUP_SIZE = 100;
 const GROUP_COUNT = Math.ceil(BANK.length / GROUP_SIZE);
 const QUICK_TARGET = 200;
+const GENTLE_TARGET = 50;
 const UNDO_LIMIT = 10;
 const SHARE_URL = "https://www.beijingheshiedu.com/";
 const QUICK_MILESTONES = {
@@ -19,6 +20,72 @@ const QUICK_MILESTONES = {
     body: "再完成 50 题就能生成测评结果。稳稳来，不着急。",
   },
 };
+const GENTLE_MILESTONES = {
+  25: {
+    title: "太棒了，已经完成一半啦！",
+    body: "不认识也没关系，认真读完就是很棒的挑战。",
+  },
+};
+const GENTLE_LAYERS = [
+  {
+    key: "basic",
+    label: "基础生活高频字",
+    target: 15,
+    min: 0,
+    max: 100,
+    chars: "人口手目日月水火山田天大小上下中一二三十",
+  },
+  {
+    key: "life",
+    label: "儿童生活常见字",
+    target: 15,
+    min: 100,
+    max: 250,
+    chars: "爸妈我你他她家书学玩吃走来去看说",
+  },
+  {
+    key: "early",
+    label: "一年级早期常见字",
+    target: 12,
+    min: 250,
+    max: 450,
+    chars: "云雨风花草鸟虫里外东西南北前后",
+  },
+  {
+    key: "next",
+    label: "稍进阶常用字",
+    target: 8,
+    min: 450,
+    max: 700,
+    chars: "明晚园课同问答笑读写",
+  },
+];
+const GENTLE_STAGE_RULES = [
+  {
+    max: 80,
+    name: "识字起步期",
+    range: "0-80",
+    advice: "可以从生活里的字、绘本封面和孩子熟悉的名字开始。每天认识几个就很好，不急着追数量。",
+  },
+  {
+    max: 200,
+    name: "基础积累期",
+    range: "80-200",
+    advice: "孩子已经有一些基础了。建议继续用亲子共读和生活识字慢慢积累，遇到不认识的字可以先做成小练习清单。",
+  },
+  {
+    max: 400,
+    name: "早期阅读准备期",
+    range: "200-400",
+    advice: "可以尝试短句、儿歌和很简单的分级读物。读不出来时先鼓励，再把这些字放进“不认识的字”里复习。",
+  },
+  {
+    max: 700,
+    name: "可以尝试简单分级阅读",
+    range: "400-700",
+    advice: "孩子可以开始接触更完整的小故事。建议选择字少、图多、重复句式多的读物，让阅读保持轻松。",
+  },
+];
 
 const app = document.querySelector("#app");
 let state = load();
@@ -32,6 +99,8 @@ function createChild(nickname = "小朋友") {
     id,
     nickname,
     groups: {},
+    gentle: null,
+    gentleHistory: [],
     quick: null,
     quickHistory: [],
     wrongbook: {},
@@ -55,6 +124,8 @@ function normalizeState(raw) {
 
   const child = createChild("小朋友");
   child.groups = raw.groups || {};
+  child.gentle = raw.gentle || null;
+  child.gentleHistory = raw.gentleHistory || [];
   child.quick = raw.quick || null;
   child.quickHistory = raw.quickHistory || [];
   child.wrongbook = raw.wrongbook || buildWrongbookFromGroups(child.groups);
@@ -104,7 +175,15 @@ function child() {
     state.children[next.id] = next;
     save();
   }
-  return state.children[state.activeChildId];
+  return ensureChildShape(state.children[state.activeChildId]);
+}
+
+function ensureChildShape(current) {
+  if (!current.groups) current.groups = {};
+  if (!current.gentleHistory) current.gentleHistory = [];
+  if (!current.quickHistory) current.quickHistory = [];
+  if (!current.wrongbook) current.wrongbook = {};
+  return current;
 }
 
 function html(value) {
@@ -165,6 +244,7 @@ function updateWrongbook(id, status, source) {
 function updateSavedAnswers(id, status) {
   const current = child();
   const numericId = Number(id);
+  let touchedGentle = false;
   let touchedQuick = false;
 
   Object.values(current.groups || {}).forEach((group) => {
@@ -173,6 +253,15 @@ function updateSavedAnswers(id, status) {
     }
   });
 
+  if (current.gentle?.answers?.length) {
+    current.gentle.answers.forEach((answer) => {
+      if (answer.id === numericId) {
+        answer.known = status === "known";
+        touchedGentle = true;
+      }
+    });
+  }
+
   if (current.quick?.answers?.length) {
     current.quick.answers.forEach((answer) => {
       if (answer.id === numericId) {
@@ -180,6 +269,14 @@ function updateSavedAnswers(id, status) {
         touchedQuick = true;
       }
     });
+  }
+
+  if (touchedGentle && current.gentle?.finished && current.gentleHistory?.length) {
+    current.gentleHistory[0] = {
+      ...current.gentleHistory[0],
+      ...estimateGentle(),
+      refreshedAt: Date.now(),
+    };
   }
 
   if (touchedQuick && current.quick?.finished && current.quickHistory?.length) {
@@ -207,19 +304,26 @@ function currentSummary() {
   const completedGroups = groupStats.filter((g) => g.done).length;
   const groupAnswered = groupStats.reduce((sum, g) => sum + g.answered, 0);
   const groupKnown = groupStats.reduce((sum, g) => sum + g.known, 0);
+  const latestGentle = current.gentleHistory?.[0] || null;
+  const gentleKnown = latestGentle?.known ?? 0;
+  const gentleTotal = latestGentle?.total ?? 0;
+  const gentleUnknown = Math.max(0, gentleTotal - gentleKnown);
   const latestQuick = current.quickHistory?.[0] || null;
   const quickKnown = latestQuick?.known ?? 0;
   const quickTotal = latestQuick?.total ?? 0;
   const quickUnknown = Math.max(0, quickTotal - quickKnown);
   const wrongCount = Object.keys(current.wrongbook || {}).length;
-  const estimated = latestQuick?.estimated ?? groupKnown;
-  const range = latestQuick ? `${latestQuick.low}-${latestQuick.high}` : "完成快速估算后显示";
+  const estimated = latestQuick?.estimated ?? latestGentle?.estimated ?? groupKnown;
+  const range = latestQuick ? `${latestQuick.low}-${latestQuick.high}` : latestGentle ? `${latestGentle.range}` : "完成测评后显示";
 
   return {
     nickname: current.nickname,
     date: new Date().toLocaleDateString("zh-CN"),
     estimated,
     range,
+    latestGentle,
+    gentleKnown,
+    gentleUnknown,
     latestQuick,
     quickKnown,
     quickUnknown,
@@ -296,12 +400,15 @@ function renderHome() {
     return sum + Object.values(current.groups[key].answers || {}).filter((v) => v === "known").length;
   }, 0);
   const completedGroups = Array.from({ length: GROUP_COUNT }, (_, i) => groupProgress(i)).filter((g) => g.done).length;
+  const gentleProgress = current.gentle && !current.gentle.finished ? current.gentle.answers.length : 0;
+  const latestGentle = current.gentleHistory?.[0] || null;
   const quickProgress = current.quick && !current.quick.finished ? current.quick.answers.length : 0;
   const latestQuick = current.quickHistory?.[0] || null;
   const wrongCount = Object.keys(current.wrongbook || {}).length;
   const nextGroup = Array.from({ length: GROUP_COUNT }, (_, i) => i).find((i) => !groupProgress(i).done) ?? GROUP_COUNT - 1;
   const nextGroupLabel = nextGroupActionLabel(nextGroup);
-  const reportLabel = latestQuick && totalAnswered ? "查看测评报告" : latestQuick ? "生成快速估算报告" : totalAnswered ? "查看当前记录" : "完成测评后生成报告";
+  const hasAnyReport = latestGentle || latestQuick || totalAnswered;
+  const reportLabel = hasAnyReport ? "查看测评报告" : "完成测评后生成报告";
 
   app.innerHTML = shell(`
     <section class="home-grid">
@@ -310,19 +417,28 @@ function renderHome() {
         <h2 class="hero-title">先快速摸底<br /><span>再慢慢闯关</span></h2>
         <p class="hero-copy">
           孩子看字读出来，家长按真实情况点“认识”或“不认识”。
-          推荐先做快速估算；想认真记录时，再用逐字闯关慢慢测。
+          低龄孩子可以先轻松摸底；想要更稳定估算时，再做完整估算。
         </p>
         <div class="inline-actions">
           <button class="btn ghost" data-action="guide">测评规则与字库来源</button>
         </div>
         <div class="mode-grid home-mode-grid">
           <div class="mode">
-            <div class="badge">测</div>
-            <h2>快速估算</h2>
-            <p>${quickProgress ? `已完成 ${quickProgress}/200 题，继续后会接着上次进度。` : "适合第一次摸底，预计约 10-15 分钟；孩子累了可以暂停，下次继续。"}</p>
+            <div class="badge">摸</div>
+            <h2>轻松摸底</h2>
+            <p>${gentleProgress ? `已完成 ${gentleProgress}/${GENTLE_TARGET} 题，继续后会接着上次进度。` : "适合幼儿园或识字量较少的孩子，约 50 题，不认识也没关系。"}</p>
             <div class="mode-actions">
-              <button class="btn primary" data-action="quick-start">${quickProgress ? "继续快速估算" : "开始快速估算"}</button>
-              <button class="btn ghost" data-action="report-quick" ${latestQuick ? "" : "disabled"}>${latestQuick ? "生成快速估算报告" : "完成后生成报告"}</button>
+              <button class="btn primary" data-action="gentle-start">${gentleProgress ? "继续轻松摸底" : "开始轻松摸底"}</button>
+              <button class="btn ghost" data-action="report-gentle" ${latestGentle ? "" : "disabled"}>${latestGentle ? "生成轻松摸底报告" : "完成后生成报告"}</button>
+            </div>
+          </div>
+          <div class="mode">
+            <div class="badge">估</div>
+            <h2>完整估算</h2>
+            <p>${quickProgress ? `已完成 ${quickProgress}/200 题，继续后会接着上次进度。` : "适合想更稳定估算识字量的孩子，约 10-15 分钟，可暂停继续。"}</p>
+            <div class="mode-actions">
+              <button class="btn primary" data-action="quick-start">${quickProgress ? "继续完整估算" : "开始完整估算"}</button>
+              <button class="btn ghost" data-action="report-quick" ${latestQuick ? "" : "disabled"}>${latestQuick ? "生成完整估算报告" : "完成后生成报告"}</button>
             </div>
           </div>
           <div class="mode">
@@ -342,7 +458,8 @@ function renderHome() {
         <section class="card">
           <h3>当前进度</h3>
           <div class="stats">
-            <div class="stat"><span>快速估算</span><strong>${latestQuick ? `${latestQuick.estimated} 字` : quickProgress ? `${quickProgress}/200` : "未完成"}</strong></div>
+            <div class="stat"><span>轻松摸底</span><strong>${latestGentle ? latestGentle.stageName : gentleProgress ? `${gentleProgress}/${GENTLE_TARGET}` : "未完成"}</strong></div>
+            <div class="stat"><span>完整估算</span><strong>${latestQuick ? `${latestQuick.estimated} 字` : quickProgress ? `${quickProgress}/200` : "未完成"}</strong></div>
             <div class="stat"><span>已完成小组</span><strong>${completedGroups}/${GROUP_COUNT}</strong></div>
             <div class="stat"><span>逐字已测</span><strong>${totalAnswered}/${BANK.length}</strong></div>
             <div class="stat"><span>已确认认识</span><strong>${totalKnown}</strong></div>
@@ -350,7 +467,7 @@ function renderHome() {
           </div>
           <div class="side-actions">
             <button class="btn review" data-action="wrongbook">查看不认识的字</button>
-            <button class="btn ghost" data-action="report" ${latestQuick || totalAnswered ? "" : "disabled"}>${reportLabel}</button>
+            <button class="btn ghost" data-action="report" ${hasAnyReport ? "" : "disabled"}>${reportLabel}</button>
           </div>
         </section>
       </aside>
@@ -398,15 +515,17 @@ function renderGuide() {
       <div class="guide-list">
         <p><strong>1. 孩子读字：</strong>屏幕每次只显示一个汉字，让孩子直接读出来。</p>
         <p><strong>2. 家长判断：</strong>孩子能基本读出常见读音，就点“认识”；卡住、猜测、需要提示，都点“不认识”。</p>
-        <p><strong>3. 快速估算：</strong>一次 200 题，通常约 10-15 分钟，可暂停后继续。完成后会给出大致识字量范围。</p>
-        <p><strong>4. 逐字闯关：</strong>每组 100 字，可分多天完成；可以按顺序测，也可以选择任意小组。</p>
-        <p><strong>5. 按错可撤回：</strong>快速估算、分组闯关和“不认识的字”重测都可以撤回最近 10 步，电脑上也可按 3 撤回。</p>
-        <p><strong>6. 不认识的字：</strong>点过“不认识”的字会自动进入列表，之后可以单独重测或全部重测。</p>
-        <p><strong>7. 数据保存：</strong>记录只保存在本机浏览器。换设备或清理浏览器缓存，可能会丢失记录。</p>
+        <p><strong>3. 轻松摸底：</strong>一次 50 题，适合低龄或识字量较少的孩子。结果只给出粗略阶段和练习建议。</p>
+        <p><strong>4. 完整估算：</strong>一次 200 题，通常约 10-15 分钟，可暂停后继续。完成后会给出大致识字量范围。</p>
+        <p><strong>5. 逐字闯关：</strong>每组 100 字，可分多天完成；可以按顺序测，也可以选择任意小组。</p>
+        <p><strong>6. 按错可撤回：</strong>轻松摸底、完整估算、分组闯关和“不认识的字”重测都可以撤回最近 10 步，电脑上也可按 3 撤回。</p>
+        <p><strong>7. 不认识的字：</strong>点过“不认识”的字会自动进入列表，之后可以单独重测或全部重测。</p>
+        <p><strong>8. 数据保存：</strong>记录只保存在本机浏览器。换设备或清理浏览器缓存，可能会丢失记录。</p>
       </div>
       <details class="method-detail">
-        <summary>了解快速估算方法</summary>
-        <p>快速估算会从不同难度的汉字中抽样，根据孩子在各难度层的表现，推算 2500 字中的大致掌握量。它适合快速摸底，不是逐字统计。</p>
+        <summary>了解估算方法</summary>
+        <p>轻松摸底会从基础生活字、儿童常见字和早期阅读字中分层抽样，用较短测评判断孩子大概处在哪个识字阶段。</p>
+        <p>完整估算会从不同难度的汉字中抽样，根据孩子在各难度层的表现，推算 2500 字中的大致掌握量。它适合快速摸底，不是逐字统计。</p>
         <p>分组闯关则是逐字记录：孩子测过哪些字、哪些认识、哪些不认识，都会按实际点击结果保存。</p>
       </details>
       <details class="method-detail">
@@ -594,6 +713,241 @@ function renderGroupResult(groupIndex) {
   scrollToTop();
 }
 
+function shuffleItems(items) {
+  const next = [...items];
+  for (let index = next.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [next[index], next[swapIndex]] = [next[swapIndex], next[index]];
+  }
+  return next;
+}
+
+function uniqueChars(chars) {
+  return Array.from(new Set(String(chars).split("")));
+}
+
+function buildGentleOrder() {
+  const used = new Set();
+  const byChar = new Map(BANK.map((item) => [item.char, item]));
+  const order = [];
+
+  GENTLE_LAYERS.forEach((layer) => {
+    const preferred = shuffleItems(uniqueChars(layer.chars)
+      .map((char) => byChar.get(char))
+      .filter((item) => item && !used.has(item.id)));
+    const preferredIds = new Set(preferred.map((item) => item.id));
+    const fallback = shuffleItems(BANK.filter((item) => !used.has(item.id) && !preferredIds.has(item.id)));
+    const picked = [...preferred, ...fallback].slice(0, layer.target);
+    picked.forEach((item) => {
+      used.add(item.id);
+      order.push({ id: item.id, layer: layer.key });
+    });
+  });
+
+  return order;
+}
+
+function startGentle(forceNew = false) {
+  const current = child();
+  if (forceNew || !current.gentle || current.gentle.finished) {
+    current.gentle = {
+      order: buildGentleOrder(),
+      answers: [],
+      undoStack: [],
+      milestones: [],
+      currentOffset: 0,
+      finished: false,
+    };
+  }
+  if (!current.gentle.order?.length) current.gentle.order = buildGentleOrder();
+  if (!current.gentle.answers) current.gentle.answers = [];
+  if (!current.gentle.undoStack) current.gentle.undoStack = [];
+  if (!current.gentle.milestones) current.gentle.milestones = [];
+  if (typeof current.gentle.currentOffset !== "number") current.gentle.currentOffset = current.gentle.answers.length;
+  save();
+  renderGentle();
+}
+
+function currentGentleItem(gentle = child().gentle) {
+  const entry = gentle?.order?.[gentle.currentOffset];
+  const item = entry ? itemById(entry.id) : null;
+  return item ? { ...entry, item } : null;
+}
+
+function answerGentle(known) {
+  const current = child();
+  const gentle = current.gentle;
+  const entry = currentGentleItem(gentle);
+  if (!entry) return finishGentle();
+  const previousWrongbook = current.wrongbook[entry.id] ? { ...current.wrongbook[entry.id] } : null;
+  const answer = { id: entry.id, layer: entry.layer, known, previousWrongbook };
+
+  gentle.answers.push(answer);
+  gentle.undoStack.push(answer);
+  gentle.undoStack = gentle.undoStack.slice(-UNDO_LIMIT);
+  gentle.currentOffset += 1;
+  updateWrongbook(entry.id, known ? "known" : "unknown", "gentle");
+  play(known ? "good" : "bad");
+  save();
+
+  if (gentle.answers.length >= GENTLE_TARGET) finishGentle();
+  else {
+    renderGentle();
+    maybeShowGentleMilestone(gentle.answers.length);
+  }
+}
+
+function undoGentle() {
+  const gentle = child().gentle;
+  const last = gentle?.undoStack?.pop();
+  if (!last) return;
+  gentle.answers = gentle.answers.filter((answer) => answer !== last);
+  gentle.currentOffset = Math.max(0, gentle.currentOffset - 1);
+  if (last.previousWrongbook) child().wrongbook[last.id] = last.previousWrongbook;
+  else delete child().wrongbook[last.id];
+  gentle.finished = false;
+  play("undo");
+  save();
+  renderGentle();
+}
+
+function estimateGentle() {
+  const gentle = child().gentle;
+  const answers = gentle?.answers || [];
+  const layerScores = GENTLE_LAYERS.map((layer) => {
+    const layerAnswers = answers.filter((answer) => answer.layer === layer.key);
+    const known = layerAnswers.filter((answer) => answer.known).length;
+    const rate = layerAnswers.length ? known / layerAnswers.length : 0;
+    return {
+      ...layer,
+      known,
+      total: layerAnswers.length,
+      rate,
+      score: rate * (layer.max - layer.min),
+    };
+  });
+  const raw = layerScores.reduce((sum, layer) => sum + layer.score, 0);
+  const estimated = Math.max(0, Math.min(700, Math.round(raw / 10) * 10));
+  const stage = GENTLE_STAGE_RULES.find((rule) => estimated <= rule.max) || GENTLE_STAGE_RULES[GENTLE_STAGE_RULES.length - 1];
+  const known = answers.filter((answer) => answer.known).length;
+
+  return {
+    estimated,
+    low: Number(stage.range.split("-")[0]),
+    high: Number(stage.range.split("-")[1]),
+    range: stage.range,
+    stageName: stage.name,
+    advice: stage.advice,
+    known,
+    total: answers.length,
+    layerScores,
+  };
+}
+
+function finishGentle() {
+  const current = child();
+  const result = { createdAt: Date.now(), ...estimateGentle() };
+  current.gentle.finished = true;
+  current.gentleHistory.unshift(result);
+  current.gentleHistory = current.gentleHistory.slice(0, 10);
+  save();
+  renderGentleResult(result);
+  celebrate("轻松摸底完成啦！");
+}
+
+function maybeShowGentleMilestone(count) {
+  const gentle = child().gentle;
+  const milestone = GENTLE_MILESTONES[count];
+  if (!milestone || gentle.milestones?.includes(count)) return;
+  gentle.milestones = [...(gentle.milestones || []), count];
+  save();
+  play("milestone");
+  document.querySelector(".modal-layer")?.remove();
+  app.insertAdjacentHTML("beforeend", `
+    <div class="modal-layer stage-layer" role="dialog" aria-modal="true" aria-labelledby="stage-title">
+      <section class="modal-card stage-card">
+        <h2 id="stage-title">${html(milestone.title)}</h2>
+        <p>${html(milestone.body)}</p>
+        <div class="modal-actions">
+          <button class="btn primary" type="button" data-action="stage-continue">继续摸底</button>
+          <button class="btn ghost" type="button" data-action="stage-rest">休息一下</button>
+        </div>
+      </section>
+    </div>
+  `);
+}
+
+function renderGentle() {
+  screen = "gentle";
+  setRoute("gentle");
+  const gentle = child().gentle;
+  const entry = currentGentleItem(gentle);
+  if (!entry) return renderGentleResult(estimateGentle());
+  const pct = Math.round((gentle.answers.length / GENTLE_TARGET) * 100);
+
+  app.innerHTML = shell(`
+    <section class="test-layout">
+      <div class="test-card gentle-test-card">
+        ${pageNav("轻松摸底", "暂停并回首页")}
+        <div class="test-top">
+          <div>
+            <h2>轻松摸底</h2>
+            <p class="muted">第 ${gentle.answers.length + 1} 题 / ${GENTLE_TARGET} 题</p>
+          </div>
+        </div>
+        <div class="progress gentle-progress"><span style="width:${pct}%"></span></div>
+        <div class="hanzi-stage"><div class="hanzi">${html(entry.item.char)}</div></div>
+        <div class="judge-row">
+          <button class="btn good" data-action="gentle-known">认识 <span class="desktop-only">1</span></button>
+          <button class="btn bad" data-action="gentle-unknown">不认识 <span class="desktop-only">2</span></button>
+        </div>
+      </div>
+      <aside class="stack">
+        <section class="card gentle-side-card">
+          <h3>慢慢来</h3>
+          <div class="progress-number">${gentle.answers.length}/${GENTLE_TARGET}</div>
+          <p>这是给低龄孩子的轻松摸底。不认识也没关系，结果只是后续练习的参考。</p>
+          <div class="side-actions">
+            <button class="btn warn" data-action="gentle-undo" ${gentle.undoStack.length ? "" : "disabled"}>撤回最近一步</button>
+            <button class="btn ghost" data-action="home">暂停并回首页</button>
+          </div>
+        </section>
+        <section class="card">
+          <h3>怎么判断</h3>
+          <p>孩子能基本读出来，就点“认识”；卡住、猜测或需要提示，就点“不认识”。电脑上可按 1、2、3 操作。</p>
+        </section>
+      </aside>
+    </section>
+  `);
+}
+
+function renderGentleResult(result) {
+  screen = "gentle-result";
+  setRoute("gentle-result");
+  app.innerHTML = shell(`
+    <section class="result-card gentle-result-card">
+      <span class="tag">★ 50 题轻松摸底完成</span>
+      <h2>${html(result.stageName)}</h2>
+      <div class="big-number gentle-stage-name">${html(result.range)}</div>
+      <p class="hero-copy">这是 50 题轻松摸底，适合低龄或识字量较少的孩子，结果是粗略参考。孩子愿意认真读完，就已经很棒了。</p>
+      <div class="metric-grid">
+        <div class="metric"><span>完成题数</span><strong>${result.total}/${GENTLE_TARGET}</strong></div>
+        <div class="metric"><span>判断认识</span><strong>${result.known}</strong></div>
+        <div class="metric"><span>粗略范围</span><strong>${html(result.range)} 字</strong></div>
+        <div class="metric"><span>当前不认识的字</span><strong>${Object.keys(child().wrongbook || {}).length}</strong></div>
+      </div>
+      <p class="hero-copy">${html(result.advice)}</p>
+      <div class="actions">
+        <button class="btn primary" data-action="home">回首页</button>
+        <button class="btn review" data-action="wrongbook">查看不认识的字</button>
+        <button class="btn ghost" data-action="report-gentle">查看轻松摸底报告</button>
+        <button class="btn caution" data-action="gentle-new">重新摸底</button>
+      </div>
+    </section>
+  `);
+  scrollToTop();
+}
+
 function startQuick(forceNew = false) {
   const current = child();
   if (forceNew || !current.quick || current.quick.finished) {
@@ -690,7 +1044,7 @@ function finishQuick() {
   current.quickHistory = current.quickHistory.slice(0, 10);
   save();
   renderQuickResult(result);
-  celebrate("完成快速估算啦！");
+  celebrate("完整估算完成啦！");
 }
 
 function maybeShowQuickMilestone(count) {
@@ -726,10 +1080,10 @@ function renderQuick() {
   app.innerHTML = shell(`
     <section class="test-layout">
       <div class="test-card">
-        ${pageNav("快速估算", "暂停并回首页")}
+        ${pageNav("完整估算", "暂停并回首页")}
         <div class="test-top">
           <div>
-            <h2>快速估算</h2>
+            <h2>完整估算</h2>
             <p class="muted">第 ${quick.answers.length + 1} 题 / ${QUICK_TARGET} 题</p>
           </div>
         </div>
@@ -742,7 +1096,7 @@ function renderQuick() {
       </div>
       <aside class="stack">
         <section class="card">
-          <h3>正在估算</h3>
+          <h3>正在完整估算</h3>
           <div class="progress-number">${quick.answers.length}/${QUICK_TARGET}</div>
           <p>完成 ${QUICK_TARGET} 题后再显示正式结果，孩子累了可以暂停，下次继续。</p>
           <div class="side-actions">
@@ -764,7 +1118,7 @@ function renderQuickResult(result) {
   setRoute("quick-result");
   app.innerHTML = shell(`
     <section class="result-card">
-      <span class="tag">★ 200 题快速估算完成</span>
+      <span class="tag">★ 200 题完整估算完成</span>
       <h2>大约认识</h2>
       <div class="big-number">${result.estimated}</div>
       <p class="hero-copy">这是抽样估算，不是逐字精确统计。合理参考范围约为 ${result.low} - ${result.high} 字。</p>
@@ -776,7 +1130,7 @@ function renderQuickResult(result) {
       <div class="actions">
         <button class="btn primary" data-action="home">回首页</button>
         <button class="btn review" data-action="wrongbook">查看不认识的字</button>
-        <button class="btn ghost" data-action="report-quick">查看快速估算报告</button>
+        <button class="btn ghost" data-action="report-quick">查看完整估算报告</button>
         <button class="btn caution" data-action="quick-new">重新估算</button>
       </div>
     </section>
@@ -786,12 +1140,14 @@ function renderQuickResult(result) {
 function renderReport(kind = null) {
   screen = "report";
   const summary = currentSummary();
+  const hasGentle = Boolean(summary.latestGentle);
   const hasQuick = Boolean(summary.latestQuick);
   const hasGroup = summary.groupAnswered > 0;
 
-  if (kind === "quick" && !hasQuick) kind = hasGroup ? "group" : "current";
-  if (kind === "group" && !hasGroup) kind = hasQuick ? "quick" : "current";
-  if (!kind) kind = hasQuick ? "quick" : hasGroup ? "group" : "current";
+  if (kind === "gentle" && !hasGentle) kind = hasQuick ? "quick" : hasGroup ? "group" : "current";
+  if (kind === "quick" && !hasQuick) kind = hasGentle ? "gentle" : hasGroup ? "group" : "current";
+  if (kind === "group" && !hasGroup) kind = hasGentle ? "gentle" : hasQuick ? "quick" : "current";
+  if (!kind) kind = hasGentle ? "gentle" : hasQuick ? "quick" : hasGroup ? "group" : "current";
 
   activeReportKind = kind;
   setRoute(`report-${kind}`);
@@ -799,11 +1155,11 @@ function renderReport(kind = null) {
   app.innerHTML = shell(`
     <section class="result-card report-page">
       ${pageNav("测评报告")}
-      ${reportTabsHtml(kind, hasQuick, hasGroup)}
+      ${reportTabsHtml(kind, hasGentle, hasQuick, hasGroup)}
       <h2>${html(report.heading)}</h2>
       <p class="hero-copy">${html(report.intro)}</p>
       <div class="report-preview" id="report-preview">
-        <div class="report-card-view ${kind === "group" ? "group-report" : ""}">
+        <div class="report-card-view ${kind === "group" ? "group-report" : ""} ${kind === "gentle" ? "gentle-report" : ""}">
           <p class="report-brand">儿童识字量测评工具｜书法郭爸团队出品</p>
           <h3>${html(report.cardTitle)}</h3>
           <div class="report-main-number">${html(report.mainNumber)}</div>
@@ -837,22 +1193,44 @@ function renderReport(kind = null) {
   scrollToTop();
 }
 
-function reportTabsHtml(active, hasQuick, hasGroup) {
-  if (!hasQuick && !hasGroup) return "";
+function reportTabsHtml(active, hasGentle, hasQuick, hasGroup) {
+  if (!hasGentle && !hasQuick && !hasGroup) return "";
   return `
     <div class="report-tabs" role="tablist" aria-label="报告类型">
-      <button class="report-tab ${active === "quick" ? "active" : ""}" data-action="report-quick" ${hasQuick ? "" : "disabled"}>快速估算</button>
+      <button class="report-tab ${active === "gentle" ? "active" : ""}" data-action="report-gentle" ${hasGentle ? "" : "disabled"}>轻松摸底</button>
+      <button class="report-tab ${active === "quick" ? "active" : ""}" data-action="report-quick" ${hasQuick ? "" : "disabled"}>完整估算</button>
       <button class="report-tab ${active === "group" ? "active" : ""}" data-action="report-group" ${hasGroup ? "" : "disabled"}>逐字闯关</button>
     </div>
   `;
 }
 
 function buildReportData(kind, summary) {
+  if (kind === "gentle" && summary.latestGentle) {
+    return {
+      title: "轻松摸底报告",
+      heading: `${summary.nickname} 的轻松摸底结果`,
+      cardTitle: `${summary.nickname} 的轻松摸底报告`,
+      intro: "这份报告来自 50 题轻松摸底，适合低龄或识字量较少的孩子，结果是粗略参考。",
+      mainNumber: summary.latestGentle.stageName,
+      mainLabel: `粗略范围：${summary.latestGentle.range} 字`,
+      metrics: [
+        ["完成题数", `${summary.latestGentle.total}/${GENTLE_TARGET}`],
+        ["判断认识", `${summary.gentleKnown} 个`],
+        ["本次不认识", `${summary.gentleUnknown} 个`],
+        ["当前不认识的字", `${summary.wrongCount} 个`],
+        ["当前日期", summary.date],
+      ],
+      advice: summary.latestGentle.refreshedAt
+        ? "这份报告已根据后续重测刷新。不认识也没关系，可以把这些字放进日常阅读和亲子游戏里慢慢熟悉。"
+        : summary.latestGentle.advice,
+    };
+  }
+
   if (kind === "quick" && summary.latestQuick) {
     return {
-      title: "快速估算报告",
-      heading: `${summary.nickname} 的快速估算结果`,
-      cardTitle: `${summary.nickname} 的快速估算报告`,
+      title: "完整估算报告",
+      heading: `${summary.nickname} 的完整估算结果`,
+      cardTitle: `${summary.nickname} 的完整估算报告`,
       intro: "这份报告来自 200 题抽样测评，适合快速了解孩子的大致识字量。",
       mainNumber: String(summary.latestQuick.estimated),
       mainLabel: "大约认识字数",
@@ -891,16 +1269,16 @@ function buildReportData(kind, summary) {
     title: "当前记录",
     heading: `${summary.nickname} 的当前记录`,
     cardTitle: `${summary.nickname} 的当前记录`,
-    intro: "目前还没有完成快速估算，这里先展示已经记录下来的逐字进度。",
+    intro: "目前还没有完成轻松摸底或完整估算，这里先展示已经记录下来的逐字进度。",
     mainNumber: String(summary.groupKnown),
     mainLabel: "已确认认识字数",
     metrics: [
       ["逐字已测", `${summary.groupAnswered}/${BANK.length}`],
       ["已完成小组", `${summary.completedGroups}/${GROUP_COUNT}`],
       ["不认识的字", `${summary.wrongCount} 个`],
-      ["快速估算", "未完成"],
+      ["完整估算", "未完成"],
     ],
-    advice: "建议先完成 200 题快速估算，再生成正式估算报告。",
+    advice: "可以先完成 50 题轻松摸底，或继续完成 200 题完整估算，再生成更完整的报告。",
   };
 }
 
@@ -941,8 +1319,9 @@ async function drawReportCanvas(kind = activeReportKind) {
   const summary = currentSummary();
   const report = buildReportData(kind, summary);
   const isGroupReport = kind === "group";
+  const isGentleReport = kind === "gentle";
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = isGroupReport ? "#ffe1ec" : "#dff3ff";
+  ctx.fillStyle = isGentleReport ? "#fff0c4" : isGroupReport ? "#ffe1ec" : "#dff3ff";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = "#fffdf5";
   roundRect(ctx, 54, 54, 792, 1092, 34);
@@ -962,9 +1341,12 @@ async function drawReportCanvas(kind = activeReportKind) {
   ctx.font = "800 52px PingFang SC, Microsoft YaHei, sans-serif";
   drawWrappedText(ctx, report.cardTitle, 100, 250, 700, 62);
 
-  ctx.fillStyle = isGroupReport ? "#d66a94" : "#2586c4";
-  ctx.font = "900 150px PingFang SC, Microsoft YaHei, sans-serif";
-  ctx.fillText(String(report.mainNumber), 100, 430);
+  ctx.fillStyle = isGentleReport ? "#378b4d" : isGroupReport ? "#d66a94" : "#2586c4";
+  ctx.font = isGentleReport
+    ? "900 72px PingFang SC, Microsoft YaHei, sans-serif"
+    : "900 150px PingFang SC, Microsoft YaHei, sans-serif";
+  if (isGentleReport) drawWrappedText(ctx, String(report.mainNumber), 100, 410, 700, 82);
+  else ctx.fillText(String(report.mainNumber), 100, 430);
   ctx.fillStyle = "#263238";
   ctx.font = "700 32px PingFang SC, Microsoft YaHei, sans-serif";
   ctx.fillText(report.mainLabel, 100, 480);
@@ -1086,7 +1468,7 @@ function renderWrongbook() {
       <p class="eyebrow">${html(child().nickname)} 的识字记录</p>
       <h2>不认识的字</h2>
       <div class="big-number">${ids.length}</div>
-      <p class="hero-copy">这里汇总快速估算和分组闯关中点过“不认识”的字。它更像后续练习清单，重测时如果点“认识”，会自动从列表移除并刷新记录。</p>
+      <p class="hero-copy">这里汇总轻松摸底、完整估算和分组闯关中点过“不认识”的字。它更像后续练习清单，重测时如果点“认识”，会自动从列表移除并刷新记录。</p>
       <div class="actions">
         <button class="btn primary" data-action="wrongbook-review-all" ${ids.length ? "" : "disabled"}>重测这些字</button>
       </div>
@@ -1124,12 +1506,15 @@ function answerWrongReview(status) {
   const previousGroupAnswers = Object.entries(child().groups || {})
     .filter(([, group]) => group.answers && Object.prototype.hasOwnProperty.call(group.answers, Number(id)))
     .map(([groupKey, group]) => [groupKey, group.answers[Number(id)]]);
+  const previousGentleAnswers = (child().gentle?.answers || [])
+    .filter((answer) => answer.id === Number(id))
+    .map((answer) => answer.known);
   const previousQuickAnswers = (child().quick?.answers || [])
     .filter((answer) => answer.id === Number(id))
     .map((answer) => answer.known);
   updateWrongbook(id, status, "review");
   updateSavedAnswers(id, status);
-  review.undoStack.push({ id, offset: review.currentOffset, previousWrongbook, previousGroupAnswers, previousQuickAnswers });
+  review.undoStack.push({ id, offset: review.currentOffset, previousWrongbook, previousGroupAnswers, previousGentleAnswers, previousQuickAnswers });
   review.undoStack = review.undoStack.slice(-UNDO_LIMIT);
   review.currentOffset += 1;
   play(status === "known" ? "good" : "bad");
@@ -1148,6 +1533,22 @@ function undoWrongReview() {
     const group = child().groups[groupIndex];
     if (group?.answers) group.answers[last.id] = status;
   });
+  if (last.previousGentleAnswers?.length && child().gentle?.answers?.length) {
+    let index = 0;
+    child().gentle.answers.forEach((answer) => {
+      if (answer.id === Number(last.id) && index < last.previousGentleAnswers.length) {
+        answer.known = last.previousGentleAnswers[index];
+        index += 1;
+      }
+    });
+    if (child().gentle.finished && child().gentleHistory?.length) {
+      child().gentleHistory[0] = {
+        ...child().gentleHistory[0],
+        ...estimateGentle(),
+        refreshedAt: Date.now(),
+      };
+    }
+  }
   if (last.previousQuickAnswers?.length && child().quick?.answers?.length) {
     let index = 0;
     child().quick.answers.forEach((answer) => {
@@ -1309,6 +1710,8 @@ function rerenderCurrent() {
   else if (screen === "guide") renderGuide();
   else if (screen === "group-list") renderGroupList();
   else if (screen === "report") renderReport();
+  else if (screen === "gentle") renderGentle();
+  else if (screen === "gentle-result") renderGentleResult(child().gentleHistory?.[0] || estimateGentle());
   else if (screen === "quick") renderQuick();
   else if (screen.startsWith("group-")) renderGroupTest(Number(screen.replace("group-", "")));
   else if (screen === "wrongbook") renderWrongbook();
@@ -1322,6 +1725,16 @@ function restoreLastRoute() {
 
   if (route === "guide") return renderGuide();
   if (route === "group-list") return renderGroupList();
+  if (route === "gentle") {
+    const gentle = child().gentle;
+    if (gentle?.finished && child().gentleHistory?.[0]) return renderGentleResult(child().gentleHistory[0]);
+    if (gentle?.order?.length && gentle.currentOffset < gentle.order.length) return renderGentle();
+    return renderHome();
+  }
+  if (route === "gentle-result") {
+    const latestGentle = child().gentleHistory?.[0];
+    return latestGentle ? renderGentleResult(latestGentle) : renderHome();
+  }
   if (route === "quick") {
     const quick = child().quick;
     if (quick?.finished && child().quickHistory?.[0]) return renderQuickResult(child().quickHistory[0]);
@@ -1345,7 +1758,7 @@ function restoreLastRoute() {
   const groupResultMatch = route.match(/^group-result-(\d+)$/);
   if (groupResultMatch) return renderGroupResult(Math.min(Number(groupResultMatch[1]), GROUP_COUNT - 1));
 
-  const reportMatch = route.match(/^report-(quick|group|current)$/);
+  const reportMatch = route.match(/^report-(gentle|quick|group|current)$/);
   if (reportMatch) return renderReport(reportMatch[1]);
 
   return renderHome();
@@ -1367,6 +1780,7 @@ app.addEventListener("click", (event) => {
   if (action === "guide") renderGuide();
   if (action === "group-list") renderGroupList();
   if (action === "report") renderReport();
+  if (action === "report-gentle") renderReport("gentle");
   if (action === "report-quick") renderReport("quick");
   if (action === "report-group") renderReport("group");
   if (action === "download-report") downloadReport();
@@ -1386,6 +1800,11 @@ app.addEventListener("click", (event) => {
   if (action === "group-unknown") answerGroup("unknown");
   if (action === "group-undo") undoGroup();
   if (action === "group-next") startGroup(Math.min(Number(target.dataset.group) + 1, GROUP_COUNT - 1));
+  if (action === "gentle-start") startGentle();
+  if (action === "gentle-new") startGentle(true);
+  if (action === "gentle-known") answerGentle(true);
+  if (action === "gentle-unknown") answerGentle(false);
+  if (action === "gentle-undo") undoGentle();
   if (action === "quick-start") startQuick();
   if (action === "quick-new") startQuick(true);
   if (action === "quick-known") answerQuick(true);
@@ -1419,6 +1838,11 @@ document.addEventListener("keydown", (event) => {
     createFirstChild();
   }
   if (document.querySelector(".modal-layer") || typing) return;
+  if (screen === "gentle") {
+    if (event.key === "1" || event.key === "ArrowLeft") answerGentle(true);
+    if (event.key === "2" || event.key === "ArrowRight") answerGentle(false);
+    if (event.key === "3" || event.key === "Backspace") undoGentle();
+  }
   if (screen === "quick") {
     if (event.key === "1" || event.key === "ArrowLeft") answerQuick(true);
     if (event.key === "2" || event.key === "ArrowRight") answerQuick(false);

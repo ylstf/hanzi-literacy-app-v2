@@ -341,6 +341,10 @@ select {
   background: #fff0c4;
 }
 
+.mode:nth-child(3) {
+  background: #f0ffe9;
+}
+
 .badge {
   display: grid;
   place-items: center;
@@ -356,6 +360,10 @@ select {
 
 .mode:nth-child(2) .badge {
   background: var(--pink);
+}
+
+.mode:nth-child(3) .badge {
+  background: var(--green);
 }
 
 .mode h2 {
@@ -745,6 +753,10 @@ select {
   color: var(--blue-dark);
 }
 
+.gentle-stage-name {
+  color: var(--green-dark);
+}
+
 .metric-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -886,7 +898,7 @@ select {
 
 .report-tabs {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
   max-width: 520px;
   margin: 18px auto 24px;
@@ -990,6 +1002,17 @@ select {
 
 .report-card-view.group-report {
   background: linear-gradient(180deg, #ffe1ec, #fffdf5 48%);
+}
+
+.report-card-view.gentle-report {
+  background: linear-gradient(180deg, #fff0c4, #fffdf5 48%);
+}
+
+.report-card-view.gentle-report .report-main-number {
+  color: var(--green-dark);
+  font-size: 2.4rem;
+  line-height: 1.18;
+  overflow-wrap: anywhere;
 }
 
 .report-card-view.group-report .report-main-number {
@@ -1338,6 +1361,17 @@ select {
   .judge-row,
   .metric-grid {
     grid-template-columns: 1fr;
+  }
+
+  .report-tabs {
+    max-width: 100%;
+    gap: 5px;
+  }
+
+  .report-tab {
+    min-height: 42px;
+    padding: 6px 4px;
+    font-size: 0.92rem;
   }
 
   .mode.recommended {
