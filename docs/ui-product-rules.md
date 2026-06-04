@@ -22,7 +22,7 @@
 ## Color Semantics
 
 - The home mode cards use very pale color blocks, close to white, so the page stays light and the cards do not merge into heavy areas.
-- Home mode card backgrounds are: gentle baseline `#fff7dd`, full estimate `#eaf7ff`, word-by-word challenge `#fff3f8`.
+- Home mode card backgrounds are: gentle baseline `#fff7dd`, full estimate `#f3fbff`, word-by-word challenge `#fff3f8`.
 - Home mode badges carry the mode identity more strongly than the card backgrounds: `摸` uses yellow, `估` uses blue, and `闯` uses pink.
 - Blue is for full estimate and primary testing actions.
 - Pink is for word-by-word challenge, unknown/not-recognized judgment, and reviewing unrecognized characters.
