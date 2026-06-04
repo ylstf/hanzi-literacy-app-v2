@@ -823,7 +823,7 @@ function renderReport(kind = null) {
         <img id="report-image" class="report-image" alt="生成的测评报告图片" />
         <div class="save-tip">
           <strong>长按上方图片保存到相册</strong>
-          <span>如果长按没有保存入口，再试试浏览器下载。</span>
+          <span>如果长按没有保存入口<br />再试试浏览器下载</span>
         </div>
       </div>
       <div class="actions report-save-actions">

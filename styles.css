@@ -174,7 +174,7 @@ select {
 }
 
 .sound-toggle {
-  min-height: 44px;
+  height: 50px;
   padding: 8px 12px;
 }
 
@@ -195,7 +195,7 @@ select {
 }
 
 .kid-switch select {
-  min-height: 44px;
+  height: 50px;
   padding: 8px 34px 8px 12px;
   font: inherit;
   font-weight: 900;
@@ -1294,7 +1294,7 @@ select {
 
   .top-actions {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr) auto;
     justify-content: stretch;
     gap: 8px;
     width: 100%;
@@ -1304,23 +1304,33 @@ select {
     align-items: flex-start;
     display: grid;
     gap: 4px;
-    grid-column: 1 / -1;
+    grid-column: 1;
     width: 100%;
+    min-width: 0;
   }
 
   .kid-switch select {
     width: 100%;
+    min-width: 0;
   }
 
   .sound-toggle {
     width: 100%;
   }
 
+  .top-actions > .sound-toggle[data-action="add-child"] {
+    align-self: end;
+    width: auto;
+    height: 48px;
+    min-width: 96px;
+    white-space: nowrap;
+  }
+
   .sound-control {
     display: none;
   }
 
-  .top-actions .sound-toggle:not(.sound-control) {
+  .top-actions .sound-toggle:not(.sound-control):not([data-action="add-child"]) {
     grid-column: 1 / -1;
   }
 
