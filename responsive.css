@@ -1,0 +1,192 @@
+/* Mobile-only fixes. Desktop keeps the original phone preview frame. */
+
+/* The app is split into status/header, scrolling content and a bottom bar. */
+.app-shell {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  min-height: 0;
+  margin: auto;
+  padding-bottom: 0;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.phone-status { grid-row: 1; }
+
+.topbar {
+  grid-row: 2;
+  position: relative;
+  top: auto;
+  flex: none;
+}
+
+.app-shell > main {
+  grid-row: 3;
+  min-width: 0;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* A true app-style bottom bar: no sticky positioning or negative margins. */
+.bottom-nav {
+  grid-row: 4;
+  position: relative;
+  left: auto;
+  bottom: auto;
+  transform: none;
+  width: 100%;
+  height: auto;
+  min-height: 84px;
+  margin: 0;
+  padding: 9px 8px calc(9px + env(safe-area-inset-bottom));
+  border-width: 1px 0 0;
+  border-radius: 26px 26px 0 0;
+  box-shadow: 0 -8px 28px rgba(42, 68, 50, .12);
+  backdrop-filter: blur(16px);
+}
+
+.bottom-nav button {
+  min-width: 0;
+  min-height: 60px;
+  padding: 8px 6px 9px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  line-height: 1.2;
+}
+
+.bottom-nav span {
+  display: block;
+  margin: 0;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.bottom-nav .active { border-radius: 22px; }
+
+/* Keep the poster and all transparent hotspots locked to the original 9:16 art. */
+.portal-view .app-shell {
+  grid-template-rows: auto minmax(0, 1fr);
+  background: #08251d;
+}
+
+.portal-view .phone-status { grid-row: 1; }
+
+.portal-view .app-shell > main {
+  grid-row: 2;
+  display: grid;
+  place-items: start center;
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-height: 0;
+  padding: 0;
+  background: #08251d;
+}
+
+.portal-view .app-shell > main::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -70px;
+  background:
+    radial-gradient(ellipse at 18% 22%, rgba(92, 132, 102, .68) 0, rgba(92, 132, 102, 0) 38%),
+    radial-gradient(ellipse at 78% 34%, rgba(24, 76, 57, .9) 0, rgba(24, 76, 57, 0) 44%),
+    radial-gradient(ellipse at 48% 78%, rgba(54, 101, 75, .72) 0, rgba(54, 101, 75, 0) 42%),
+    linear-gradient(160deg, #163f31 0, #08251d 58%, #041b16 100%);
+  filter: blur(46px);
+  transform: scale(1.16);
+}
+
+.poster-home {
+  z-index: 1;
+  width: 100%;
+  max-width: 576px;
+  aspect-ratio: 1290 / 2796;
+  min-height: 0;
+  background: #08251d;
+}
+
+.poster-home::after {
+  content: "";
+  position: absolute;
+  z-index: 6;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 7%;
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgba(8, 37, 29, 0), rgba(8, 37, 29, .96));
+}
+
+.poster-home-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Only real mobile viewports are forced to the dynamic screen height. */
+@media (max-width: 699px) {
+  html,
+  body {
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    overflow: hidden;
+  }
+
+  body {
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: 0;
+  }
+
+  .phone-frame {
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    min-height: 0;
+  }
+
+  .app-shell {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+  }
+}
+
+/* Preserve the original desktop phone mockup, changing only its internal layout. */
+@media (min-width: 700px) {
+  .app-shell {
+    height: 876px;
+    min-height: 0;
+    padding-bottom: 0;
+    overflow: hidden;
+  }
+
+  .topbar { top: auto; }
+  .bottom-nav {
+    position: relative;
+    left: auto;
+    bottom: auto;
+    width: 100%;
+    margin: 0;
+    transform: none;
+  }
+}
+
+/* Extra breathing room on very narrow phones without changing page proportions. */
+@media (max-width: 370px) {
+  .topbar { padding-left: 12px; padding-right: 12px; }
+  .topbar > div { width: min(260px, calc(100% - 108px)); }
+  .topbar h1 { font-size: 11px; }
+  .icon-button { width: 38px; height: 38px; }
+  .bottom-nav button { font-size: 12px; }
+  .bottom-nav span { font-size: 20px; }
+  main { padding-left: 12px; padding-right: 12px; }
+}

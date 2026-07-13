@@ -1,14 +1,51 @@
 <!doctype html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>识字闯关星球</title>
-    <link rel="stylesheet" href="./styles.css?v=20260604t" />
-  </head>
-  <body>
-    <main id="app" class="app"></main>
-    <script src="./data/hanzi.js?v=20260602l"></script>
-    <script src="./app.js?v=20260604q"></script>
-  </body>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f2f0e8">
+  <title>书法郭爸共学社群｜文化之旅021</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="phone-preview.css">
+  <link rel="stylesheet" href="tiantai-theme.css">
+  <link rel="stylesheet" href="responsive.css">
+</head>
+<body>
+  <div class="phone-label">手机端交互预览</div>
+  <div class="phone-frame">
+  <div class="app-shell">
+    <div class="phone-status" aria-hidden="true"><span id="phoneTime">09:41</span><span class="dynamic-island"></span><span class="phone-signals">▮▮▮ ᯤ 87</span></div>
+    <header class="topbar">
+      <button class="icon-button back-button hidden" aria-label="返回">‹</button>
+      <div>
+        <p class="eyebrow">书法郭爸共学社群</p>
+        <h1>诗文吟诵｜字源识字｜写字书法｜经典研读</h1>
+      </div>
+      <button class="icon-button" aria-label="消息">✦</button>
+    </header>
+
+    <main id="app"></main>
+
+    <nav class="bottom-nav" aria-label="主导航">
+      <button data-nav="home"><span>⌂</span>首页</button>
+      <button data-nav="journey"><span>◉</span>游学任务</button>
+      <button data-nav="profile"><span>♙</span>我的游历</button>
+    </nav>
+  </div>
+  </div>
+
+  <dialog id="answerDialog">
+    <form method="dialog" id="answerForm">
+      <button class="dialog-close" value="cancel" aria-label="关闭">×</button>
+      <p class="eyebrow">线索验证</p>
+      <h2 id="dialogTitle">提交答案</h2>
+      <p id="dialogHint" class="muted"></p>
+      <input id="answerInput" autocomplete="off" placeholder="请输入你发现的答案">
+      <p id="answerFeedback" class="feedback" aria-live="polite"></p>
+      <button type="submit" class="primary-button">验证线索</button>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
 </html>

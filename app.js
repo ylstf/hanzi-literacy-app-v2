@@ -1,1883 +1,273 @@
-const BANK = Array.isArray(window.HANZI_BANK) ? window.HANZI_BANK : [];
-const STORAGE_KEY = "hanzi-literacy-v2";
-const GROUP_SIZE = 100;
-const GROUP_COUNT = Math.ceil(BANK.length / GROUP_SIZE);
-const QUICK_TARGET = 200;
-const GENTLE_TARGET = 50;
-const UNDO_LIMIT = 10;
-const SHARE_URL = "https://www.beijingheshiedu.com/";
-const QUICK_MILESTONES = {
-  50: {
-    title: "太棒了，已经完成 50 题啦！",
-    body: "可以喝口水，也可以继续挑战。孩子状态舒服时，结果会更稳定。",
-  },
-  100: {
-    title: "真厉害，已经完成一半啦！",
-    body: "坚持到这里很不容易。想休息一下也没关系，进度会自动保存。",
-  },
-  150: {
-    title: "快到终点啦！",
-    body: "再完成 50 题就能生成测评结果。稳稳来，不着急。",
-  },
+const state = {
+  view: "home",
+  completed: JSON.parse(localStorage.getItem("tiantai-progress") || "[]"),
+  accessMode: localStorage.getItem("tiantai-access") || "",
+  activeMission: null,
+  answerMission: null
 };
-const GENTLE_MILESTONES = {
-  25: {
-    title: "太棒了，已经完成一半啦！",
-    body: "不认识也没关系，认真读完就是很棒的挑战。",
-  },
-};
-const GENTLE_LAYERS = [
-  {
-    key: "basic",
-    label: "基础生活高频字",
-    target: 15,
-    min: 0,
-    max: 100,
-    chars: "人口手目日月水火山田天大小上下中一二三十",
-  },
-  {
-    key: "life",
-    label: "儿童生活常见字",
-    target: 15,
-    min: 100,
-    max: 250,
-    chars: "爸妈我你他她家书学玩吃走来去看说",
-  },
-  {
-    key: "early",
-    label: "一年级早期常见字",
-    target: 12,
-    min: 250,
-    max: 450,
-    chars: "云雨风花草鸟虫里外东西南北前后",
-  },
-  {
-    key: "next",
-    label: "稍进阶常用字",
-    target: 8,
-    min: 450,
-    max: 700,
-    chars: "明晚园课同问答笑读写",
-  },
+
+const missions = [
+  { id:"m1", no:1, date:"7月13日", phase:"线上预热", chapter:"序章 · 天外来信", title:"谁为此山命名？", place:"线上 · 家庭共同完成", hint:"古人认为这座山峰峦高秀，与天上的“台宿”遥相呼应，留下了“上应台宿”的说法。请找到藏在序章中的两个关键字。", action:"亲子共同阅读序章，讨论“天”与“台”的含义，并提交两个字的口令。", answer:"台宿", open:true, prologue:true },
+  { id:"m2", no:2, date:"7月14日", phase:"线上预热", chapter:"序章 · 家庭报到", title:"写下我们的出发心愿", place:"线上 · 微信群", hint:"解开地名后，每个家庭将领取一枚“寻心印”。", action:"录制20秒家庭出发宣言：我们是谁、为什么出发、最想在天台找到什么。", answer:"寻心", open:false },
+  { id:"m3", no:3, date:"7月15日", phase:"线上预热", chapter:"序章 · 天台初识", title:"在地图上找到天台", place:"线上 · 家庭共同完成", hint:"出发前，先把天台放进中国文化的地图里。", action:"和孩子一起查找天台山、国清寺、石梁飞瀑、桐柏宫的位置，并在旅行手账上画出第一张路线草图。", answer:"天台", open:false },
+  { id:"m4", no:4, date:"7月16日", phase:"线上预热", chapter:"序章 · 唐诗之路", title:"诗人为什么向东南走？", place:"线上 · 家庭共同完成", hint:"天台是浙东唐诗之路的重要终点。", action:"任选一位到过天台的诗人，读一首相关诗歌，写下一个你最想现场验证的画面。", answer:"诗路", open:false },
+  { id:"m5", no:5, date:"7月17日", phase:"线上预热", chapter:"序章 · 霞客之志", title:"徐霞客为什么出发？", place:"线上 · 家庭共同完成", hint:"第二天的山水壮游，将以徐霞客为主线。", action:"亲子共读徐霞客相关小故事，写下“我愿意坚持寻找的一个答案”。", answer:"志行", open:false },
+  { id:"m6", no:6, date:"7月18日", phase:"线上预热", chapter:"序章 · 和合之门", title:"儒释道为什么都来这里？", place:"线上 · 家庭共同完成", hint:"天台不只是一座山，也是诗、佛、道相会的地方。", action:"用三句话分别写下你理解的诗、佛、道，并想一想它们为什么会在天台相遇。", answer:"和合", open:false },
+  { id:"m7", no:7, date:"7月19日", phase:"线上预热", chapter:"序章 · 材料包预备", title:"给未来的自己写一封信", place:"线上 · 家庭共同完成", hint:"真正的材料包将在现场发放，但第一件材料可以从家里开始。", action:"写一封给7月27日自己的短信：希望这次天台之行结束时，我收获了什么？", answer:"初心", open:false },
+  { id:"m8", no:8, date:"7月20日", phase:"线上预热", chapter:"序章 · 启程前夜", title:"三十人即将会师", place:"线上 · 微信群", hint:"明天，线上线索将落到真实山水里。", action:"整理行李、准备手账，在群里发送一张“启程照片”和一句出发口号。", answer:"会师", open:false },
+  { id:"m9", no:9, date:"7月21日", phase:"现场第一日", chapter:"第一日 · 会合", title:"三十人的第一张地图", place:"圣爱安养院", hint:"四支小队将在开营仪式中首次会合。", action:"认识队友、确定队名与队印，完成家庭和小队身份卡。", answer:"开营", open:false },
+  { id:"m10", no:10, date:"7月22日", phase:"现场第二日", chapter:"第二日 · 霞客之路", title:"把脚步写成答案", place:"石梁景区", hint:"沿着徐霞客的文字与摩崖石刻，从金溪翠谷走向石梁飞瀑。", action:"完成沿途观察、吟诵、拓字与霞客精神任务。", answer:"志行", open:false },
+  { id:"m11", no:11, date:"7月23日", phase:"现场第三日", chapter:"第三日 · 以笔入山", title:"把摩崖带回纸上", place:"圣爱安养院", hint:"山上的大字，将在今天成为每个人的作品。", action:"完成摩崖大字、诗文小字、吟诵与夜间展览。", answer:"笔墨", open:false },
+  { id:"m12", no:12, date:"7月24日", phase:"现场第四日", chapter:"第四日 · 道法自然", title:"一草一木皆有名", place:"桐柏宫 · 紫凝山", hint:"寻找植物、制作标本，也寻找人与自然相处的方法。", action:"完成药材观察、手写标签、经折装与经典吟诵。", answer:"自然", open:false },
+  { id:"m13", no:13, date:"7月25日", phase:"现场第五日", chapter:"第五日 · 诗从瀑布来", title:"诗人眼中的水", place:"天台山大瀑布", hint:"从真实的水声、光线和高度中，找回唐诗的现场。", action:"观察瀑布并完成一页诗画旅行日记。", answer:"诗路", open:false },
+  { id:"m14", no:14, date:"7月26日", phase:"现场第六日", chapter:"第六日 · 和合之门", title:"国清三贤留下的答案", place:"国清寺", hint:"寒山、拾得、丰干、济公与历代书家，在这里留下不同的足迹。", action:"完成建筑、匾额、碑刻与和合故事任务。", answer:"和合", open:false },
+  { id:"m15", no:15, date:"7月27日", phase:"现场第七日", chapter:"第七日 · 归来", title:"我们找到的天台", place:"圣爱安养院", hint:"把六天的作品、标本、日记与故事合在一起。", action:"小队布展、个人分享、互赠照片并写下纪念册留言。", answer:"心台", open:false }
 ];
-const GENTLE_STAGE_RULES = [
-  {
-    max: 80,
-    name: "识字起步期",
-    range: "0-80",
-    advice: "可以从生活里的字、绘本封面和孩子熟悉的名字开始。每天认识几个就很好，不急着追数量。",
-  },
-  {
-    max: 200,
-    name: "基础积累期",
-    range: "80-200",
-    advice: "孩子已经有一些基础了。建议继续用亲子共读和生活识字慢慢积累，遇到不认识的字可以先做成小练习清单。",
-  },
-  {
-    max: 400,
-    name: "早期阅读准备期",
-    range: "200-400",
-    advice: "可以尝试短句、儿歌和很简单的分级读物。读不出来时先鼓励，再把这些字放进“不认识的字”里复习。",
-  },
-  {
-    max: 700,
-    name: "可以尝试简单分级阅读",
-    range: "400-700",
-    advice: "孩子可以开始接触更完整的小故事。建议选择字少、图多、重复句式多的读物，让阅读保持轻松。",
-  },
+
+const pastTours = [
+  {no:"020",name:"绍兴游学"},{no:"019",name:"徽州游学"},{no:"018",name:"西安游学"},
+  {no:"017",name:"景德镇游学 2"},{no:"016",name:"景德镇游学 1"},
+  ...Array.from({length:15},(_,i)=>({no:String(15-i).padStart(3,"0"),name:"北京游学"}))
 ];
 
 const app = document.querySelector("#app");
-let state = load();
-let screen = "home";
-let audioContext = null;
-let activeReportKind = "current";
+const back = document.querySelector(".back-button");
+const dialog = document.querySelector("#answerDialog");
+const input = document.querySelector("#answerInput");
+const feedback = document.querySelector("#answerFeedback");
+const phoneTime = document.querySelector("#phoneTime");
+phoneTime.textContent = new Intl.DateTimeFormat("zh-CN",{hour:"2-digit",minute:"2-digit",hour12:false}).format(new Date());
 
-function createChild(nickname = "小朋友") {
-  const id = `child-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
-  return {
-    id,
-    nickname,
-    groups: {},
-    gentle: null,
-    gentleHistory: [],
-    quick: null,
-    quickHistory: [],
-    wrongbook: {},
-    review: null,
-  };
-}
-
-function defaultState() {
-  return {
-    version: 2,
-    soundOn: true,
-    activeChildId: null,
-    children: {},
-    lastRoute: "home",
-  };
-}
-
-function normalizeState(raw) {
-  if (!raw || typeof raw !== "object") return defaultState();
-  if (raw.children && raw.activeChildId) return { ...defaultState(), ...raw };
-
-  const child = createChild("小朋友");
-  child.groups = raw.groups || {};
-  child.gentle = raw.gentle || null;
-  child.gentleHistory = raw.gentleHistory || [];
-  child.quick = raw.quick || null;
-  child.quickHistory = raw.quickHistory || [];
-  child.wrongbook = raw.wrongbook || buildWrongbookFromGroups(child.groups);
-  return {
-    version: 2,
-    soundOn: raw.soundOn !== false,
-    activeChildId: child.id,
-    children: { [child.id]: child },
-  };
-}
-
-function buildWrongbookFromGroups(groups) {
-  const wrongbook = {};
-  Object.values(groups || {}).forEach((group) => {
-    Object.entries(group.answers || {}).forEach(([id, status]) => {
-      if (status === "unknown") wrongbook[id] = { id: Number(id), source: "group", updatedAt: Date.now() };
-    });
-  });
-  return wrongbook;
-}
-
-function load() {
-  try {
-    return normalizeState(JSON.parse(localStorage.getItem(STORAGE_KEY)));
-  } catch {
-    return defaultState();
+function getFamilyCode(){
+  let code = localStorage.getItem("tiantai-family-code");
+  if(!code){
+    const seed = Math.floor(1000 + Math.random() * 9000);
+    code = `天台-${seed}号`;
+    localStorage.setItem("tiantai-family-code", code);
   }
+  return code;
 }
 
-function save() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-}
-
-function setRoute(route) {
-  state.lastRoute = route;
-  save();
-}
-
-function scrollToTop() {
-  requestAnimationFrame(() => window.scrollTo(0, 0));
-}
-
-function child() {
-  if (!state.children[state.activeChildId]) {
-    const next = createChild("小朋友");
-    state.activeChildId = next.id;
-    state.children[next.id] = next;
-    save();
-  }
-  return ensureChildShape(state.children[state.activeChildId]);
-}
-
-function ensureChildShape(current) {
-  if (!current.groups) current.groups = {};
-  if (!current.gentleHistory) current.gentleHistory = [];
-  if (!current.quickHistory) current.quickHistory = [];
-  if (!current.wrongbook) current.wrongbook = {};
-  return current;
-}
-
-function html(value) {
-  return String(value).replace(/[&<>"']/g, (char) => {
-    const map = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" };
-    return map[char];
-  });
-}
-
-function itemById(id) {
-  return BANK[id - 1];
-}
-
-function groupRange(groupIndex) {
-  const start = groupIndex * GROUP_SIZE;
-  const end = Math.min(start + GROUP_SIZE, BANK.length);
-  return BANK.slice(start, end);
-}
-
-function getGroup(groupIndex) {
-  const current = child();
-  const key = String(groupIndex);
-  if (!current.groups[key]) {
-    current.groups[key] = {
-      groupIndex,
-      currentOffset: 0,
-      answers: {},
-      order: groupRange(groupIndex).map((item) => item.id),
-      undoStack: [],
-      completedAt: null,
-    };
-  }
-  return current.groups[key];
-}
-
-function groupProgress(groupIndex) {
-  const group = child().groups[String(groupIndex)];
-  if (!group) return { answered: 0, known: 0, total: groupRange(groupIndex).length, done: false };
-  const values = Object.values(group.answers || {});
-  const total = group.order.length;
-  return {
-    answered: values.length,
-    known: values.filter((v) => v === "known").length,
-    total,
-    done: values.length >= total,
-  };
-}
-
-function updateWrongbook(id, status, source) {
-  const current = child();
-  if (status === "unknown") {
-    current.wrongbook[id] = { id: Number(id), source, updatedAt: Date.now() };
-  } else {
-    delete current.wrongbook[id];
-  }
-}
-
-function updateSavedAnswers(id, status) {
-  const current = child();
-  const numericId = Number(id);
-  let touchedGentle = false;
-  let touchedQuick = false;
-
-  Object.values(current.groups || {}).forEach((group) => {
-    if (group.answers && Object.prototype.hasOwnProperty.call(group.answers, numericId)) {
-      group.answers[numericId] = status;
-    }
-  });
-
-  if (current.gentle?.answers?.length) {
-    current.gentle.answers.forEach((answer) => {
-      if (answer.id === numericId) {
-        answer.known = status === "known";
-        touchedGentle = true;
-      }
-    });
-  }
-
-  if (current.quick?.answers?.length) {
-    current.quick.answers.forEach((answer) => {
-      if (answer.id === numericId) {
-        answer.known = status === "known";
-        touchedQuick = true;
-      }
-    });
-  }
-
-  if (touchedGentle && current.gentle?.finished && current.gentleHistory?.length) {
-    current.gentleHistory[0] = {
-      ...current.gentleHistory[0],
-      ...estimateGentle(),
-      refreshedAt: Date.now(),
-    };
-  }
-
-  if (touchedQuick && current.quick?.finished && current.quickHistory?.length) {
-    current.quickHistory[0] = {
-      ...current.quickHistory[0],
-      ...estimateQuick(),
-      refreshedAt: Date.now(),
-    };
-  }
-}
-
-function footerHtml() {
-  return `
-    <footer class="site-footer">
-      <p>问题和建议：微信 <strong>ylstf08</strong></p>
-      <p>数据仅保存在本机浏览器 · 结果供家庭阅读和识字练习参考</p>
-      <p><a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">京ICP备2025151450号</a></p>
-    </footer>
-  `;
-}
-
-function currentSummary() {
-  const current = child();
-  const groupStats = Array.from({ length: GROUP_COUNT }, (_, i) => groupProgress(i));
-  const completedGroups = groupStats.filter((g) => g.done).length;
-  const groupAnswered = groupStats.reduce((sum, g) => sum + g.answered, 0);
-  const groupKnown = groupStats.reduce((sum, g) => sum + g.known, 0);
-  const latestGentle = current.gentleHistory?.[0] || null;
-  const gentleKnown = latestGentle?.known ?? 0;
-  const gentleTotal = latestGentle?.total ?? 0;
-  const gentleUnknown = Math.max(0, gentleTotal - gentleKnown);
-  const latestQuick = current.quickHistory?.[0] || null;
-  const quickKnown = latestQuick?.known ?? 0;
-  const quickTotal = latestQuick?.total ?? 0;
-  const quickUnknown = Math.max(0, quickTotal - quickKnown);
-  const wrongCount = Object.keys(current.wrongbook || {}).length;
-  const estimated = latestQuick?.estimated ?? latestGentle?.estimated ?? groupKnown;
-  const range = latestQuick ? `${latestQuick.low}-${latestQuick.high}` : latestGentle ? `${latestGentle.range}` : "完成测评后显示";
-
-  return {
-    nickname: current.nickname,
-    date: new Date().toLocaleDateString("zh-CN"),
-    estimated,
-    range,
-    latestGentle,
-    gentleKnown,
-    gentleUnknown,
-    latestQuick,
-    quickKnown,
-    quickUnknown,
-    wrongCount,
-    completedGroups,
-    groupAnswered,
-    groupKnown,
-  };
-}
-
-function shell(content) {
-  const current = child();
-  const kids = Object.values(state.children);
-  return `
-    <header class="topbar">
-      <div class="brand">
-        <div class="planet">字</div>
-        <div>
-          <h1>识字闯关星球</h1>
-          <p>儿童识字量测评工具 · 书法郭爸团队出品</p>
-        </div>
-      </div>
-      <div class="top-actions">
-        <label class="kid-switch">
-          <span>当前孩子</span>
-          <select data-action="switch-child">
-            ${kids.map((kid) => `<option value="${kid.id}" ${kid.id === current.id ? "selected" : ""}>${html(kid.nickname)}</option>`).join("")}
-          </select>
-        </label>
-        <button class="sound-toggle" data-action="add-child">加孩子</button>
-        <button class="sound-toggle sound-control" data-action="toggle-sound">${state.soundOn ? "音效开" : "音效关"}</button>
-      </div>
-    </header>
-    ${content}
-    ${footerHtml()}
-  `;
-}
-
-function pageNav(title, rightLabel = "回首页", rightAction = "home") {
-  const right = rightLabel ? `<button class="btn ghost" data-action="${rightAction}">${html(rightLabel)}</button>` : '<span class="nav-spacer"></span>';
-  return `
-    <nav class="page-nav" aria-label="页面导航">
-      <button class="btn ghost" data-action="back">返回</button>
-      <strong>${html(title)}</strong>
-      ${right}
-    </nav>
-  `;
-}
-
-function goBack() {
-  if (screen === "wrong-review") return renderWrongbook();
-  return renderHome();
-}
-
-function nextGroupActionLabel(groupIndex) {
-  const progress = groupProgress(groupIndex);
-  if (progress.answered === 0) return `从第 ${groupIndex + 1} 组开始`;
-  if (!progress.done) return `继续第 ${groupIndex + 1} 组`;
-  return `查看第 ${groupIndex + 1} 组`;
-}
-
-function renderHome() {
-  if (!state.activeChildId || !state.children[state.activeChildId]) {
-    renderOnboarding();
-    return;
-  }
-  screen = "home";
-  setRoute("home");
-  const current = child();
-  const totalAnswered = Object.keys(current.groups).reduce((sum, key) => {
-    return sum + Object.keys(current.groups[key].answers || {}).length;
-  }, 0);
-  const totalKnown = Object.keys(current.groups).reduce((sum, key) => {
-    return sum + Object.values(current.groups[key].answers || {}).filter((v) => v === "known").length;
-  }, 0);
-  const completedGroups = Array.from({ length: GROUP_COUNT }, (_, i) => groupProgress(i)).filter((g) => g.done).length;
-  const gentleProgress = current.gentle && !current.gentle.finished ? current.gentle.answers.length : 0;
-  const latestGentle = current.gentleHistory?.[0] || null;
-  const quickProgress = current.quick && !current.quick.finished ? current.quick.answers.length : 0;
-  const latestQuick = current.quickHistory?.[0] || null;
-  const wrongCount = Object.keys(current.wrongbook || {}).length;
-  const nextGroup = Array.from({ length: GROUP_COUNT }, (_, i) => i).find((i) => !groupProgress(i).done) ?? GROUP_COUNT - 1;
-  const nextGroupLabel = nextGroupActionLabel(nextGroup);
-  const hasAnyReport = latestGentle || latestQuick || totalAnswered;
-  const reportLabel = hasAnyReport ? "查看测评报告" : "完成测评后生成报告";
-
-  app.innerHTML = shell(`
-    <section class="home-grid">
-      <div class="panel home-main">
-        <p class="eyebrow">${html(current.nickname)} 的识字测评</p>
-        <h2 class="hero-title">先快速摸底<br /><span>再慢慢闯关</span></h2>
-        <p class="hero-copy">
-          孩子看字读出来，家长按真实情况点“认识”或“不认识”。
-          低龄孩子可以先轻松摸底；想要更稳定估算时，再做完整估算。
-        </p>
-        <div class="inline-actions">
-          <button class="btn ghost" data-action="guide">测评规则与字库来源</button>
-        </div>
-        <div class="mode-grid home-mode-grid">
-          <div class="mode">
-            <div class="badge">摸</div>
-            <h2>轻松摸底</h2>
-            <p>${gentleProgress ? `已完成 ${gentleProgress}/${GENTLE_TARGET} 题，继续后会接着上次进度。` : "适合幼儿园或识字量较少的孩子，约 50 题，不认识也没关系。"}</p>
-            <div class="mode-actions">
-              <button class="btn primary" data-action="gentle-start">${gentleProgress ? "继续轻松摸底" : "开始轻松摸底"}</button>
-              <button class="btn ghost" data-action="report-gentle" ${latestGentle ? "" : "disabled"}>${latestGentle ? "生成轻松摸底报告" : "完成后生成报告"}</button>
-            </div>
-          </div>
-          <div class="mode">
-            <div class="badge">估</div>
-            <h2>完整估算</h2>
-            <p>${quickProgress ? `已完成 ${quickProgress}/200 题，继续后会接着上次进度。` : "适合想更稳定估算识字量的孩子，约 10-15 分钟，可暂停继续。"}</p>
-            <div class="mode-actions">
-              <button class="btn primary" data-action="quick-start">${quickProgress ? "继续完整估算" : "开始完整估算"}</button>
-              <button class="btn ghost" data-action="report-quick" ${latestQuick ? "" : "disabled"}>${latestQuick ? "生成完整估算报告" : "完成后生成报告"}</button>
-            </div>
-          </div>
-          <div class="mode">
-            <div class="badge">闯</div>
-            <h2>逐字闯关</h2>
-            <p>每组 100 字，按实际结果逐字保存。可以按顺序测，也可以选择任意小组。</p>
-            <div class="mode-actions">
-              <button class="btn soft" data-action="group-start-next">${nextGroupLabel}</button>
-              <button class="btn ghost" data-action="group-list">选择小组</button>
-              <button class="btn ghost" data-action="report-group" ${totalAnswered ? "" : "disabled"}>${totalAnswered ? "生成逐字闯关报告" : "测过后生成报告"}</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <aside class="stack">
-        <section class="card">
-          <h3>当前进度</h3>
-          <div class="stats">
-            <div class="stat"><span>轻松摸底</span><strong>${latestGentle ? latestGentle.stageName : gentleProgress ? `${gentleProgress}/${GENTLE_TARGET}` : "未完成"}</strong></div>
-            <div class="stat"><span>完整估算</span><strong>${latestQuick ? `${latestQuick.estimated} 字` : quickProgress ? `${quickProgress}/200` : "未完成"}</strong></div>
-            <div class="stat"><span>已完成小组</span><strong>${completedGroups}/${GROUP_COUNT}</strong></div>
-            <div class="stat"><span>逐字已测</span><strong>${totalAnswered}/${BANK.length}</strong></div>
-            <div class="stat"><span>已确认认识</span><strong>${totalKnown}</strong></div>
-            <div class="stat"><span>不认识的字</span><strong>${wrongCount}</strong></div>
-          </div>
-          <div class="side-actions">
-            <button class="btn review" data-action="wrongbook">查看不认识的字</button>
-            <button class="btn ghost" data-action="report" ${hasAnyReport ? "" : "disabled"}>${reportLabel}</button>
-          </div>
-        </section>
-      </aside>
-    </section>
-
-    <section class="group-section">
-      <details class="method-detail danger-zone">
-        <summary>管理当前孩子记录</summary>
-        <p>这里的操作只影响“${html(current.nickname)}”在本机浏览器里的记录。</p>
-        <button class="btn ghost" data-action="reset-child">清空当前孩子记录</button>
-      </details>
-    </section>
-  `);
-  scrollToTop();
-}
-
-function renderOnboarding() {
-  screen = "onboarding";
+function renderHome(){
   app.innerHTML = `
-    <section class="onboarding">
-      <div class="planet">字</div>
-      <p class="eyebrow">儿童识字量测评工具 · 书法郭爸团队出品</p>
-      <h1>欢迎来到识字闯关星球</h1>
-      <p class="hero-copy">请输入孩子昵称。之后测评记录、不认识的字和闯关进度都会按孩子分别保存。</p>
-      <div class="name-form">
-        <input id="child-name-input" type="text" maxlength="20" placeholder="例如：乐乐、小宇、一年级哥哥" autocomplete="off" />
-        <button class="btn primary" data-action="create-first-child">开始使用</button>
-      </div>
-      <p class="muted">数据只保存在这台设备的浏览器里，不会上传服务器。</p>
-      <p class="feedback">问题和建议：微信 <strong>ylstf08</strong></p>
+    <section class="poster-home" aria-label="书法郭爸共学社群主页">
+      <img class="poster-home-image" src="assets/guoba-homepage-poster-v2.png" alt="书法郭爸共学社群主页：一棵从中国文化土壤里长出来的书法树">
+      <button class="poster-hotspot hotspot-poetry" type="button" data-note="网页更新中……" aria-label="进入诗文吟诵"></button>
+      <button class="poster-hotspot hotspot-classic" type="button" data-note="网页更新中……" aria-label="进入经典吟诵"></button>
+      <button class="poster-hotspot hotspot-etymology" type="button" data-note="网页更新中……" aria-label="进入字源解经"></button>
+      <button class="poster-hotspot hotspot-culture" type="button" data-nav="culture" aria-label="进入文化之旅"></button>
+      <button class="poster-hotspot hotspot-partner" type="button" data-note="网页更新中……" aria-label="进入机构合作"></button>
+      <button class="poster-hotspot hotspot-hardpen" type="button" data-note="网页更新中……" aria-label="进入硬笔写字"></button>
+      <button class="poster-hotspot hotspot-softpen" type="button" data-note="网页更新中……" aria-label="进入软笔书法"></button>
+      <a class="poster-hotspot hotspot-literacy" href="literacy/index.html" aria-label="进入字源识字"></a>
+      <p class="tree-note" aria-live="polite"></p>
+      <div class="poster-toast" aria-live="polite"></div>
+    </section>`;
+}
+
+function renderLiteracy(){
+  app.innerHTML = `
+    <section class="mission-header">
+      <p class="eyebrow">书法郭爸共学社群</p>
+      <h2>字源识字</h2>
+      <p class="muted">这里先作为“识字星球 / 字源识字”的二级入口。后续可以接入已有识字星球页面、课程卡片、任务和学习记录。</p>
+      <button class="primary-button" data-note="识字星球内容正在接入中。">进入识字星球</button>
     </section>
-    ${footerHtml()}
-  `;
-  setTimeout(() => document.querySelector("#child-name-input")?.focus(), 0);
-  scrollToTop();
+    <article class="game-card"><div class="game-body"><h3>识字星球</h3><p>汉字启蒙 × 字源解经 × 亲子共学</p><div class="tag-row"><span class="tag">二级页面占位</span><span class="tag">可继续扩展</span></div></div></article>`;
 }
 
-function renderGuide() {
-  screen = "guide";
-  setRoute("guide");
-  app.innerHTML = shell(`
-    <section class="result-card guide-card guide-page">
-      ${pageNav("规则与来源")}
-      <h2>测评规则与字库来源</h2>
-      <div class="guide-list">
-        <p><strong>1. 孩子读字：</strong>屏幕每次只显示一个汉字，让孩子直接读出来。</p>
-        <p><strong>2. 家长判断：</strong>孩子能基本读出常见读音，就点“认识”；卡住、猜测、需要提示，都点“不认识”。</p>
-        <p><strong>3. 轻松摸底：</strong>一次 50 题，适合低龄或识字量较少的孩子。结果只给出粗略阶段和练习建议。</p>
-        <p><strong>4. 完整估算：</strong>一次 200 题，通常约 10-15 分钟，可暂停后继续。完成后会给出大致识字量范围。</p>
-        <p><strong>5. 逐字闯关：</strong>每组 100 字，可分多天完成；可以按顺序测，也可以选择任意小组。</p>
-        <p><strong>6. 按错可撤回：</strong>轻松摸底、完整估算、分组闯关和“不认识的字”重测都可以撤回最近 10 步，电脑上也可按 3 撤回。</p>
-        <p><strong>7. 不认识的字：</strong>点过“不认识”的字会自动进入列表，之后可以单独重测或全部重测。</p>
-        <p><strong>8. 数据保存：</strong>记录只保存在本机浏览器。换设备或清理浏览器缓存，可能会丢失记录。</p>
+function renderCulture(){
+  app.innerHTML = `
+    <section class="hero" id="cultureHome">
+      <div class="status-ribbon hero-ribbon">正在进行</div>
+      <div class="hero-topline">
+        <img class="hero-avatar" src="assets/guoba-portrait.jpg" alt="书法郭爸">
+        <div>
+          <div class="series-badge">编号 021</div>
+          <p class="eyebrow">书法郭爸共学社群 · 文化之旅</p>
+        </div>
       </div>
-      <details class="method-detail">
-        <summary>了解估算方法</summary>
-        <p>轻松摸底会从基础生活字、儿童常见字和早期阅读字中分层抽样，用较短测评判断孩子大概处在哪个识字阶段。</p>
-        <p>完整估算会从不同难度的汉字中抽样，根据孩子在各难度层的表现，推算 2500 字中的大致掌握量。它适合快速摸底，不是逐字统计。</p>
-        <p>分组闯关则是逐字记录：孩子测过哪些字、哪些认识、哪些不认识，都会按实际点击结果保存。</p>
-      </details>
-      <details class="method-detail">
-        <summary>了解 2500 字来源</summary>
-        <p>当前字库共 2500 个常用汉字，底稿参考《现代汉语常用字表》常用字部分整理。</p>
-        <p>本工具适合作为家庭阅读和识字练习参考，不是官方测评。后续可继续校对为更贴近小学阶段的专用字表。</p>
-      </details>
+      <h2>浙江天台山游学</h2>
+      <p>一封跨越千年的来信，将三十位同行者引向云雾深处。答案不只藏在屏幕里，也藏在即将启程的山水之间。</p>
+      <div class="tag-row"><span class="tag">亲子协作</span><span class="tag">线上序章</span><span class="tag">实景终章</span></div>
+      <button class="primary-button" data-enter="tiantai">进入秘境</button>
     </section>
-  `);
-  scrollToTop();
+    <div class="archive-heading"><span>往期文化之旅</span><small>已全部完结</small></div>
+    <section class="archive-list">${pastTours.map(tour=>`<article class="archive-card" aria-disabled="true"><span class="archive-no">${tour.no}</span><div><h3>${tour.name}</h3><p>书法郭爸-中国文化之旅</p></div><span class="finished-mark">已完结</span></article>`).join("")}</section>`;
 }
 
-function renderGroupList() {
-  screen = "group-list";
-  setRoute("group-list");
-  app.innerHTML = shell(`
-    <section class="result-card group-list-page list-page">
-      ${pageNav("选择小组")}
-      <h2>选择识字小组</h2>
-      <p class="hero-copy">每组 100 字。可以按顺序测，也可以根据孩子情况选择任意小组。</p>
-      <div class="group-grid">
-        ${Array.from({ length: GROUP_COUNT }, (_, i) => groupTile(i)).join("")}
-      </div>
-    </section>
-  `);
-  scrollToTop();
-}
-
-function groupTile(groupIndex) {
-  const progress = groupProgress(groupIndex);
-  const pct = Math.round((progress.answered / progress.total) * 100);
-  const cls = progress.done ? "done" : progress.answered ? "active" : "";
-  return `
-    <button class="group-tile ${cls}" data-action="group-start" data-group="${groupIndex}">
-      <span class="group-num">第 ${groupIndex + 1} 组</span>
-      <span class="muted">${progress.answered}/${progress.total} 字</span>
-      <div class="mini-progress"><span style="width:${pct}%"></span></div>
-    </button>
-  `;
-}
-
-function startNextGroup() {
-  const next = Array.from({ length: GROUP_COUNT }, (_, i) => i).find((i) => !groupProgress(i).done);
-  startGroup(typeof next === "number" ? next : GROUP_COUNT - 1);
-}
-
-function startGroup(groupIndex) {
-  const group = getGroup(groupIndex);
-  if (groupProgress(groupIndex).done) {
-    renderGroupResult(groupIndex);
+function renderJourney(){
+  if(!state.accessMode){
+    renderAccessGate();
     return;
   }
-  while (group.currentOffset < group.order.length && group.answers[group.order[group.currentOffset]]) {
-    group.currentOffset += 1;
-  }
-  save();
-  renderGroupTest(groupIndex);
-}
-
-function currentGroupItem(group) {
-  return itemById(group.order[group.currentOffset]);
-}
-
-function answerGroup(status) {
-  const groupIndex = Number(screen.replace("group-", ""));
-  const group = getGroup(groupIndex);
-  const item = currentGroupItem(group);
-  if (!item) return renderGroupResult(groupIndex);
-
-  const previous = group.answers[item.id];
-  const previousWrongbook = child().wrongbook[item.id] ? { ...child().wrongbook[item.id] } : null;
-  group.answers[item.id] = status;
-  group.undoStack.push({ id: item.id, offset: group.currentOffset, previous, previousWrongbook });
-  group.undoStack = group.undoStack.slice(-UNDO_LIMIT);
-  group.currentOffset += 1;
-  updateWrongbook(item.id, status, "group");
-  play(status === "known" ? "good" : "bad");
-
-  if (group.currentOffset >= group.order.length) {
-    group.completedAt = Date.now();
-    save();
-    renderGroupResult(groupIndex);
-    celebrate(`第 ${groupIndex + 1} 组完成啦！`);
+  if(state.activeMission){
+    const mission = missions.find(m=>m.id===state.activeMission) || missions[0];
+    app.innerHTML = missionHTML(mission);
     return;
   }
-
-  save();
-  renderGroupTest(groupIndex);
+  renderMissionMap();
 }
 
-function undoGroup() {
-  const groupIndex = Number(screen.replace("group-", ""));
-  const group = getGroup(groupIndex);
-  const last = group.undoStack.pop();
-  if (!last) return;
-  if (last.previous) {
-    group.answers[last.id] = last.previous;
-  } else {
-    delete group.answers[last.id];
-  }
-  if (last.previousWrongbook) child().wrongbook[last.id] = last.previousWrongbook;
-  else delete child().wrongbook[last.id];
-  group.currentOffset = last.offset;
-  group.completedAt = null;
-  play("undo");
-  save();
-  renderGroupTest(groupIndex);
-}
-
-function renderGroupTest(groupIndex) {
-  screen = `group-${groupIndex}`;
-  setRoute(`group-${groupIndex}`);
-  const group = getGroup(groupIndex);
-  const item = currentGroupItem(group);
-  const progress = groupProgress(groupIndex);
-  const pct = Math.round((progress.answered / progress.total) * 100);
-
-  app.innerHTML = shell(`
-    <section class="test-layout">
-      <div class="test-card">
-        ${pageNav(`第 ${groupIndex + 1} 组`, "暂停并回首页")}
-        <div class="test-top">
-          <div>
-            <h2>第 ${groupIndex + 1} 组</h2>
-            <p class="muted">第 ${progress.answered + 1} 题 / ${progress.total} 题</p>
-          </div>
-        </div>
-        <div class="progress"><span style="width:${pct}%"></span></div>
-        <div class="hanzi-stage">
-          <div class="hanzi">${html(item.char)}</div>
-        </div>
-        <div class="judge-row">
-          <button class="btn good" data-action="group-known">认识 <span class="desktop-only">1</span></button>
-          <button class="btn bad" data-action="group-unknown">不认识 <span class="desktop-only">2</span></button>
-        </div>
-      </div>
-
-      <aside class="stack">
-        <section class="card">
-          <h3>这一组</h3>
-          <div class="stats">
-            <div class="stat"><span>已测</span><strong>${progress.answered}</strong></div>
-            <div class="stat"><span>认识</span><strong>${progress.known}</strong></div>
-            <div class="stat"><span>剩余</span><strong>${progress.total - progress.answered}</strong></div>
-          </div>
-          <div class="side-actions">
-            <button class="btn warn" data-action="group-undo" ${group.undoStack.length ? "" : "disabled"}>撤回最近一步</button>
-            <button class="btn ghost" data-action="home">暂停并回首页</button>
-          </div>
-        </section>
-        <section class="card desktop-only-block">
-          <h3>键盘操作</h3>
-          <p>电脑上可按 1 表示认识，按 2 表示不认识，按 3 撤回。</p>
-        </section>
-      </aside>
+function renderMissionMap(){
+  const done = state.completed.length;
+  const isGuest = state.accessMode === "guest";
+  const visibleMissions = isGuest ? missions.slice(0,3) : missions;
+  app.innerHTML = `
+    <section class="mission-header map-intro">
+      <p class="eyebrow">中国文化之旅 · 编号 021</p>
+      <h2>${isGuest ? "体验秘境" : "天台十五日秘境图"}</h2>
+      <p class="muted">${isGuest ? "你正在体验开放关卡。正式报名后，可解锁从7月13日至7月27日的完整十五关。" : "7月13日，第一封谜笺将在云端开启。接下来的十五天，线索会从屏幕走入山水；直到7月27日，所有答案将在天台完成归档。"}</p>
+      <div class="progress-track"><div class="progress-fill" style="width:${done/missions.length*100}%"></div></div>
+      <small>${done} / ${missions.length} 条线索已归档</small>
+      <div class="access-switch"><span>${isGuest ? "体验游客模式" : "正式学员模式"}</span><button class="secondary-button" data-reset-access>切换身份</button></div>
     </section>
-  `);
-}
-
-function renderGroupResult(groupIndex) {
-  screen = "result";
-  setRoute(`group-result-${groupIndex}`);
-  const progress = groupProgress(groupIndex);
-  const pct = progress.total ? Math.round((progress.known / progress.total) * 100) : 0;
-
-  app.innerHTML = shell(`
-    <section class="result-card">
-      <span class="tag">★ 第 ${groupIndex + 1} 组完成</span>
-      <h2>这一组认识</h2>
-      <div class="big-number">${progress.known}</div>
-      <p class="hero-copy">本组共 ${progress.total} 字，认识率 ${pct}%。完成一组就很棒，可以休息一下再继续。</p>
-      <div class="metric-grid">
-        <div class="metric"><span>已测</span><strong>${progress.answered}</strong></div>
-        <div class="metric"><span>认识</span><strong>${progress.known}</strong></div>
-        <div class="metric"><span>不认识</span><strong>${progress.total - progress.known}</strong></div>
-      </div>
-      <div class="actions">
-        ${groupIndex < GROUP_COUNT - 1 ? `<button class="btn primary" data-action="group-next" data-group="${groupIndex}">下一组</button>` : ""}
-        <button class="btn review" data-action="wrongbook">查看不认识的字</button>
-        <button class="btn ghost" data-action="report-group">查看逐字闯关报告</button>
-        <button class="btn ghost" data-action="home">回首页</button>
-      </div>
+    <section class="quest-map" aria-label="天台十五日秘境图">
+      <img class="quest-map-image" src="assets/tiantai-15-map.png" alt="天台十五日秘境图">
+      ${missions.map((m,i)=>mapNodeHTML(m,i,visibleMissions.some(v=>v.id===m.id))).join("")}
     </section>
-  `);
-  scrollToTop();
+    ${isGuest ? guestUnlockHTML() : ""}`;
 }
 
-function shuffleItems(items) {
-  const next = [...items];
-  for (let index = next.length - 1; index > 0; index -= 1) {
-    const swapIndex = Math.floor(Math.random() * (index + 1));
-    [next[index], next[swapIndex]] = [next[swapIndex], next[index]];
-  }
-  return next;
+function mapNodeHTML(m,index,visible){
+  const done=state.completed.includes(m.id);
+  const locked=!visible;
+  return `<button class="quest-node node-${index+1} ${done?"done":locked?"locked":"open"}" type="button" aria-label="${m.date} ${m.title}" ${locked?'data-note="正式报名后解锁完整十五关"':`data-open-mission="${m.id}"`}></button>`;
 }
 
-function uniqueChars(chars) {
-  return Array.from(new Set(String(chars).split("")));
-}
-
-function buildGentleOrder() {
-  const used = new Set();
-  const byChar = new Map(BANK.map((item) => [item.char, item]));
-  const order = [];
-
-  GENTLE_LAYERS.forEach((layer) => {
-    const preferred = shuffleItems(uniqueChars(layer.chars)
-      .map((char) => byChar.get(char))
-      .filter((item) => item && !used.has(item.id)));
-    const preferredIds = new Set(preferred.map((item) => item.id));
-    const fallback = shuffleItems(BANK.filter((item) => !used.has(item.id) && !preferredIds.has(item.id)));
-    const picked = [...preferred, ...fallback].slice(0, layer.target);
-    picked.forEach((item) => {
-      used.add(item.id);
-      order.push({ id: item.id, layer: layer.key });
-    });
-  });
-
-  return order;
-}
-
-function startGentle(forceNew = false) {
-  const current = child();
-  if (forceNew || !current.gentle || current.gentle.finished) {
-    current.gentle = {
-      order: buildGentleOrder(),
-      answers: [],
-      undoStack: [],
-      milestones: [],
-      currentOffset: 0,
-      finished: false,
-    };
-  }
-  if (!current.gentle.order?.length) current.gentle.order = buildGentleOrder();
-  if (!current.gentle.answers) current.gentle.answers = [];
-  if (!current.gentle.undoStack) current.gentle.undoStack = [];
-  if (!current.gentle.milestones) current.gentle.milestones = [];
-  if (typeof current.gentle.currentOffset !== "number") current.gentle.currentOffset = current.gentle.answers.length;
-  save();
-  renderGentle();
-}
-
-function currentGentleItem(gentle = child().gentle) {
-  const entry = gentle?.order?.[gentle.currentOffset];
-  const item = entry ? itemById(entry.id) : null;
-  return item ? { ...entry, item } : null;
-}
-
-function answerGentle(known) {
-  const current = child();
-  const gentle = current.gentle;
-  const entry = currentGentleItem(gentle);
-  if (!entry) return finishGentle();
-  const previousWrongbook = current.wrongbook[entry.id] ? { ...current.wrongbook[entry.id] } : null;
-  const answer = { id: entry.id, layer: entry.layer, known, previousWrongbook };
-
-  gentle.answers.push(answer);
-  gentle.undoStack.push(answer);
-  gentle.undoStack = gentle.undoStack.slice(-UNDO_LIMIT);
-  gentle.currentOffset += 1;
-  updateWrongbook(entry.id, known ? "known" : "unknown", "gentle");
-  play(known ? "good" : "bad");
-  save();
-
-  if (gentle.answers.length >= GENTLE_TARGET) finishGentle();
-  else {
-    renderGentle();
-    maybeShowGentleMilestone(gentle.answers.length);
-  }
-}
-
-function undoGentle() {
-  const gentle = child().gentle;
-  const last = gentle?.undoStack?.pop();
-  if (!last) return;
-  gentle.answers = gentle.answers.filter((answer) => answer !== last);
-  gentle.currentOffset = Math.max(0, gentle.currentOffset - 1);
-  if (last.previousWrongbook) child().wrongbook[last.id] = last.previousWrongbook;
-  else delete child().wrongbook[last.id];
-  gentle.finished = false;
-  play("undo");
-  save();
-  renderGentle();
-}
-
-function estimateGentle() {
-  const gentle = child().gentle;
-  const answers = gentle?.answers || [];
-  const layerScores = GENTLE_LAYERS.map((layer) => {
-    const layerAnswers = answers.filter((answer) => answer.layer === layer.key);
-    const known = layerAnswers.filter((answer) => answer.known).length;
-    const rate = layerAnswers.length ? known / layerAnswers.length : 0;
-    return {
-      ...layer,
-      known,
-      total: layerAnswers.length,
-      rate,
-      score: rate * (layer.max - layer.min),
-    };
-  });
-  const raw = layerScores.reduce((sum, layer) => sum + layer.score, 0);
-  const estimated = Math.max(0, Math.min(700, Math.round(raw / 10) * 10));
-  const stage = GENTLE_STAGE_RULES.find((rule) => estimated <= rule.max) || GENTLE_STAGE_RULES[GENTLE_STAGE_RULES.length - 1];
-  const known = answers.filter((answer) => answer.known).length;
-
-  return {
-    estimated,
-    low: Number(stage.range.split("-")[0]),
-    high: Number(stage.range.split("-")[1]),
-    range: stage.range,
-    stageName: stage.name,
-    advice: stage.advice,
-    known,
-    total: answers.length,
-    layerScores,
-  };
-}
-
-function finishGentle() {
-  const current = child();
-  const result = { createdAt: Date.now(), ...estimateGentle() };
-  current.gentle.finished = true;
-  current.gentleHistory.unshift(result);
-  current.gentleHistory = current.gentleHistory.slice(0, 10);
-  save();
-  renderGentleResult(result);
-  celebrate("轻松摸底完成啦！");
-}
-
-function maybeShowGentleMilestone(count) {
-  const gentle = child().gentle;
-  const milestone = GENTLE_MILESTONES[count];
-  if (!milestone || gentle.milestones?.includes(count)) return;
-  gentle.milestones = [...(gentle.milestones || []), count];
-  save();
-  play("milestone");
-  document.querySelector(".modal-layer")?.remove();
-  app.insertAdjacentHTML("beforeend", `
-    <div class="modal-layer stage-layer" role="dialog" aria-modal="true" aria-labelledby="stage-title">
-      <section class="modal-card stage-card">
-        <h2 id="stage-title">${html(milestone.title)}</h2>
-        <p>${html(milestone.body)}</p>
-        <div class="modal-actions">
-          <button class="btn primary" type="button" data-action="stage-continue">继续摸底</button>
-          <button class="btn ghost" type="button" data-action="stage-rest">休息一下</button>
-        </div>
-      </section>
-    </div>
-  `);
-}
-
-function renderGentle() {
-  screen = "gentle";
-  setRoute("gentle");
-  const gentle = child().gentle;
-  const entry = currentGentleItem(gentle);
-  if (!entry) return renderGentleResult(estimateGentle());
-  const pct = Math.round((gentle.answers.length / GENTLE_TARGET) * 100);
-
-  app.innerHTML = shell(`
-    <section class="test-layout">
-      <div class="test-card gentle-test-card">
-        ${pageNav("轻松摸底", "暂停并回首页")}
-        <div class="test-top">
-          <div>
-            <h2>轻松摸底</h2>
-            <p class="muted">第 ${gentle.answers.length + 1} 题 / ${GENTLE_TARGET} 题</p>
-          </div>
-        </div>
-        <div class="progress gentle-progress"><span style="width:${pct}%"></span></div>
-        <div class="hanzi-stage"><div class="hanzi">${html(entry.item.char)}</div></div>
-        <div class="judge-row">
-          <button class="btn good" data-action="gentle-known">认识 <span class="desktop-only">1</span></button>
-          <button class="btn bad" data-action="gentle-unknown">不认识 <span class="desktop-only">2</span></button>
-        </div>
-      </div>
-      <aside class="stack">
-        <section class="card gentle-side-card">
-          <h3>慢慢来</h3>
-          <div class="progress-number">${gentle.answers.length}/${GENTLE_TARGET}</div>
-          <p>这是给低龄孩子的轻松摸底。不认识也没关系，结果只是后续练习的参考。</p>
-          <div class="side-actions">
-            <button class="btn warn" data-action="gentle-undo" ${gentle.undoStack.length ? "" : "disabled"}>撤回最近一步</button>
-            <button class="btn ghost" data-action="home">暂停并回首页</button>
-          </div>
-        </section>
-        <section class="card">
-          <h3>怎么判断</h3>
-          <p>孩子能基本读出来，就点“认识”；卡住、猜测或需要提示，就点“不认识”。电脑上可按 1、2、3 操作。</p>
-        </section>
-      </aside>
-    </section>
-  `);
-}
-
-function renderGentleResult(result) {
-  screen = "gentle-result";
-  setRoute("gentle-result");
-  app.innerHTML = shell(`
-    <section class="result-card gentle-result-card">
-      <span class="tag">★ 50 题轻松摸底完成</span>
-      <h2>${html(result.stageName)}</h2>
-      <div class="big-number gentle-stage-name">${html(result.range)}</div>
-      <p class="hero-copy">这是 50 题轻松摸底，适合低龄或识字量较少的孩子，结果是粗略参考。孩子愿意认真读完，就已经很棒了。</p>
-      <div class="metric-grid">
-        <div class="metric"><span>完成题数</span><strong>${result.total}/${GENTLE_TARGET}</strong></div>
-        <div class="metric"><span>判断认识</span><strong>${result.known}</strong></div>
-        <div class="metric"><span>粗略范围</span><strong>${html(result.range)} 字</strong></div>
-        <div class="metric"><span>待复习字</span><strong>${Object.keys(child().wrongbook || {}).length}</strong></div>
-      </div>
-      <p class="hero-copy">${html(result.advice)}</p>
-      <div class="actions">
-        <button class="btn primary" data-action="home">回首页</button>
-        <button class="btn review" data-action="wrongbook">查看不认识的字</button>
-        <button class="btn ghost" data-action="report-gentle">查看轻松摸底报告</button>
-        <button class="btn caution" data-action="gentle-new">重新摸底</button>
-      </div>
-    </section>
-  `);
-  scrollToTop();
-}
-
-function startQuick(forceNew = false) {
-  const current = child();
-  if (forceNew || !current.quick || current.quick.finished) {
-    current.quick = { level: 2, answers: [], usedIds: [], undoStack: [], redoIds: [], milestones: [], currentId: null, finished: false };
-  }
-  if (!current.quick.undoStack) current.quick.undoStack = [];
-  if (!current.quick.redoIds) current.quick.redoIds = [];
-  if (!current.quick.milestones) current.quick.milestones = [];
-  if (!current.quick.currentId) current.quick.currentId = pickQuick();
-  save();
-  renderQuick();
-}
-
-function pickQuick() {
-  const quick = child().quick;
-  const used = new Set(quick.usedIds);
-  const level = Math.max(1, Math.min(10, quick.level));
-  const sameLevel = BANK.filter((item) => item.level === level && !used.has(item.id));
-  const pool = sameLevel.length ? sameLevel : BANK.filter((item) => !used.has(item.id));
-  return pool[Math.floor(Math.random() * pool.length)]?.id || null;
-}
-
-function answerQuick(known) {
-  const current = child();
-  const quick = current.quick;
-  const item = itemById(quick.currentId);
-  if (quick.redoIds?.[0] === item.id) quick.redoIds.shift();
-  const answer = {
-    id: item.id,
-    level: item.level,
-    known,
-    previousLevel: quick.level,
-    previousWrongbook: current.wrongbook[item.id] ? { ...current.wrongbook[item.id] } : null,
-  };
-  quick.answers.push(answer);
-  quick.usedIds.push(item.id);
-  quick.undoStack.push(answer);
-  quick.undoStack = quick.undoStack.slice(-UNDO_LIMIT);
-  quick.level = Math.max(1, Math.min(10, quick.level + (known ? 1 : -1)));
-  quick.currentId = quick.answers.length >= QUICK_TARGET ? null : quick.redoIds[0] || pickQuick();
-  updateWrongbook(item.id, known ? "known" : "unknown", "quick");
-  play(known ? "good" : "bad");
-  save();
-  if (quick.answers.length >= QUICK_TARGET) finishQuick();
-  else {
-    renderQuick();
-    maybeShowQuickMilestone(quick.answers.length);
-  }
-}
-
-function undoQuick() {
-  const quick = child().quick;
-  const last = quick?.undoStack?.pop();
-  if (!last) return;
-  quick.answers = quick.answers.filter((answer) => answer !== last);
-  quick.usedIds = quick.usedIds.filter((id) => id !== last.id);
-  quick.level = last.previousLevel;
-  quick.redoIds = [last.id, ...(quick.redoIds || []).filter((id) => id !== last.id)].slice(0, UNDO_LIMIT);
-  quick.currentId = last.id;
-  if (last.previousWrongbook) child().wrongbook[last.id] = last.previousWrongbook;
-  else delete child().wrongbook[last.id];
-  play("undo");
-  save();
-  renderQuick();
-}
-
-function estimateQuick() {
-  const quick = child().quick;
-  const answers = quick?.answers || [];
-  let score = 0;
-  let previous = 1;
-  for (let level = 1; level <= 10; level += 1) {
-    const group = answers.filter((a) => a.level === level);
-    const rate = group.length ? group.filter((a) => a.known).length / group.length : previous * 0.78;
-    previous = rate;
-    score += rate * 250;
-  }
-  const known = answers.filter((a) => a.known).length;
-  const margin = answers.length >= QUICK_TARGET ? 110 : 220;
-  return {
-    estimated: Math.max(0, Math.min(2500, Math.round(score / 10) * 10)),
-    low: Math.max(0, Math.round((score - margin) / 10) * 10),
-    high: Math.min(2500, Math.round((score + margin) / 10) * 10),
-    known,
-    total: answers.length,
-  };
-}
-
-function finishQuick() {
-  const current = child();
-  const result = { createdAt: Date.now(), ...estimateQuick() };
-  current.quick.finished = true;
-  current.quickHistory.unshift(result);
-  current.quickHistory = current.quickHistory.slice(0, 10);
-  save();
-  renderQuickResult(result);
-  celebrate("完整估算完成啦！");
-}
-
-function maybeShowQuickMilestone(count) {
-  const quick = child().quick;
-  const milestone = QUICK_MILESTONES[count];
-  if (!milestone || quick.milestones?.includes(count)) return;
-  quick.milestones = [...(quick.milestones || []), count];
-  save();
-  play("milestone");
-  document.querySelector(".modal-layer")?.remove();
-  app.insertAdjacentHTML("beforeend", `
-    <div class="modal-layer stage-layer" role="dialog" aria-modal="true" aria-labelledby="stage-title">
-      <section class="modal-card stage-card">
-        <h2 id="stage-title">${html(milestone.title)}</h2>
-        <p>${html(milestone.body)}</p>
-        <div class="modal-actions">
-          <button class="btn primary" type="button" data-action="stage-continue">继续测评</button>
-          <button class="btn ghost" type="button" data-action="stage-rest">休息一下</button>
-        </div>
-      </section>
-    </div>
-  `);
-}
-
-function renderQuick() {
-  screen = "quick";
-  setRoute("quick");
-  const quick = child().quick;
-  const item = itemById(quick.currentId);
-  const pct = Math.round((quick.answers.length / QUICK_TARGET) * 100);
-  const estimate = estimateQuick();
-
-  app.innerHTML = shell(`
-    <section class="test-layout">
-      <div class="test-card">
-        ${pageNav("完整估算", "暂停并回首页")}
-        <div class="test-top">
-          <div>
-            <h2>完整估算</h2>
-            <p class="muted">第 ${quick.answers.length + 1} 题 / ${QUICK_TARGET} 题</p>
-          </div>
-        </div>
-        <div class="progress"><span style="width:${pct}%"></span></div>
-        <div class="hanzi-stage"><div class="hanzi">${html(item.char)}</div></div>
-        <div class="judge-row">
-          <button class="btn good" data-action="quick-known">认识 <span class="desktop-only">1</span></button>
-          <button class="btn bad" data-action="quick-unknown">不认识 <span class="desktop-only">2</span></button>
-        </div>
-      </div>
-      <aside class="stack">
-        <section class="card">
-          <h3>正在完整估算</h3>
-          <div class="progress-number">${quick.answers.length}/${QUICK_TARGET}</div>
-          <p>完成 ${QUICK_TARGET} 题后再显示正式结果，孩子累了可以暂停，下次继续。</p>
-          <div class="side-actions">
-            <button class="btn warn" data-action="quick-undo" ${quick.undoStack.length ? "" : "disabled"}>撤回最近一步</button>
-            <button class="btn ghost" data-action="home">暂停并回首页</button>
-          </div>
-        </section>
-        <section class="card">
-          <h3>怎么判断</h3>
-          <p>孩子能基本读出常见读音，就点“认识”；卡住、猜测或需要提示，就点“不认识”。电脑上可按 1、2、3 操作。</p>
-        </section>
-      </aside>
-    </section>
-  `);
-}
-
-function renderQuickResult(result) {
-  screen = "result";
-  setRoute("quick-result");
-  app.innerHTML = shell(`
-    <section class="result-card">
-      <span class="tag">★ 200 题完整估算完成</span>
-      <h2>大约认识</h2>
-      <div class="big-number">${result.estimated}</div>
-      <p class="hero-copy">这是抽样估算，不是逐字精确统计。合理参考范围约为 ${result.low} - ${result.high} 字。</p>
-      <div class="metric-grid">
-        <div class="metric"><span>完成题数</span><strong>${result.total}</strong></div>
-        <div class="metric"><span>判断认识</span><strong>${result.known}</strong></div>
-        <div class="metric"><span>认识率</span><strong>${Math.round((result.known / result.total) * 100)}%</strong></div>
-      </div>
-      <div class="actions">
-        <button class="btn primary" data-action="home">回首页</button>
-        <button class="btn review" data-action="wrongbook">查看不认识的字</button>
-        <button class="btn ghost" data-action="report-quick">查看完整估算报告</button>
-        <button class="btn caution" data-action="quick-new">重新估算</button>
-      </div>
-    </section>
-  `);
-}
-
-function renderReport(kind = null) {
-  screen = "report";
-  const summary = currentSummary();
-  const hasGentle = Boolean(summary.latestGentle);
-  const hasQuick = Boolean(summary.latestQuick);
-  const hasGroup = summary.groupAnswered > 0;
-
-  if (kind === "gentle" && !hasGentle) kind = hasQuick ? "quick" : hasGroup ? "group" : "current";
-  if (kind === "quick" && !hasQuick) kind = hasGentle ? "gentle" : hasGroup ? "group" : "current";
-  if (kind === "group" && !hasGroup) kind = hasGentle ? "gentle" : hasQuick ? "quick" : "current";
-  if (!kind) kind = hasGentle ? "gentle" : hasQuick ? "quick" : hasGroup ? "group" : "current";
-
-  activeReportKind = kind;
-  setRoute(`report-${kind}`);
-  const report = buildReportData(kind, summary);
-  app.innerHTML = shell(`
-    <section class="result-card report-page">
-      ${pageNav("测评报告")}
-      ${reportTabsHtml(kind, hasGentle, hasQuick, hasGroup)}
-      <h2>${html(report.heading)}</h2>
-      <p class="hero-copy">${html(report.intro)}</p>
-      <div class="report-preview" id="report-preview">
-        <div class="report-card-view ${kind === "group" ? "group-report" : ""} ${kind === "gentle" ? "gentle-report" : ""}">
-          <p class="report-brand">儿童识字量测评工具｜书法郭爸团队出品</p>
-          <h3>${html(report.cardTitle)}</h3>
-          ${reportStageMainHtml(report)}
-          <div class="report-metrics ${kind === "gentle" ? "gentle-metrics" : ""}">
-            ${report.metrics.map(([label, value]) => `<span><small>${html(label)}</small>${html(value)}</span>`).join("")}
-          </div>
-          ${report.hideCardAdvice ? "" : `<p class="report-advice">${html(report.advice)}</p>`}
-          <div class="report-qr-row">
-            <img alt="网站二维码" src="${qrImageUrl(SHARE_URL)}" />
-            <p>扫码体验<br />儿童识字量测评</p>
-          </div>
-        </div>
-      </div>
-      <canvas id="report-canvas" class="report-canvas" width="900" height="1200"></canvas>
-      <div id="report-image-panel" class="report-image-panel" hidden>
-        <img id="report-image" class="report-image" alt="生成的测评报告图片" />
-        <div class="save-tip">
-          <strong>长按上方图片保存到相册</strong>
-          <span>如果长按没有保存入口<br />再试试浏览器下载</span>
-        </div>
-      </div>
-      <div class="actions report-save-actions">
-        <a id="report-download-link" class="btn ghost report-download-secondary" href="#" download hidden>浏览器下载试试</a>
-        <button id="report-generate-button" class="btn report-action" data-action="download-report">生成报告图片</button>
-        <button class="btn ghost" data-action="home">回首页</button>
-      </div>
-    </section>
-  `);
-  drawReportCanvas(kind);
-  scrollToTop();
-}
-
-function reportStageMainHtml(report) {
+function prologueHTML(){
   return `
-    <div class="report-main-number">${html(report.mainNumber)}</div>
-    <p>${html(report.mainLabel)}</p>
-  `;
-}
-
-function reportTabsHtml(active, hasGentle, hasQuick, hasGroup) {
-  if (!hasGentle && !hasQuick && !hasGroup) return "";
-  return `
-    <div class="report-tabs" role="tablist" aria-label="报告类型">
-      <button class="report-tab ${active === "gentle" ? "active" : ""}" data-action="report-gentle" ${hasGentle ? "" : "disabled"}>轻松摸底</button>
-      <button class="report-tab ${active === "quick" ? "active" : ""}" data-action="report-quick" ${hasQuick ? "" : "disabled"}>完整估算</button>
-      <button class="report-tab ${active === "group" ? "active" : ""}" data-action="report-group" ${hasGroup ? "" : "disabled"}>逐字闯关</button>
-    </div>
-  `;
-}
-
-function buildReportData(kind, summary) {
-  if (kind === "gentle" && summary.latestGentle) {
-    return {
-      title: "轻松摸底报告",
-      heading: `${summary.nickname} 的轻松摸底结果`,
-      cardTitle: `${summary.nickname} 的轻松摸底报告`,
-      intro: "这份报告来自 50 题轻松摸底，适合低龄或识字量较少的孩子，结果是粗略参考。",
-      mainNumber: summary.latestGentle.range,
-      mainLabel: "粗略识字范围",
-      stageName: summary.latestGentle.stageName,
-      rangeValue: summary.latestGentle.range,
-      metrics: [
-        ["识字阶段", summary.latestGentle.stageName],
-        ["完成题数", `${summary.latestGentle.total}/${GENTLE_TARGET}`],
-        ["判断认识", `${summary.gentleKnown} 个`],
-        ["本次不认识", `${summary.gentleUnknown} 个`],
-        ["待复习字", `${summary.wrongCount} 个`],
-      ],
-      advice: summary.latestGentle.refreshedAt
-        ? "这份报告已根据后续重测刷新。可以先从字少、图多、重复句式多的读物开始，让阅读保持轻松。"
-        : "可以先从字少、图多、重复句式多的读物开始，让阅读保持轻松。",
-    };
-  }
-
-  if (kind === "quick" && summary.latestQuick) {
-    return {
-      title: "完整估算报告",
-      heading: `${summary.nickname} 的完整估算结果`,
-      cardTitle: `${summary.nickname} 的完整估算报告`,
-      intro: "这份报告来自 200 题抽样测评，适合快速了解孩子的大致识字量。",
-      mainNumber: String(summary.latestQuick.estimated),
-      mainLabel: "大约认识字数",
-      metrics: [
-        ["参考范围", `${summary.latestQuick.low}-${summary.latestQuick.high} 字`],
-        ["完成题数", `${summary.latestQuick.total}/${QUICK_TARGET}`],
-        ["本次认识", `${summary.quickKnown} 个`],
-        ["本次不认识", `${summary.quickUnknown} 个`],
-        ["待复习字", `${summary.wrongCount} 个`],
-      ],
-      advice: summary.latestQuick.refreshedAt
-        ? "这份报告已根据后续重测刷新。建议把“不认识的字”当作后续亲子阅读练习清单。"
-        : "建议结合亲子阅读继续观察，也可以先重测“不认识的字”，再刷新报告。",
-    };
-  }
-
-  if (kind === "group") {
-    return {
-      title: "逐字闯关报告",
-      heading: `${summary.nickname} 的逐字闯关记录`,
-      cardTitle: `${summary.nickname} 的逐字闯关报告`,
-      intro: "这份报告只统计已经逐字测过的汉字，适合家长长期跟踪。",
-      mainNumber: String(summary.groupKnown),
-      mainLabel: "已确认认识字数",
-      metrics: [
-        ["逐字已测", `${summary.groupAnswered}/${BANK.length}`],
-        ["已完成小组", `${summary.completedGroups}/${GROUP_COUNT}`],
-        ["待复习字", `${summary.wrongCount} 个`],
-        ["当前日期", summary.date],
-      ],
-      advice: "建议继续下一组，或先重测不认识的字。",
-    };
-  }
-
-  return {
-    title: "当前记录",
-    heading: `${summary.nickname} 的当前记录`,
-    cardTitle: `${summary.nickname} 的当前记录`,
-    intro: "目前还没有完成轻松摸底或完整估算，这里先展示已经记录下来的逐字进度。",
-    mainNumber: String(summary.groupKnown),
-    mainLabel: "已确认认识字数",
-    metrics: [
-      ["逐字已测", `${summary.groupAnswered}/${BANK.length}`],
-      ["已完成小组", `${summary.completedGroups}/${GROUP_COUNT}`],
-      ["待复习字", `${summary.wrongCount} 个`],
-      ["完整估算", "未完成"],
-    ],
-    advice: "可以先完成 50 题轻松摸底，或继续完成 200 题完整估算，再生成更完整的报告。",
-  };
-}
-
-function qrImageUrl(url) {
-  return `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=12&data=${encodeURIComponent(url)}`;
-}
-
-function loadImage(src) {
-  return new Promise((resolve, reject) => {
-    const image = new Image();
-    image.crossOrigin = "anonymous";
-    image.onload = () => resolve(image);
-    image.onerror = reject;
-    image.src = src;
-  });
-}
-
-function drawWrappedText(ctx, text, x, y, maxWidth, lineHeight) {
-  let line = "";
-  for (const char of text) {
-    const test = line + char;
-    if (ctx.measureText(test).width > maxWidth && line) {
-      ctx.fillText(line, x, y);
-      line = char;
-      y += lineHeight;
-    } else {
-      line = test;
-    }
-  }
-  if (line) ctx.fillText(line, x, y);
-  return y;
-}
-
-async function drawReportCanvas(kind = activeReportKind) {
-  const canvas = document.querySelector("#report-canvas");
-  if (!canvas) return;
-  const ctx = canvas.getContext("2d");
-  const summary = currentSummary();
-  const report = buildReportData(kind, summary);
-  const isGroupReport = kind === "group";
-  const isGentleReport = kind === "gentle";
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = isGentleReport ? "#fff0c4" : isGroupReport ? "#ffe1ec" : "#dff3ff";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = "#fffdf5";
-  roundRect(ctx, 54, 54, 792, 1092, 34);
-  ctx.fill();
-  ctx.strokeStyle = "#25313a";
-  ctx.lineWidth = 8;
-  ctx.stroke();
-
-  ctx.fillStyle = "#263238";
-  ctx.font = "700 42px PingFang SC, Microsoft YaHei, sans-serif";
-  ctx.fillText("识字闯关星球", 100, 130);
-  ctx.font = "500 24px PingFang SC, Microsoft YaHei, sans-serif";
-  ctx.fillStyle = "#66717a";
-  ctx.fillText("儿童识字量测评工具｜书法郭爸团队出品", 100, 170);
-
-  ctx.fillStyle = "#263238";
-  ctx.font = "800 52px PingFang SC, Microsoft YaHei, sans-serif";
-  drawWrappedText(ctx, report.cardTitle, 100, 250, 700, 62);
-
-  ctx.fillStyle = isGentleReport ? "#c97a00" : isGroupReport ? "#d66a94" : "#2586c4";
-  ctx.font = isGentleReport
-    ? "900 116px PingFang SC, Microsoft YaHei, sans-serif"
-    : "900 150px PingFang SC, Microsoft YaHei, sans-serif";
-  ctx.fillText(String(report.mainNumber), 100, 430);
-  ctx.fillStyle = "#263238";
-  ctx.font = "700 32px PingFang SC, Microsoft YaHei, sans-serif";
-  ctx.fillText(report.mainLabel, 100, 480);
-
-  ctx.font = "700 28px PingFang SC, Microsoft YaHei, sans-serif";
-  report.metrics.forEach(([label, value], index) => {
-    const fullStage = isGentleReport && index === 0;
-    const metricIndex = isGentleReport ? index - 1 : index;
-    const x = fullStage ? 100 : 100 + (metricIndex % 2) * 350;
-    const y = fullStage ? 560 : (isGentleReport ? 656 : 560) + Math.floor(metricIndex / 2) * 96;
-    const width = fullStage ? 650 : 300;
-    ctx.fillStyle = "#fff8e5";
-    roundRect(ctx, x, y - 38, width, 76, 18);
-    ctx.fill();
-    ctx.strokeStyle = "#25313a";
-    ctx.lineWidth = 4;
-    ctx.stroke();
-    ctx.fillStyle = "#66717a";
-    ctx.font = "500 22px PingFang SC, Microsoft YaHei, sans-serif";
-    ctx.fillText(label, x + 22, y - 10);
-    ctx.fillStyle = "#263238";
-    ctx.font = fullStage
-      ? "800 26px PingFang SC, Microsoft YaHei, sans-serif"
-      : "800 28px PingFang SC, Microsoft YaHei, sans-serif";
-    drawWrappedText(ctx, String(value), x + 22, y + 26, width - 44, fullStage ? 32 : 34);
-  });
-
-  if (!report.hideCardAdvice) {
-    ctx.fillStyle = "#66717a";
-    ctx.font = "500 23px PingFang SC, Microsoft YaHei, sans-serif";
-    drawWrappedText(ctx, report.advice, 100, 835, 700, 36);
-  }
-
-  try {
-    const qr = await loadImage(qrImageUrl(SHARE_URL));
-    ctx.drawImage(qr, 100, 910, 180, 180);
-  } catch {
-    ctx.fillStyle = "#ffffff";
-    roundRect(ctx, 100, 910, 180, 180, 16);
-    ctx.fill();
-    ctx.strokeStyle = "#25313a";
-    ctx.stroke();
-    ctx.fillStyle = "#263238";
-    ctx.font = "700 22px PingFang SC, Microsoft YaHei, sans-serif";
-    ctx.fillText("扫码入口", 145, 995);
-  }
-  ctx.fillStyle = "#263238";
-  ctx.font = "700 28px PingFang SC, Microsoft YaHei, sans-serif";
-  ctx.fillText("扫码体验识字测评", 310, 960);
-  ctx.fillStyle = "#66717a";
-  ctx.font = "500 22px PingFang SC, Microsoft YaHei, sans-serif";
-  drawWrappedText(ctx, SHARE_URL, 310, 1005, 430, 32);
-  ctx.fillText(`生成日期：${summary.date}`, 310, 1085);
-}
-
-function roundRect(ctx, x, y, width, height, radius) {
-  ctx.beginPath();
-  ctx.moveTo(x + radius, y);
-  ctx.lineTo(x + width - radius, y);
-  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-  ctx.lineTo(x + width, y + height - radius);
-  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-  ctx.lineTo(x + radius, y + height);
-  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-  ctx.lineTo(x, y + radius);
-  ctx.quadraticCurveTo(x, y, x + radius, y);
-  ctx.closePath();
-}
-
-function downloadReport() {
-  drawReportCanvas(activeReportKind).then(() => {
-    const canvas = document.querySelector("#report-canvas");
-    if (!canvas) return;
-    const panel = document.querySelector("#report-image-panel");
-    const image = document.querySelector("#report-image");
-    const link = document.querySelector("#report-download-link");
-    const button = document.querySelector("#report-generate-button");
-    const report = buildReportData(activeReportKind, currentSummary());
-    try {
-      const dataUrl = canvas.toDataURL("image/png");
-      if (image) image.src = dataUrl;
-      if (link) {
-        link.href = dataUrl;
-        link.download = `${child().nickname}-${report.title}.png`;
-        link.hidden = false;
-      }
-      if (panel) {
-        panel.hidden = false;
-        panel.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-      if (button) button.hidden = true;
-    } catch {
-      alert("报告图片生成失败。可以先截图保存，或部署到线上后再试一次。");
-    }
-  });
-}
-
-function celebrate(message = "完成啦！") {
-  play("finish");
-  document.querySelector(".confetti-layer")?.remove();
-  const layer = document.createElement("div");
-  const colors = ["#73c7f3", "#9edb8f", "#ffd84d", "#ff8d7a", "#ffc8dc"];
-  layer.className = "confetti-layer";
-  layer.setAttribute("aria-hidden", "true");
-  layer.innerHTML = `
-    <div class="celebrate-message">${html(message)}</div>
-    ${Array.from({ length: 42 }, (_, i) => {
-      const left = 6 + Math.random() * 88;
-      const delay = Math.random() * 0.45;
-      const drift = -60 + Math.random() * 120;
-      const color = colors[i % colors.length];
-      return `<span style="--left:${left}%; --delay:${delay}s; --drift:${drift}px; --color:${color};"></span>`;
-    }).join("")}
-  `;
-  document.body.appendChild(layer);
-  setTimeout(() => layer.remove(), 2200);
-}
-
-function renderWrongbook() {
-  screen = "wrongbook";
-  setRoute("wrongbook");
-  const ids = Object.keys(child().wrongbook || {}).map(Number).sort((a, b) => a - b);
-  app.innerHTML = shell(`
-    <section class="result-card list-page wrongbook-page">
-      ${pageNav("不认识的字", "暂停并回首页")}
-      <p class="eyebrow">${html(child().nickname)} 的识字记录</p>
-      <h2>不认识的字</h2>
-      <div class="big-number">${ids.length}</div>
-      <p class="hero-copy">这里汇总轻松摸底、完整估算和分组闯关中点过“不认识”的字。它更像后续练习清单，重测时如果点“认识”，会自动从列表移除并刷新记录。</p>
-      <div class="actions">
-        <button class="btn primary" data-action="wrongbook-review-all" ${ids.length ? "" : "disabled"}>重测这些字</button>
+    <div class="prologue-panel">
+      <div class="prologue-cover">
+        <p class="eyebrow">序章 · 星宿落人间</p>
+        <h3>谁为此山命名？</h3>
+        <button class="audio-guide" type="button" data-audio="prologue">
+          <img src="assets/guoba-portrait.jpg" alt="书法郭爸">
+          <span><strong>郭爸讲序章</strong><small>点击收听 · 音频待上传</small><i class="audio-progress"><em></em></i></span>
+          <b>▶</b>
+        </button>
+        <audio id="prologueAudio" src="assets/prologue.mp3" preload="none"></audio>
       </div>
-      <div class="wrong-grid">
-        ${ids.length ? ids.map((id) => wrongTile(id)).join("") : '<p class="muted">暂时没有记录不认识的字。</p>'}
-      </div>
-    </section>
-  `);
-  scrollToTop();
-}
-
-function wrongTile(id) {
-  const item = itemById(id);
-  if (!item) return "";
-  return `
-    <button class="wrong-tile" data-action="wrongbook-review-one" data-id="${id}">
-      <strong>${html(item.char)}</strong>
-      <span>重测这个字</span>
-    </button>
-  `;
-}
-
-function startWrongReview(ids) {
-  const validIds = ids.map(Number).filter((id) => itemById(id));
-  if (!validIds.length) return renderWrongbook();
-  child().review = { order: validIds, currentOffset: 0, undoStack: [] };
-  save();
-  renderWrongReview();
-}
-
-function answerWrongReview(status) {
-  const review = child().review;
-  const id = review.order[review.currentOffset];
-  const previousWrongbook = child().wrongbook[id] ? { ...child().wrongbook[id] } : null;
-  const previousGroupAnswers = Object.entries(child().groups || {})
-    .filter(([, group]) => group.answers && Object.prototype.hasOwnProperty.call(group.answers, Number(id)))
-    .map(([groupKey, group]) => [groupKey, group.answers[Number(id)]]);
-  const previousGentleAnswers = (child().gentle?.answers || [])
-    .filter((answer) => answer.id === Number(id))
-    .map((answer) => answer.known);
-  const previousQuickAnswers = (child().quick?.answers || [])
-    .filter((answer) => answer.id === Number(id))
-    .map((answer) => answer.known);
-  updateWrongbook(id, status, "review");
-  updateSavedAnswers(id, status);
-  review.undoStack.push({ id, offset: review.currentOffset, previousWrongbook, previousGroupAnswers, previousGentleAnswers, previousQuickAnswers });
-  review.undoStack = review.undoStack.slice(-UNDO_LIMIT);
-  review.currentOffset += 1;
-  play(status === "known" ? "good" : "bad");
-  save();
-  if (review.currentOffset >= review.order.length) renderWrongbook();
-  else renderWrongReview();
-}
-
-function undoWrongReview() {
-  const review = child().review;
-  const last = review?.undoStack?.pop();
-  if (!last) return;
-  if (last.previousWrongbook) child().wrongbook[last.id] = last.previousWrongbook;
-  else delete child().wrongbook[last.id];
-  (last.previousGroupAnswers || []).forEach(([groupIndex, status]) => {
-    const group = child().groups[groupIndex];
-    if (group?.answers) group.answers[last.id] = status;
-  });
-  if (last.previousGentleAnswers?.length && child().gentle?.answers?.length) {
-    let index = 0;
-    child().gentle.answers.forEach((answer) => {
-      if (answer.id === Number(last.id) && index < last.previousGentleAnswers.length) {
-        answer.known = last.previousGentleAnswers[index];
-        index += 1;
-      }
-    });
-    if (child().gentle.finished && child().gentleHistory?.length) {
-      child().gentleHistory[0] = {
-        ...child().gentleHistory[0],
-        ...estimateGentle(),
-        refreshedAt: Date.now(),
-      };
-    }
-  }
-  if (last.previousQuickAnswers?.length && child().quick?.answers?.length) {
-    let index = 0;
-    child().quick.answers.forEach((answer) => {
-      if (answer.id === Number(last.id) && index < last.previousQuickAnswers.length) {
-        answer.known = last.previousQuickAnswers[index];
-        index += 1;
-      }
-    });
-    if (child().quick.finished && child().quickHistory?.length) {
-      child().quickHistory[0] = {
-        ...child().quickHistory[0],
-        ...estimateQuick(),
-        refreshedAt: Date.now(),
-      };
-    }
-  }
-  review.currentOffset = last.offset;
-  play("undo");
-  save();
-  renderWrongReview();
-}
-
-function renderWrongReview() {
-  screen = "wrong-review";
-  setRoute("wrong-review");
-  const review = child().review;
-  const id = review.order[review.currentOffset];
-  const item = itemById(id);
-  const pct = Math.round((review.currentOffset / review.order.length) * 100);
-  app.innerHTML = shell(`
-    <section class="test-layout">
-      <div class="test-card">
-        ${pageNav("不认识的字重测", "暂停并回首页")}
-        <div class="test-top">
-          <div>
-            <h2>不认识的字重测</h2>
-            <p class="muted">第 ${review.currentOffset + 1} 题 / ${review.order.length} 题</p>
-          </div>
+      <div class="opening-poem" aria-label="序章定场诗">
+        <div class="poem-line">
+          ${poemChar("凝","ping")}${poemChar("观","ping")}${poemChar("星","ping")}${poemChar("斗","ze")}${poemChar("问","ze")}${poemChar("山","ping")}${poemChar("名","ping")}<span class="poem-punct">，</span>
         </div>
-        <div class="progress"><span style="width:${pct}%"></span></div>
-        <div class="hanzi-stage"><div class="hanzi">${html(item.char)}</div></div>
-        <div class="judge-row">
-          <button class="btn good" data-action="wrong-known">认识 <span class="desktop-only">1</span></button>
-          <button class="btn bad" data-action="wrong-unknown">不认识 <span class="desktop-only">2</span></button>
+        <div class="poem-line">
+          ${poemChar("俯","ze")}${poemChar("入","ru")}${poemChar("烟","ping")}${poemChar("霞","ping")}${poemChar("访","ze")}${poemChar("古","ze")}${poemChar("城","ping")}<span class="poem-punct">。</span>
+        </div>
+        <div class="poem-line">
+          ${poemChar("莫","ru")}${poemChar("作","ru")}${poemChar("寻","ping")}${poemChar("常","ping")}${poemChar("游","ping")}${poemChar("赏","ze")}${poemChar("看","ping")}<span class="poem-punct">，</span>
+        </div>
+        <div class="poem-line">
+          ${poemChar("书","ping")}${poemChar("声","ping")}${poemChar("足","ru")}${poemChar("迹","ru")}${poemChar("共","ze")}${poemChar("文","ping")}${poemChar("程","ping")}<span class="poem-punct">。</span>
         </div>
       </div>
-      <aside class="stack">
-        <section class="card">
-          <h3>重测说明</h3>
-          <p>点“认识”后，这个字会从列表移除，并同步刷新已经保存的测评记录；点“不认识”会继续保留。</p>
-          <div class="side-actions">
-            <button class="btn warn" data-action="wrong-undo" ${review.undoStack.length ? "" : "disabled"}>撤回最近一步</button>
-            <button class="btn ghost" data-action="home">暂停并回首页</button>
-          </div>
-        </section>
-      </aside>
-    </section>
-  `);
-}
-
-function addChild() {
-  document.querySelector(".modal-layer")?.remove();
-  app.insertAdjacentHTML("beforeend", `
-    <div class="modal-layer" role="dialog" aria-modal="true" aria-labelledby="add-child-title">
-      <form class="modal-card" data-action="confirm-add-child">
-        <h2 id="add-child-title">添加孩子</h2>
-        <p>输入孩子昵称，之后记录会按孩子分别保存。</p>
-        <input id="new-child-name-input" type="text" maxlength="20" placeholder="例如：乐乐、小宇、一年级哥哥" autocomplete="off" />
-        <div class="modal-actions">
-          <button class="btn primary" type="submit">确认添加</button>
-          <button class="btn ghost" type="button" data-action="close-modal">取消</button>
+      <div class="prologue-story">
+        <p>话说天地初分，清浊既判。古人仰观天象，俯察山川，见日月有行，星辰有位，便知人间万事，并非孤零零地散在大地上。</p>
+        <p>于是他们把天上的星空分为三垣二十八宿：紫微垣居中，象征天上宫阙；太微垣列位，象征朝廷礼法；天市垣如市，象征万物会聚。星辰在天，各有名号；山河在地，也有回应。</p>
+        <p>这便是古人所说的“天人相应”。天上有星宿，地上有州郡山川；天上有秩序，地上也有礼乐文章。山不只是山，水不只是水，一处地名，常常藏着古人理解世界的方式。</p>
+        <p>天台山之名，正与这种观念相连。南朝陶弘景《真诰》中说：“天台山高一万八千丈，周回八百里，有八重，四面如一，当斗牛之分，上应台宿，故名天台。”这一段文字，正把天台山放进了古人的星空秩序里。</p>
+        <p>所以，所谓“台”，不是平常桌台之台，而是星官之台、天阶之台；所谓“天”，也不只是头顶的天空，而是古人仰望星辰时建立起来的文化秩序。山川在地，星宿在天，一处地名，便像一枚暗号，把天文、地理和文化记忆连在一起。</p>
+        <p>所以，我们此行的第一道谜题，不在石梁飞瀑，不在国清古刹，也不在唐诗碑刻，而在一个名字里：为什么这里叫“天台”？</p>
+      </div>
+      <div class="sky-map-card" aria-label="古人眼中的天空示意图" style="padding:15px;border-radius:20px;background:linear-gradient(180deg,#173f30,#eef5ea);border:1px solid #d5e1d6;box-shadow:0 12px 26px rgba(38,76,52,.14);overflow:hidden;">
+        <div class="sky-map-title" style="display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-bottom:12px;color:#fff;">
+          <span>古人眼中的天空</span>
+          <small>三垣 · 二十八宿 · 天人相应</small>
         </div>
-      </form>
-    </div>
-  `);
-  setTimeout(() => document.querySelector("#new-child-name-input")?.focus(), 0);
+        <svg class="sky-map-svg" viewBox="0 0 320 230" role="img" aria-label="三垣二十八宿与天台山关系示意图" style="display:block;width:100%;height:auto;border-radius:18px;background:radial-gradient(circle at 50% 42%,rgba(255,232,139,.2),transparent 13%),radial-gradient(circle at 50% 42%,rgba(92,163,126,.22),transparent 38%),#0d2c25;border:1px solid rgba(255,255,255,.18);">
+          <circle cx="160" cy="88" r="78" fill="none" stroke="rgba(240,246,210,.45)" stroke-width="1.5" stroke-dasharray="4 5"/>
+          <circle cx="160" cy="88" r="52" fill="none" stroke="rgba(240,246,210,.5)" stroke-width="1"/>
+          <circle cx="160" cy="88" r="28" fill="rgba(250,231,142,.16)" stroke="rgba(250,231,142,.55)" stroke-width="1"/>
+          <g fill="#f7df7a">
+            <circle cx="58" cy="54" r="2.3"/><circle cx="266" cy="50" r="2"/><circle cx="96" cy="154" r="2"/><circle cx="258" cy="126" r="2.2"/><circle cx="160" cy="28" r="2"/>
+          </g>
+          <text x="160" y="28" text-anchor="middle" fill="#fff8d6" font-size="13" font-weight="700">二十八宿</text>
+          <text x="160" y="83" text-anchor="middle" fill="#fff8d6" font-size="14" font-weight="700">紫微垣</text>
+          <text x="160" y="101" text-anchor="middle" fill="#dce8d5" font-size="10">天上宫阙</text>
+          <text x="70" y="96" text-anchor="middle" fill="#fff8d6" font-size="13" font-weight="700">太微垣</text>
+          <text x="70" y="113" text-anchor="middle" fill="#dce8d5" font-size="10">朝廷礼法</text>
+          <text x="250" y="96" text-anchor="middle" fill="#fff8d6" font-size="13" font-weight="700">天市垣</text>
+          <text x="250" y="113" text-anchor="middle" fill="#dce8d5" font-size="10">万物会聚</text>
+          <rect x="210" y="51" width="72" height="25" rx="12" fill="rgba(131,182,60,.35)" stroke="rgba(255,255,220,.34)"/>
+          <text x="246" y="68" text-anchor="middle" fill="#fffbd0" font-size="12" font-weight="700">台宿 / 三台</text>
+          <path d="M230 77 C218 104, 196 134, 173 172" fill="none" stroke="#f4dd75" stroke-width="2" stroke-dasharray="5 5"/>
+          <rect x="112" y="176" width="96" height="34" rx="17" fill="rgba(255,255,245,.92)"/>
+          <text x="160" y="198" text-anchor="middle" fill="#154232" font-size="18" font-weight="900" font-family="Songti SC, STSong, serif">天台山</text>
+        </svg>
+        <div class="sky-map-tabs" style="display:grid;gap:8px;margin-top:10px;">
+          <details open style="border-radius:14px;background:rgba(255,255,249,.82);border:1px solid #d4e1d4;padding:9px 11px;"><summary>什么是三垣？</summary><p>三垣是古人理解北方星空的重要区域，可粗略理解为天上的宫城、朝廷与市集。</p></details>
+          <details style="border-radius:14px;background:rgba(255,255,249,.82);border:1px solid #d4e1d4;padding:9px 11px;"><summary>什么是二十八宿？</summary><p>二十八宿像一圈星空坐标，帮助古人观测日月运行，也进入了历法、地理和文学。</p></details>
+          <details style="border-radius:14px;background:rgba(255,255,249,.82);border:1px solid #d4e1d4;padding:9px 11px;"><summary>为什么连到天台？</summary><p>旧说天台山“上应台宿”，正体现了古人把天上星宿与地上山川互相映照的观看方式。</p></details>
+        </div>
+      </div>
+      <div class="knowledge-box">
+        <h4>给家长的知识线索</h4>
+        <ul>
+          <li>古代中国天文学不只是观星，也参与了礼制、地理、历法与文化想象的建立。</li>
+          <li>“三垣二十八宿”是传统星官体系的重要结构，古人常用它理解天上的秩序。</li>
+          <li>“上应台宿”的说法，把天台山与天上的“台宿”联系起来，体现了天文与地理相互映照的观念。</li>
+        </ul>
+      </div>
+      <div class="family-task">
+        <h4>亲子小任务</h4>
+        <p>请和孩子一起写下三个字：<strong>天、台、山</strong>。再问孩子两个问题：这里的“天”只是天空吗？这里的“台”又藏着什么星辰线索？</p>
+      </div>
+    </div>`;
 }
 
-function closeModal() {
-  document.querySelector(".modal-layer")?.remove();
+function poemChar(char,tone){
+  return `<span class="poem-char tone-${tone}"><span class="word">${char}</span><span class="tone-mark" aria-hidden="true"></span></span>`;
 }
 
-function confirmAddChild() {
-  const input = document.querySelector("#new-child-name-input");
-  const nickname = input?.value?.trim();
-  if (!nickname) {
-    input?.focus();
-    return;
-  }
-  const next = createChild(nickname.trim().slice(0, 20));
-  state.children[next.id] = next;
-  state.activeChildId = next.id;
-  save();
-  closeModal();
-  renderHome();
+function renderAccessGate(){
+  app.innerHTML = `<section class="access-gate"><div class="access-inner"><p class="eyebrow">进入秘境</p><h2>请选择你的身份</h2><p class="access-lead"><span>如果你还在了解天台山游学，可以先免费体验几关；</span><span>如果你已经报名缴费，请输入活动码解锁完整任务。</span></p><div class="access-options"><button class="access-card guest" data-access="guest"><span>先体验几关</span><small>免注册 · 免费体验 · 感受玩法</small></button><button class="access-card official" data-show-code><span>我是正式学员</span><small>输入活动码 · 解锁全部关卡</small></button></div><div class="code-panel hidden"><input id="accessCodeInput" placeholder="请输入活动码"><button class="primary-button" data-verify-code>解锁完整秘境</button><p class="feedback" id="accessFeedback"></p></div></div></section>`;
 }
 
-function createFirstChild() {
-  const input = document.querySelector("#child-name-input");
-  const nickname = input?.value?.trim();
-  if (!nickname) {
-    input?.focus();
-    return;
-  }
-  const next = createChild(nickname.slice(0, 20));
-  state.children[next.id] = next;
-  state.activeChildId = next.id;
-  save();
-  renderHome();
+function guestUnlockHTML(){
+  return `<article class="unlock-card"><h3>完整秘境等待解锁</h3><p>你已经进入天台秘境的第一层。正式报名后，将解锁 7 月 13 日线上预热、7 月 21 日起线上线下双线任务、线下材料包和完整结营线索。</p><div class="tag-row"><span class="tag">七天六晚</span><span class="tag">材料包任务</span><span class="tag">亲子实景解谜</span></div><button class="primary-button" data-note="请联系书法郭爸咨询报名，正式学员可获得活动码。">咨询报名 / 解锁完整任务</button></article>`;
 }
 
-function switchChild(id) {
-  if (!state.children[id]) return;
-  state.activeChildId = id;
-  save();
-  renderHome();
+function missionHTML(m){
+  const done=state.completed.includes(m.id); const available=m.open || done;
+  return `<article class="mission ${done?"done":available?"active":""} ${m.prologue?"prologue-mission":""}"><div class="mission-top"><div><p class="eyebrow">${m.chapter}</p><h3>${m.title}</h3></div><span class="mission-state">${done?"已完成":available?"可调查":"剧情封印"}</span></div><p>地点：${m.place}</p><p>${m.hint}</p>${m.prologue?prologueHTML():`<p class="mission-action"><strong>家庭行动：</strong>${m.action}</p><div class="clue-image">【任务图片占位符】</div>`}${m.prologue?`<p class="mission-action"><strong>家庭行动：</strong>${m.action}</p>`:""}${done?'<button class="secondary-button" disabled>线索已归档</button>':available?`<button class="primary-button answer-button" data-id="${m.id}">输入答案</button>`:'<button class="secondary-button" disabled>等待领队解锁</button>'}</article>`
 }
 
-function resetChild() {
-  if (!confirm(`确定清空“${child().nickname}”的本机记录吗？其他孩子不会受影响。`)) return;
-  const current = child();
-  state.children[current.id] = { ...createChild(current.nickname), id: current.id };
-  save();
-  renderHome();
+function renderProfile(){
+  const familyCode = getFamilyCode();
+  app.innerHTML=`<section class="mission-header"><p class="eyebrow">调查员档案</p><h2>我的旅程</h2><p class="muted">我的代码：${familyCode}</p></section><div class="empty-card"><h2>${state.completed.length}</h2><p>已破解线索</p><p>更新中</p></div>`;
 }
 
-function play(type) {
-  if (!state.soundOn) return;
-  try {
-    audioContext = audioContext || new (window.AudioContext || window.webkitAudioContext)();
-    const now = audioContext.currentTime;
-    const osc = audioContext.createOscillator();
-    const gain = audioContext.createGain();
-    const settings = {
-      good: [660, 880, 0.12],
-      bad: [260, 220, 0.16],
-      finish: [523, 1046, 0.32],
-      milestone: [784, 1175, 0.18],
-      undo: [420, 360, 0.1],
-    }[type] || [440, 440, 0.1];
-    osc.type = type === "bad" ? "triangle" : "sine";
-    osc.frequency.setValueAtTime(settings[0], now);
-    osc.frequency.exponentialRampToValueAtTime(settings[1], now + settings[2]);
-    gain.gain.setValueAtTime(0.001, now);
-    gain.gain.exponentialRampToValueAtTime(0.12, now + 0.02);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + settings[2]);
-    osc.connect(gain);
-    gain.connect(audioContext.destination);
-    osc.start(now);
-    osc.stop(now + settings[2] + 0.03);
-  } catch {
-    // Browsers may block audio until a user gesture; click-triggered playback will work later.
-  }
+function render(){
+  document.body.classList.toggle("portal-view",state.view==="home");
+  back.classList.toggle("hidden",state.view==="home");
+  document.querySelectorAll(".bottom-nav button").forEach(b=>b.classList.toggle("active",b.dataset.nav===state.view));
+  if(state.view==="home")renderHome(); else if(state.view==="culture")renderCulture(); else if(state.view==="literacy")renderLiteracy(); else if(state.view==="journey")renderJourney(); else renderProfile();
+  app.scrollTo({top:0,behavior:"auto"});
 }
 
-function rerenderCurrent() {
-  if (screen === "home") renderHome();
-  else if (screen === "onboarding") renderOnboarding();
-  else if (screen === "guide") renderGuide();
-  else if (screen === "group-list") renderGroupList();
-  else if (screen === "report") renderReport();
-  else if (screen === "gentle") renderGentle();
-  else if (screen === "gentle-result") renderGentleResult(child().gentleHistory?.[0] || estimateGentle());
-  else if (screen === "quick") renderQuick();
-  else if (screen.startsWith("group-")) renderGroupTest(Number(screen.replace("group-", "")));
-  else if (screen === "wrongbook") renderWrongbook();
-  else if (screen === "wrong-review") renderWrongReview();
-  else renderHome();
-}
-
-function restoreLastRoute() {
-  if (!state.activeChildId || !state.children[state.activeChildId]) return renderOnboarding();
-  const route = state.lastRoute || "home";
-
-  if (route === "guide") return renderGuide();
-  if (route === "group-list") return renderGroupList();
-  if (route === "gentle") {
-    const gentle = child().gentle;
-    if (gentle?.finished && child().gentleHistory?.[0]) return renderGentleResult(child().gentleHistory[0]);
-    if (gentle?.order?.length && gentle.currentOffset < gentle.order.length) return renderGentle();
-    return renderHome();
-  }
-  if (route === "gentle-result") {
-    const latestGentle = child().gentleHistory?.[0];
-    return latestGentle ? renderGentleResult(latestGentle) : renderHome();
-  }
-  if (route === "quick") {
-    const quick = child().quick;
-    if (quick?.finished && child().quickHistory?.[0]) return renderQuickResult(child().quickHistory[0]);
-    if (quick?.currentId) return renderQuick();
-    return renderHome();
-  }
-  if (route === "quick-result") {
-    const latestQuick = child().quickHistory?.[0];
-    return latestQuick ? renderQuickResult(latestQuick) : renderHome();
-  }
-  if (route === "wrongbook") return renderWrongbook();
-  if (route === "wrong-review") {
-    const review = child().review;
-    if (review?.order?.length && review.currentOffset < review.order.length) return renderWrongReview();
-    return renderWrongbook();
-  }
-
-  const groupMatch = route.match(/^group-(\d+)$/);
-  if (groupMatch) return startGroup(Math.min(Number(groupMatch[1]), GROUP_COUNT - 1));
-
-  const groupResultMatch = route.match(/^group-result-(\d+)$/);
-  if (groupResultMatch) return renderGroupResult(Math.min(Number(groupResultMatch[1]), GROUP_COUNT - 1));
-
-  const reportMatch = route.match(/^report-(gentle|quick|group|current)$/);
-  if (reportMatch) return renderReport(reportMatch[1]);
-
-  return renderHome();
-}
-
-function toggleSound() {
-  state.soundOn = !state.soundOn;
-  save();
-  if (state.soundOn) play("good");
-  rerenderCurrent();
-}
-
-app.addEventListener("click", (event) => {
-  const target = event.target.closest("[data-action]");
-  if (!target) return;
-  const action = target.dataset.action;
-  if (action === "back") goBack();
-  if (action === "home") renderHome();
-  if (action === "guide") renderGuide();
-  if (action === "group-list") renderGroupList();
-  if (action === "report") renderReport();
-  if (action === "report-gentle") renderReport("gentle");
-  if (action === "report-quick") renderReport("quick");
-  if (action === "report-group") renderReport("group");
-  if (action === "download-report") downloadReport();
-  if (action === "stage-continue") closeModal();
-  if (action === "stage-rest") {
-    closeModal();
-    renderHome();
-  }
-  if (action === "toggle-sound") toggleSound();
-  if (action === "add-child") addChild();
-  if (action === "close-modal") closeModal();
-  if (action === "create-first-child") createFirstChild();
-  if (action === "reset-child") resetChild();
-  if (action === "group-start-next") startNextGroup();
-  if (action === "group-start") startGroup(Number(target.dataset.group));
-  if (action === "group-known") answerGroup("known");
-  if (action === "group-unknown") answerGroup("unknown");
-  if (action === "group-undo") undoGroup();
-  if (action === "group-next") startGroup(Math.min(Number(target.dataset.group) + 1, GROUP_COUNT - 1));
-  if (action === "gentle-start") startGentle();
-  if (action === "gentle-new") startGentle(true);
-  if (action === "gentle-known") answerGentle(true);
-  if (action === "gentle-unknown") answerGentle(false);
-  if (action === "gentle-undo") undoGentle();
-  if (action === "quick-start") startQuick();
-  if (action === "quick-new") startQuick(true);
-  if (action === "quick-known") answerQuick(true);
-  if (action === "quick-unknown") answerQuick(false);
-  if (action === "quick-undo") undoQuick();
-  if (action === "wrongbook") renderWrongbook();
-  if (action === "wrongbook-review-all") startWrongReview(Object.keys(child().wrongbook || {}));
-  if (action === "wrongbook-review-one") startWrongReview([target.dataset.id]);
-  if (action === "wrong-known") answerWrongReview("known");
-  if (action === "wrong-unknown") answerWrongReview("unknown");
-  if (action === "wrong-undo") undoWrongReview();
+document.addEventListener("click",e=>{
+  const nav=e.target.closest("[data-nav]"); if(nav){state.view=nav.dataset.nav;state.activeMission=null;render();return}
+  const scrollTarget=e.target.closest("[data-scroll]"); if(scrollTarget){document.querySelector("#"+scrollTarget.dataset.scroll)?.scrollIntoView({behavior:"smooth",block:"start"});return}
+  const note=e.target.closest("[data-note]"); if(note){const noteText=note.dataset.note;const toast=document.querySelector(".poster-toast");const noteBox=document.querySelector(".tree-note"); if(toast){toast.textContent=noteText;toast.classList.add("show");setTimeout(()=>{if(toast.textContent===noteText)toast.classList.remove("show")},1800)}else if(noteBox){noteBox.textContent=noteText;setTimeout(()=>{if(noteBox.textContent===noteText)noteBox.textContent=""},2600)}else{let mini=document.querySelector(".mini-toast");if(!mini){mini=document.createElement("div");mini.className="mini-toast";document.body.appendChild(mini)}mini.textContent=noteText;mini.classList.add("show");setTimeout(()=>mini.classList.remove("show"),1800)}return}
+  const audio=e.target.closest("[data-audio]"); if(audio){const small=audio.querySelector("small");const icon=audio.querySelector("b");const bar=audio.querySelector(".audio-progress em");const player=document.querySelector("#prologueAudio");if(player){player.ontimeupdate=()=>{if(bar&&player.duration)bar.style.width=Math.min(100,player.currentTime/player.duration*100)+"%"};player.onended=()=>{audio.classList.remove("playing");if(icon)icon.textContent="▶";if(small)small.textContent="播放完成 · 再听一遍";if(bar)bar.style.width="0%"};if(!player.paused){player.pause();audio.classList.remove("playing");if(small)small.textContent="已暂停 · 再点继续播放";if(icon)icon.textContent="▶";return}player.play().then(()=>{audio.classList.add("playing");if(small)small.textContent="正在播放郭爸讲解 · 点击暂停";if(icon)icon.textContent="Ⅱ"}).catch(()=>{if(small){small.textContent="音频待上传：assets/prologue.mp3";setTimeout(()=>{small.textContent="点击收听 · 音频待上传"},1800)}})}return}
+  const access=e.target.closest("[data-access]"); if(access){state.accessMode=access.dataset.access;localStorage.setItem("tiantai-access",state.accessMode);state.activeMission=null;render();return}
+  if(e.target.closest("[data-show-code]")){document.querySelector(".code-panel")?.classList.remove("hidden");document.querySelector("#accessCodeInput")?.focus();return}
+  if(e.target.closest("[data-verify-code]")){const code=document.querySelector("#accessCodeInput")?.value.trim().toUpperCase();const msg=document.querySelector("#accessFeedback");if(code==="TT2026"){state.accessMode="official";localStorage.setItem("tiantai-access","official");render()}else if(msg){msg.textContent="活动码暂时对不上，请向领队确认。"}return}
+  if(e.target.closest("[data-reset-access]")){state.accessMode="";state.activeMission=null;localStorage.removeItem("tiantai-access");render();return}
+  if(e.target.closest("[data-enter]")){state.view="journey";state.activeMission=null;render();return}
+  const openMission=e.target.closest("[data-open-mission]"); if(openMission){state.activeMission=openMission.dataset.openMission;render();return}
+  const answer=e.target.closest(".answer-button"); if(answer){state.answerMission=missions.find(m=>m.id===answer.dataset.id);document.querySelector("#dialogTitle").textContent=state.answerMission.title;document.querySelector("#dialogHint").textContent="提示："+state.answerMission.hint;input.value="";feedback.textContent="";dialog.showModal();input.focus()}
 });
 
-app.addEventListener("submit", (event) => {
-  const target = event.target.closest("[data-action]");
-  if (!target) return;
-  event.preventDefault();
-  const action = target.dataset.action;
-  if (action === "confirm-add-child") confirmAddChild();
+document.querySelector("#answerForm").addEventListener("submit",e=>{
+  e.preventDefault(); const value=input.value.trim().replace(/\s/g,"");
+  if(value===state.answerMission.answer){if(!state.completed.includes(state.answerMission.id))state.completed.push(state.answerMission.id);localStorage.setItem("tiantai-progress",JSON.stringify(state.completed));feedback.textContent="验证成功，线索已归档。";setTimeout(()=>{dialog.close();render()},700)}else{feedback.textContent="这条线索还对不上，再观察一下。"}
 });
-
-app.addEventListener("change", (event) => {
-  const target = event.target.closest("[data-action]");
-  if (!target) return;
-  if (target.dataset.action === "switch-child") switchChild(target.value);
+back.addEventListener("click",()=>{
+  if(state.view==="journey"&&state.activeMission){state.activeMission=null;render();return}
+  if(state.view==="journey"){state.view="culture";render();return}
+  if(state.view==="culture"||state.view==="literacy"||state.view==="profile"){state.view="home";state.activeMission=null;render();return}
+  state.view="home";state.activeMission=null;render();
 });
-
-document.addEventListener("keydown", (event) => {
-  const typing = ["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName);
-  if (screen === "onboarding" && event.key === "Enter") {
-    createFirstChild();
-  }
-  if (document.querySelector(".modal-layer") || typing) return;
-  if (screen === "gentle") {
-    if (event.key === "1" || event.key === "ArrowLeft") answerGentle(true);
-    if (event.key === "2" || event.key === "ArrowRight") answerGentle(false);
-    if (event.key === "3" || event.key === "Backspace") undoGentle();
-  }
-  if (screen === "quick") {
-    if (event.key === "1" || event.key === "ArrowLeft") answerQuick(true);
-    if (event.key === "2" || event.key === "ArrowRight") answerQuick(false);
-    if (event.key === "3" || event.key === "Backspace") undoQuick();
-  }
-  if (screen.startsWith("group-")) {
-    if (event.key === "1" || event.key === "ArrowLeft") answerGroup("known");
-    if (event.key === "2" || event.key === "ArrowRight") answerGroup("unknown");
-    if (event.key === "3" || event.key === "Backspace") undoGroup();
-  }
-  if (screen === "wrong-review") {
-    if (event.key === "1" || event.key === "ArrowLeft") answerWrongReview("known");
-    if (event.key === "2" || event.key === "ArrowRight") answerWrongReview("unknown");
-    if (event.key === "3" || event.key === "Backspace") undoWrongReview();
-  }
-});
-
-if (!BANK.length) {
-  app.innerHTML = "<p>字库没有加载成功，请检查 data/hanzi.js。</p>";
-} else {
-  const groupMatch = location.hash.match(/^#group-(\d+)$/);
-  if (groupMatch) startGroup(Math.min(Number(groupMatch[1]), GROUP_COUNT - 1));
-  else restoreLastRoute();
-}
+render();
