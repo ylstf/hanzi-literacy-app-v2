@@ -131,8 +131,9 @@ function renderMissionMap(){
 
 function mapNodeHTML(m,index,visible){
   const done=state.completed.includes(m.id);
-  const locked=!visible;
-  return `<button class="quest-node node-${index+1} ${done?"done":locked?"locked":"open"}" type="button" aria-label="${m.date} ${m.title}" ${locked?'data-note="正式报名后解锁完整十五关"':`data-open-mission="${m.id}"`}></button>`;
+  const locked=!visible || !m.open;
+  const lockedNote=!visible ? "正式报名后解锁完整十五关" : "剧情封印中";
+  return `<button class="quest-node node-${index+1} ${done?"done":locked?"locked":"open"}" type="button" aria-label="${m.date} ${m.title}" ${locked?`data-note="${lockedNote}"`:`data-open-mission="${m.id}"`}></button>`;
 }
 
 function prologueHTML(){
@@ -263,6 +264,10 @@ document.addEventListener("click",e=>{
 document.querySelector("#answerForm").addEventListener("submit",e=>{
   e.preventDefault(); const value=input.value.trim().replace(/\s/g,"");
   if(value===state.answerMission.answer){if(!state.completed.includes(state.answerMission.id))state.completed.push(state.answerMission.id);localStorage.setItem("tiantai-progress",JSON.stringify(state.completed));feedback.textContent="验证成功，线索已归档。";setTimeout(()=>{dialog.close();render()},700)}else{feedback.textContent="这条线索还对不上，再观察一下。"}
+});
+document.querySelector(".dialog-close").addEventListener("click",()=>{
+  dialog.close();
+  state.answerMission=null;
 });
 back.addEventListener("click",()=>{
   if(state.view==="journey"&&state.activeMission){state.activeMission=null;render();return}
