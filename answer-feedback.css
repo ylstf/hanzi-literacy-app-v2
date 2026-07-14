@@ -1,0 +1,38 @@
+.feedback {
+  min-height: 24px;
+  padding: 0;
+  line-height: 1.55;
+  transition: background .2s, color .2s, padding .2s;
+}
+
+.answer-wrong input {
+  border-color: #cf7b7b;
+  background: #fff7f6;
+  color: #703b39;
+}
+
+.answer-wrong .feedback {
+  padding: 11px 13px;
+  border-radius: 10px;
+  background: #f9e8e6;
+  color: #9a3f3b;
+}
+
+.answer-correct input {
+  border-color: #74a889;
+  background: #eef7ef;
+  color: #315b40;
+}
+
+.answer-correct .feedback {
+  padding: 12px 13px;
+  border-radius: 10px;
+  background: #e3f2e6;
+  color: #28633c;
+  font-weight: 700;
+}
+
+.answer-correct .primary-button {
+  background: #39785c;
+  color: #fff;
+}

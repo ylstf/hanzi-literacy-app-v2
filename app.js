@@ -8,7 +8,7 @@ const state = {
 
 const missions = [
   { id:"m1", no:1, date:"7月13日", phase:"线上预热", chapter:"序章 · 天外来信", title:"谁为此山命名？", place:"线上 · 家庭共同完成", hint:"古人认为这座山峰峦高秀，与天上的“台宿”遥相呼应，留下了“上应台宿”的说法。请找到藏在序章中的两个关键字。", action:"亲子共同阅读序章，讨论“天”与“台”的含义，并提交两个字的口令。", answer:"台宿", open:true, prologue:true },
-  { id:"m2", no:2, date:"7月14日", phase:"线上预热", chapter:"序章 · 家庭报到", title:"写下我们的出发心愿", place:"线上 · 微信群", hint:"解开地名后，每个家庭将领取一枚“寻心印”。", action:"录制20秒家庭出发宣言：我们是谁、为什么出发、最想在天台找到什么。", answer:"寻心", open:false },
+  { id:"m2", no:2, date:"7月14日", phase:"线上预热", chapter:"第一幕 · 仰观天文", title:"天上有台，地上何处相应？", place:"线上 · 家庭共同完成", hint:"昨日，我们从星空中找到了“台宿”；今天，请把天上的星宿与地上的山川合在一起。答案是两个最常见的字。", action:"和孩子一起完成“仰观与俯察”小游戏，找到连接星空与山川的两个字。", answer:"天地", answers:["天地","天和地"], open:true, day2:true },
   { id:"m3", no:3, date:"7月15日", phase:"线上预热", chapter:"序章 · 天台初识", title:"在地图上找到天台", place:"线上 · 家庭共同完成", hint:"出发前，先把天台放进中国文化的地图里。", action:"和孩子一起查找天台山、国清寺、石梁飞瀑、桐柏宫的位置，并在旅行手账上画出第一张路线草图。", answer:"天台", open:false },
   { id:"m4", no:4, date:"7月16日", phase:"线上预热", chapter:"序章 · 唐诗之路", title:"诗人为什么向东南走？", place:"线上 · 家庭共同完成", hint:"天台是浙东唐诗之路的重要终点。", action:"任选一位到过天台的诗人，读一首相关诗歌，写下一个你最想现场验证的画面。", answer:"诗路", open:false },
   { id:"m5", no:5, date:"7月17日", phase:"线上预热", chapter:"序章 · 霞客之志", title:"徐霞客为什么出发？", place:"线上 · 家庭共同完成", hint:"第二天的山水壮游，将以徐霞客为主线。", action:"亲子共读徐霞客相关小故事，写下“我愿意坚持寻找的一个答案”。", answer:"志行", open:false },
@@ -217,6 +217,86 @@ function prologueHTML(){
     </div>`;
 }
 
+function day2HTML(){
+  return `
+    <div class="prologue-panel day2-panel">
+      <div class="day2-cover">
+        <p class="eyebrow">守台人的第二封信</p>
+        <h3>天上有台，地上何处相应？</h3>
+        <button class="audio-guide" type="button" data-audio="day2" data-player="day2Audio" data-audio-title="郭爸讲第二关" data-audio-src="assets/day2.mp3">
+          <img src="assets/guoba-portrait.jpg" alt="书法郭爸">
+          <span><strong>郭爸讲第二关</strong><small>点击收听 · 音频待上传</small><i class="audio-progress"><em></em></i></span>
+          <b>▶</b>
+        </button>
+        <audio id="day2Audio" src="assets/day2.mp3" preload="none"></audio>
+      </div>
+
+      <div class="opening-poem day2-poem" aria-label="第二关定场诗">
+        <div class="poem-line">${poemChar("纵","ze")}${poemChar("目","ru")}${poemChar("星","ping")}${poemChar("河","ping")}${poemChar("万","ze")}${poemChar("象","ze")}${poemChar("深","ping")}<span class="poem-punct">，</span></div>
+        <div class="poem-line">${poemChar("徐","ping")}${poemChar("看","ping")}${poemChar("丘","ping")}${poemChar("壑","ru")}${poemChar("寄","ze")}${poemChar("幽","ping")}${poemChar("寻","ping")}<span class="poem-punct">。</span></div>
+        <div class="poem-line">${poemChar("欲","ru")}${poemChar("知","ping")}${poemChar("台","ping")}${poemChar("岳","ze")}${poemChar("源","ping")}${poemChar("流","ping")}${poemChar("处","ze")}<span class="poem-punct">，</span></div>
+        <div class="poem-line">${poemChar("胜","ze")}${poemChar("境","ze")}${poemChar("风","ping")}${poemChar("光","ping")}${poemChar("自","ze")}${poemChar("古","ze")}${poemChar("临","ping")}<span class="poem-punct">。</span></div>
+      </div>
+
+      <div class="guardian-letter">
+        <img class="tie-line-seal" src="assets/守台.png" alt="守台印">
+        <p class="letter-kicker">致新任寻台人：</p>
+        <p>昨日，你们从古人的星空中找到了“台宿”，也找到了天台山名字里的第一把钥匙。</p>
+        <p>但只抬头看天，还不能真正找到天台。</p>
+        <p>古人仰望日月星辰，也俯身观察山川草木。他们相信，天上的星宿有自己的位置，地上的山河也有自己的秩序；天上的“台宿”与地上的“天台山”，便在这样的想象中遥遥相应。</p>
+        <p>今天，请你们观察下面两幅小卷：先跟着小书童抬头望天，再跟着他低头看地。看看天上有什么、地上有什么，再把“上面的世界”和“下面的世界”各用一个最常见的字说出来。</p>
+        <p class="letter-sign">——守台人</p>
+      </div>
+
+      <section class="two-realms" aria-label="天与地的对应线索">
+        <article class="realm-card realm-sky">
+          <div class="scroll-rod" aria-hidden="true"></div>
+          <div class="celestial-icons" aria-hidden="true"><span class="sun">☀</span><span class="moon">☾</span><span class="star star-one">✦</span><span class="star star-two">✧</span><span class="star star-three">·</span></div>
+          <div class="realm-copy"><p class="eyebrow">向上看</p><h4>日月星辰</h4><p>北斗、二十八宿、台宿，都在我们仰望的方向。</p><div class="realm-clues"><span>星空</span><span>台宿</span><span>日月</span></div></div>
+          <img class="little-scholar scholar-up" src="assets/小孩向上看.png" alt="抬头仰望的小书童">
+        </article>
+        <div class="realm-link" aria-hidden="true"><svg viewBox="0 0 90 104"><path d="M45 5V99"/><path d="M29 21L45 5l16 16M29 83l16 16 16-16"/></svg><span>遥遥相应</span></div>
+        <article class="realm-card realm-earth">
+          <div class="scroll-rod" aria-hidden="true"></div>
+          <svg class="earth-landscape" viewBox="0 0 360 150" preserveAspectRatio="none" aria-hidden="true"><path class="far-mountain" d="M0 98Q45 42 93 92Q133 24 190 91Q240 39 285 89Q322 55 360 88V150H0Z"/><path class="near-mountain" d="M0 119Q61 77 111 112Q173 63 224 113Q289 70 360 111V150H0Z"/><path class="water" d="M0 125Q68 112 139 128T280 127T360 126V150H0Z"/></svg>
+          <div class="realm-copy"><p class="eyebrow">向下看</p><h4>山川草木</h4><p>天台山、石梁飞瀑、桐柏草木，都在我们行走的地方。</p><div class="realm-clues"><span>山川</span><span>天台</span><span>草木</span></div></div>
+          <img class="little-scholar scholar-down" src="assets/小孩向下看.png" alt="低头俯察的小书童">
+        </article>
+      </section>
+
+      <div class="pairing-board" aria-label="星空与山川配对">
+        <h4>把两幅小卷连起来</h4>
+        <div class="pair-row"><span>天上有星宿</span><b>⇄</b><span>地上有山川</span></div>
+        <div class="pair-row"><span>天上有台宿</span><b>⇄</b><span>地上有天台山</span></div>
+        <div class="pair-row"><span>仰观</span><b>⇄</b><span>俯察</span></div>
+        <p>一个字在上，一个字在下；合在一起，就是今天的口令。</p>
+        <div class="answer-slots" aria-label="两个字的答案"><span>?</span><span>?</span></div>
+      </div>
+
+      <div class="knowledge-box">
+        <h4>给家长的文化线索</h4>
+        <ul>
+          <li>古人常把仰观天文与俯察地理放在一起理解世界。</li>
+          <li>“上应台宿”是一种传统文化解释，体现了星宿与山川相互映照的观念。</li>
+          <li>这并不是现代天文学结论，而是古人观察自然、建立秩序的一种文化想象。</li>
+        </ul>
+      </div>
+
+      <div class="family-task day2-task">
+        <h4>亲子小任务｜一分钟仰观与俯察</h4>
+        <p><strong>第一步：</strong>和孩子一起走到窗边或户外，先抬头，说出三样“上面”的事物。</p>
+        <p><strong>第二步：</strong>再低头或看向远处，说出三样“大地上”的事物。</p>
+        <p><strong>第三步：</strong>回到上面的两幅小卷，找出那两个最常见的字，作为今日口令。</p>
+      </div>
+
+      <div class="day2-question">
+        <p class="eyebrow">第二关 · 最终谜题</p>
+        <h4>什么能够同时装下星辰与山川？</h4>
+        <p>请输入两个字。答案就在“向上看”和“向下看”之间。</p>
+      </div>
+    </div>`;
+}
+
 function poemChar(char,tone){
   return `<span class="poem-char tone-${tone}"><span class="word">${char}</span><span class="tone-mark" aria-hidden="true"></span></span>`;
 }
@@ -231,7 +311,8 @@ function guestUnlockHTML(){
 
 function missionHTML(m){
   const done=state.completed.includes(m.id); const available=m.open || done;
-  return `<article class="mission ${done?"done":available?"active":""} ${m.prologue?"prologue-mission":""}"><div class="mission-top"><div><p class="eyebrow">${m.chapter}</p><h3>${m.title}</h3></div><span class="mission-state">${done?"已完成":available?"可调查":"剧情封印"}</span></div><p>地点：${m.place}</p><p>${m.hint}</p>${m.prologue?prologueHTML():`<p class="mission-action"><strong>家庭行动：</strong>${m.action}</p><div class="clue-image">【任务图片占位符】</div>`}${m.prologue?`<p class="mission-action"><strong>家庭行动：</strong>${m.action}</p>`:""}${done?'<button class="secondary-button" disabled>线索已归档</button>':available?`<button class="primary-button answer-button" data-id="${m.id}">输入答案</button>`:'<button class="secondary-button" disabled>等待领队解锁</button>'}</article>`
+  const specialContent=m.prologue?prologueHTML():m.day2?day2HTML():`<p class="mission-action"><strong>家庭行动：</strong>${m.action}</p><div class="clue-image">【任务图片占位符】</div>`;
+  return `<article class="mission ${done?"done":available?"active":""} ${m.prologue||m.day2?"prologue-mission":""}"><div class="mission-top"><div><p class="eyebrow">${m.chapter}</p><h3>${m.title}</h3></div><span class="mission-state">${done?"已完成":available?"可调查":"剧情封印"}</span></div><p>地点：${m.place}</p><p>${m.hint}</p>${specialContent}${m.prologue?`<p class="mission-action"><strong>家庭行动：</strong>${m.action}</p>`:""}${done?'<button class="secondary-button" disabled>解谜成功，线索已归档</button>':available?`<button class="primary-button answer-button" data-id="${m.id}">输入答案</button>`:'<button class="secondary-button" disabled>等待领队解锁</button>'}</article>`
 }
 
 function renderProfile(){
@@ -251,19 +332,50 @@ document.addEventListener("click",e=>{
   const nav=e.target.closest("[data-nav]"); if(nav){state.view=nav.dataset.nav;state.activeMission=null;render();return}
   const scrollTarget=e.target.closest("[data-scroll]"); if(scrollTarget){document.querySelector("#"+scrollTarget.dataset.scroll)?.scrollIntoView({behavior:"smooth",block:"start"});return}
   const note=e.target.closest("[data-note]"); if(note){const noteText=note.dataset.note;const toast=document.querySelector(".poster-toast");const noteBox=document.querySelector(".tree-note"); if(toast){toast.textContent=noteText;toast.classList.add("show");setTimeout(()=>{if(toast.textContent===noteText)toast.classList.remove("show")},1800)}else if(noteBox){noteBox.textContent=noteText;setTimeout(()=>{if(noteBox.textContent===noteText)noteBox.textContent=""},2600)}else{let mini=document.querySelector(".mini-toast");if(!mini){mini=document.createElement("div");mini.className="mini-toast";document.body.appendChild(mini)}mini.textContent=noteText;mini.classList.add("show");setTimeout(()=>mini.classList.remove("show"),1800)}return}
-  const audio=e.target.closest("[data-audio]"); if(audio){const small=audio.querySelector("small");const icon=audio.querySelector("b");const bar=audio.querySelector(".audio-progress em");const player=document.querySelector("#prologueAudio");if(player){player.ontimeupdate=()=>{if(bar&&player.duration)bar.style.width=Math.min(100,player.currentTime/player.duration*100)+"%"};player.onended=()=>{audio.classList.remove("playing");if(icon)icon.textContent="▶";if(small)small.textContent="播放完成 · 再听一遍";if(bar)bar.style.width="0%"};if(!player.paused){player.pause();audio.classList.remove("playing");if(small)small.textContent="已暂停 · 再点继续播放";if(icon)icon.textContent="▶";return}player.play().then(()=>{audio.classList.add("playing");if(small)small.textContent="正在播放郭爸讲解 · 点击暂停";if(icon)icon.textContent="Ⅱ"}).catch(()=>{if(small){small.textContent="音频待上传：assets/prologue.mp3";setTimeout(()=>{small.textContent="点击收听 · 音频待上传"},1800)}})}return}
+  const audio=e.target.closest("[data-audio]"); if(audio){const small=audio.querySelector("small");const icon=audio.querySelector("b");const bar=audio.querySelector(".audio-progress em");const player=document.querySelector(`#${audio.dataset.player||"prologueAudio"}`);const title=audio.dataset.audioTitle||"郭爸讲解";const src=audio.dataset.audioSrc||"assets/prologue.mp3";if(player){player.ontimeupdate=()=>{if(bar&&player.duration)bar.style.width=Math.min(100,player.currentTime/player.duration*100)+"%"};player.onended=()=>{audio.classList.remove("playing");if(icon)icon.textContent="▶";if(small)small.textContent="播放完成 · 再听一遍";if(bar)bar.style.width="0%"};if(!player.paused){player.pause();audio.classList.remove("playing");if(small)small.textContent="已暂停 · 再点继续播放";if(icon)icon.textContent="▶";return}player.play().then(()=>{audio.classList.add("playing");if(small)small.textContent=`正在播放${title} · 点击暂停`;if(icon)icon.textContent="Ⅱ"}).catch(()=>{if(small){small.textContent=`音频待上传：${src}`;setTimeout(()=>{small.textContent="点击收听 · 音频待上传"},1800)}})}return}
   const access=e.target.closest("[data-access]"); if(access){state.accessMode=access.dataset.access;localStorage.setItem("tiantai-access",state.accessMode);state.activeMission=null;render();return}
   if(e.target.closest("[data-show-code]")){document.querySelector(".code-panel")?.classList.remove("hidden");document.querySelector("#accessCodeInput")?.focus();return}
   if(e.target.closest("[data-verify-code]")){const code=document.querySelector("#accessCodeInput")?.value.trim().toUpperCase();const msg=document.querySelector("#accessFeedback");if(code==="TT2026"){state.accessMode="official";localStorage.setItem("tiantai-access","official");render()}else if(msg){msg.textContent="活动码暂时对不上，请向领队确认。"}return}
   if(e.target.closest("[data-reset-access]")){state.accessMode="";state.activeMission=null;localStorage.removeItem("tiantai-access");render();return}
   if(e.target.closest("[data-enter]")){state.view="journey";state.activeMission=null;render();return}
   const openMission=e.target.closest("[data-open-mission]"); if(openMission){state.activeMission=openMission.dataset.openMission;render();return}
-  const answer=e.target.closest(".answer-button"); if(answer){state.answerMission=missions.find(m=>m.id===answer.dataset.id);document.querySelector("#dialogTitle").textContent=state.answerMission.title;document.querySelector("#dialogHint").textContent="提示："+state.answerMission.hint;input.value="";feedback.textContent="";dialog.showModal();input.focus()}
+  const answer=e.target.closest(".answer-button"); if(answer){state.answerMission=missions.find(m=>m.id===answer.dataset.id);const form=document.querySelector("#answerForm");const submitButton=form.querySelector("button[type='submit']");document.querySelector("#dialogTitle").textContent=state.answerMission.title;document.querySelector("#dialogHint").textContent="提示："+state.answerMission.hint;input.value="";input.disabled=false;feedback.textContent="";form.classList.remove("answer-correct","answer-wrong");form.dataset.answerState="";submitButton.textContent="验证线索";dialog.showModal();input.focus()}
 });
 
 document.querySelector("#answerForm").addEventListener("submit",e=>{
-  e.preventDefault(); const value=input.value.trim().replace(/\s/g,"");
-  if(value===state.answerMission.answer){if(!state.completed.includes(state.answerMission.id))state.completed.push(state.answerMission.id);localStorage.setItem("tiantai-progress",JSON.stringify(state.completed));feedback.textContent="验证成功，线索已归档。";setTimeout(()=>{dialog.close();render()},700)}else{feedback.textContent="这条线索还对不上，再观察一下。"}
+  e.preventDefault();
+  const form=e.currentTarget;
+  const submitButton=form.querySelector("button[type='submit']");
+  if(form.dataset.answerState==="correct"){
+    if(!state.completed.includes(state.answerMission.id))state.completed.push(state.answerMission.id);
+    localStorage.setItem("tiantai-progress",JSON.stringify(state.completed));
+    dialog.close();
+    state.answerMission=null;
+    render();
+    return;
+  }
+  const value=input.value.trim().replace(/\s/g,"");
+  const validAnswers=(state.answerMission.answers||[state.answerMission.answer]).map(answer=>answer.replace(/\s/g,""));
+  if(validAnswers.includes(value)){
+    form.classList.remove("answer-wrong");
+    form.classList.add("answer-correct");
+    form.dataset.answerState="correct";
+    feedback.textContent=`🎉 恭喜你，答对了！第 ${state.answerMission.no} 条线索已经成功破解。`;
+    input.disabled=true;
+    submitButton.textContent="收下线索并归档";
+  }else{
+    form.classList.remove("answer-correct");
+    form.classList.add("answer-wrong");
+    form.dataset.answerState="wrong";
+    feedback.textContent="很遗憾，答案还差一点，请继续探索。";
+  }
+});
+input.addEventListener("input",()=>{
+  const form=document.querySelector("#answerForm");
+  if(form.dataset.answerState!=="wrong")return;
+  form.classList.remove("answer-wrong");
+  form.dataset.answerState="";
+  feedback.textContent="";
 });
 document.querySelector(".dialog-close").addEventListener("click",()=>{
   dialog.close();

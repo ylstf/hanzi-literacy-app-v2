@@ -1,0 +1,35 @@
+.day2-panel{gap:16px}
+.day2-cover{position:relative;padding:18px 16px 16px;border-radius:22px;overflow:hidden;background:radial-gradient(circle at 80% 8%,rgba(255,239,153,.32),transparent 28%),linear-gradient(145deg,#143f52,#286a72 58%,#b9cfb0);box-shadow:inset 0 0 0 1px rgba(255,255,255,.25),0 12px 26px rgba(24,76,72,.18)}
+.day2-cover:before{content:"✦  ·  ✧";position:absolute;right:18px;top:16px;color:#fff3b0;font-size:16px;letter-spacing:.3em;opacity:.38}.day2-cover:after{content:"";position:absolute;left:0;right:0;bottom:0;height:64%;background:linear-gradient(155deg,transparent 48%,rgba(220,236,223,.12) 49% 64%,transparent 65%),linear-gradient(25deg,transparent 52%,rgba(215,231,218,.1) 53% 68%,transparent 69%);opacity:.9}
+.day2-cover .eyebrow{position:relative;z-index:1;color:#e7f4ef!important}
+.day2-cover h3{position:relative;z-index:1;margin:7px 0 14px!important;color:#fff!important;font-size:20px!important;line-height:1.3!important;white-space:nowrap;text-shadow:0 2px 14px rgba(0,0,0,.24)}
+.day2-cover .audio-guide{position:relative;z-index:2}
+.day2-poem{background:linear-gradient(180deg,#fffaf0,#f5f0e2)}
+.day2-poem .poem-line{margin:6px 0 8px;font-size:18px;line-height:1.1}
+.guardian-letter{position:relative;padding:22px 19px 18px;border-radius:22px;background:#fffdf5;border:1px solid #e5dbc0;box-shadow:0 10px 24px rgba(82,67,35,.07)}
+.guardian-letter:before{display:none}.tie-line-seal{position:absolute;right:17px;top:13px;width:31px;height:58px;display:block;object-fit:contain;mix-blend-mode:multiply;opacity:.82;transform:rotate(-3deg)}
+.guardian-letter p{margin:0 0 12px!important;color:#4d584f!important;font-size:14px;line-height:1.85;text-align:justify}
+.guardian-letter .letter-kicker{color:#8d5a31!important;font-family:"Songti SC","STSong",serif;font-size:16px;font-weight:900}
+.guardian-letter .letter-sign{margin-top:16px!important;text-align:right;color:#34644f!important;font-weight:800}
+.two-realms{display:grid;grid-template-columns:1fr;gap:0;padding:4px 2px}
+.realm-card{position:relative;min-height:220px;margin:0 7px;padding:30px 18px 25px;border-radius:9px;overflow:visible;border-left:1px solid rgba(255,255,255,.5);border-right:1px solid rgba(255,255,255,.5);box-shadow:0 10px 22px rgba(34,67,55,.13)}
+.realm-card:before,.realm-card:after{content:"";position:absolute;left:-8px;right:-8px;height:13px;border-radius:8px;box-shadow:0 3px 6px rgba(28,49,42,.16)}
+.realm-card:before{top:-6px}.realm-card:after{bottom:-6px}
+.realm-sky:before,.realm-sky:after{background:linear-gradient(90deg,#163e60,#4c91b2,#163e60)}
+.realm-earth:before,.realm-earth:after{background:linear-gradient(90deg,#275a3d,#6c9c66,#275a3d)}
+.realm-copy{position:relative;z-index:3;max-width:68%}
+.realm-card .eyebrow{margin-bottom:4px;font-size:14px!important}
+.realm-card h4{margin:0 0 8px;font-family:"Songti SC","STSong",serif;font-size:24px}
+.realm-card p:not(.eyebrow){margin:0 0 13px;font-size:13px;line-height:1.7}
+.realm-sky{background:radial-gradient(circle at 80% 20%,rgba(255,224,120,.18),transparent 24%),linear-gradient(150deg,#174666,#2d7895);color:#fff}
+.realm-sky .eyebrow,.realm-sky h4{color:#fff!important}.realm-sky p:not(.eyebrow){color:#e4f1f5}
+.celestial-icons{position:absolute;z-index:1;inset:20px 12px 35px 48%;color:#ffe58b;pointer-events:none}.celestial-icons .sun{position:absolute;right:2px;top:2px;font-size:28px}.celestial-icons .moon{position:absolute;left:2px;top:27px;font-size:35px}.celestial-icons .star{position:absolute;font-size:17px}.celestial-icons .star-one{right:34px;top:60px}.celestial-icons .star-two{right:2px;top:102px}.celestial-icons .star-three{left:34px;top:15px;font-size:26px}
+.realm-earth{margin-top:0;background:linear-gradient(155deg,#e5f1dc,#6fa276);color:#163f2b}
+.realm-earth .eyebrow,.realm-earth h4{color:#174a31!important}.realm-earth p:not(.eyebrow){color:#315e45}
+.earth-landscape{position:absolute;z-index:0;inset:auto 0 0;width:100%;height:76%;opacity:.46}.far-mountain{fill:#547f5e}.near-mountain{fill:#315e45}.water{fill:#a8d7c9;opacity:.88}
+.realm-clues{display:flex;gap:6px;flex-wrap:wrap}.realm-clues span{padding:5px 9px;border-radius:999px;background:rgba(255,255,250,.88);color:#2d5f4b;font-size:11px;font-weight:800}
+.little-scholar{position:absolute;z-index:2;right:7px;bottom:8px;width:108px;height:142px;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 5px 5px rgba(17,50,42,.18))}.scholar-up{transform:rotate(-2deg)}.scholar-down{transform:rotate(2deg)}
+.realm-link{position:relative;z-index:5;height:96px;display:grid;place-items:center;margin:2px 0}.realm-link svg{position:absolute;inset:0;margin:auto;width:74px;height:96px;overflow:visible}.realm-link svg path{fill:none;stroke:#a47d2c;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.realm-link span{position:relative;z-index:2;display:grid;place-items:center;min-width:104px;min-height:36px;padding:3px 12px;border-radius:999px;background:#fffdf4;border:1.5px solid #c59b43;color:#765b24;font-family:"Songti SC","STSong",serif;font-size:16px;font-weight:900;letter-spacing:.08em;box-shadow:0 4px 12px rgba(63,57,31,.13)}
+.pairing-board{padding:18px 15px;border-radius:22px;background:#eef4ec;border:1px solid #d1dfd3}.pairing-board h4{margin:0 0 13px;color:#24563f;font-family:"Songti SC","STSong",serif;font-size:18px}.pair-row{display:grid;grid-template-columns:1fr 28px 1fr;align-items:center;gap:5px;margin:8px 0}.pair-row span{padding:9px 7px;border-radius:11px;background:#fffef9;border:1px solid #d8e2d8;color:#3c5e4e;text-align:center;font-size:12px;font-weight:800}.pair-row b{text-align:center;color:#aa8030}.pairing-board>p{margin:14px 0 10px!important;color:#5a6e62!important;font-size:13px!important;text-align:center}.answer-slots{display:flex;align-items:center;justify-content:center;gap:10px;width:100%}.answer-slots span{position:relative;box-sizing:border-box;width:44px;height:44px;display:block;padding:0;margin:0;border:2px dashed #7b9b84;border-radius:12px;background:#fffef9;color:transparent;font-size:0}.answer-slots span:after{content:"?";position:absolute;inset:0;display:grid;place-items:center;color:#6d8c76;font-family:Arial,sans-serif;font-size:22px;line-height:1;font-weight:700;text-align:center;transform:translateY(-1px)}
+.day2-task p{margin:7px 0!important}.day2-question{padding:18px 16px;border-radius:22px;background:linear-gradient(145deg,#173f30,#2c7053);color:#fff;text-align:center}.day2-question .eyebrow{color:#f3d879!important}.day2-question h4{margin:5px 0 9px;font-family:"Songti SC","STSong",serif;font-size:21px;color:#fff}.day2-question p:not(.eyebrow){margin:0;color:#dfece4;font-size:13px;line-height:1.65}
+@media(max-width:370px){.day2-cover h3{font-size:18px!important}.realm-copy{max-width:66%}.realm-card{padding-left:14px}.little-scholar{right:4px;width:82px}}
