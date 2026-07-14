@@ -4,6 +4,7 @@ const state = {
   accessMode: localStorage.getItem("tiantai-access") || "",
   familyInvite: localStorage.getItem("tiantai-family-invite") || "",
   family: JSON.parse(localStorage.getItem("tiantai-family") || "null"),
+  familyStorageMode: localStorage.getItem("tiantai-family-storage") || "",
   activeMission: null,
   answerMission: null
 };
@@ -46,39 +47,122 @@ const feedback = document.querySelector("#answerFeedback");
 const phoneTime = document.querySelector("#phoneTime");
 phoneTime.textContent = new Intl.DateTimeFormat("zh-CN",{hour:"2-digit",minute:"2-digit",hour12:false}).format(new Date());
 
-async function familyRequest(action,payload={}){
+const localFamilyInvitations={
+  "ce0646ee95258b02e0df5648debfda81bfa0575d0659a5284e8bf0dfa319ea18":{familyId:"f001",allowedLearners:3,serialStart:1},
+  "5b0d7a6211cc3073727c981c009d6ac9db13c769d6b4f0ec56445d4c3ad71450":{familyId:"f002",allowedLearners:2,serialStart:4},
+  "097cb7929a139cb5d7e1424c01e60de4c9eb28388e75bd802d4fd2b3cb1762fc":{familyId:"f003",allowedLearners:3,serialStart:6},
+  "c9c500ee5f51e2913e60b504437e2efc2a8d033b3fd8b13eb91d424706d42f82":{familyId:"f004",allowedLearners:3,serialStart:9},
+  "39617369d6a4a15d90d5532224f572dd9a8293dbee5574d779efa67f88b75cf5":{familyId:"f005",allowedLearners:2,serialStart:12},
+  "d1ab9d11a2bf50689cb33912d300e75cde89fca9337d4ecf2de1d4744bdccec8":{familyId:"f006",allowedLearners:2,serialStart:14},
+  "8737df22e224aadbb81a9de8388380fa67a30dbca5aa4b7b7963d6167808fe03":{familyId:"f007",allowedLearners:1,serialStart:16},
+  "e690ecb07af71639967a0f60eaf752ba8e2fea58221cd125e52a4294f8eb104b":{familyId:"f008",allowedLearners:2,serialStart:17},
+  "b9fd1256f15261442a80cb518c44725db736abc56e2bb96d2d60104f25a6d710":{familyId:"f009",allowedLearners:2,serialStart:19},
+  "463bb2e2dba00f74ed4ccd8f210992a67def6f47fc4aec2a33957292c969594c":{familyId:"f010",allowedLearners:1,serialStart:21},
+  "ff7593f05c5222c73027878557974bc03d2139ee47c987fb6a73009384cddf58":{familyId:"f011",allowedLearners:2,serialStart:22},
+  "9e0884106215bd755cde1a18039fa0f9382f34eb176c047da3e7be8f92f72a83":{familyId:"f012",allowedLearners:2,serialStart:24},
+  "c9e3a041160155fc27b25a69fc2033ad9b1dbcba1f13e4305007f243ecf64de6":{familyId:"f013",allowedLearners:1,serialStart:26},
+  "25ec2658cb88cd0fe4372b1938d9449f22b97c8c3aedc94e09df9106c331f47b":{familyId:"f014",allowedLearners:1,serialStart:27},
+  "b2e9fcd63b2d941cd9f5215a751e2187db4f8b2ba0871d7831a06c6ebe76bea1":{familyId:"f015",allowedLearners:1,serialStart:28}
+};
+
+async function hashInvite(invite){
+  const bytes=new TextEncoder().encode(String(invite||"").trim().toUpperCase());
+  const digest=await crypto.subtle.digest("SHA-256",bytes);
+  return [...new Uint8Array(digest)].map(byte=>byte.toString(16).padStart(2,"0")).join("");
+}
+
+function localFamilyKey(familyId){return `tiantai-local-family-${familyId}`}
+function localProgressKey(familyId){return `tiantai-local-progress-${familyId}`}
+
+async function localFamilyRequest(action,payload={}){
+  const invitation=localFamilyInvitations[await hashInvite(state.familyInvite)];
+  if(!invitation)throw new Error("家庭邀请码不正确，请核对后再试。");
+  const savedFamily=JSON.parse(localStorage.getItem(localFamilyKey(invitation.familyId))||"null");
+  if(action==="login")return savedFamily?{needsSetup:false,family:savedFamily,storageMode:"local"}:{needsSetup:true,allowedLearners:invitation.allowedLearners,storageMode:"local"};
+  if(action==="setup"){
+    const names=Array.isArray(payload.names)?payload.names.map(name=>String(name).trim()):[];
+    if(names.length!==invitation.allowedLearners||names.some(name=>!name))throw new Error(`请填写全部 ${invitation.allowedLearners} 位报名学员姓名。`);
+    const family={familyId:invitation.familyId,learners:names.map((name,index)=>({name,serial:invitation.serialStart+index,displayCode:`天台${String(invitation.serialStart+index).padStart(3,"0")}号`}))};
+    localStorage.setItem(localFamilyKey(invitation.familyId),JSON.stringify(family));
+    return {family,storageMode:"local"};
+  }
+  if(!savedFamily)throw new Error("请先完成家庭首次报到。");
+  if(action==="progress:get")return {completed:JSON.parse(localStorage.getItem(localProgressKey(invitation.familyId))||"[]"),storageMode:"local"};
+  if(action==="progress:save"){
+    const completed=[...new Set(Array.isArray(payload.completed)?payload.completed:[])];
+    localStorage.setItem(localProgressKey(invitation.familyId),JSON.stringify(completed));
+    return {completed,storageMode:"local"};
+  }
+  throw new Error("暂不支持这个家庭操作。");
+}
+
+async function remoteFamilyRequest(action,payload={}){
   const response=await fetch("/api/family",{
     method:"POST",
     headers:{"content-type":"application/json"},
     body:JSON.stringify({action,invite:state.familyInvite,...payload})
   });
   const data=await response.json().catch(()=>({}));
-  if(!response.ok)throw new Error(data.message||"家庭资料暂时无法连接，请稍后再试。");
+  if(!response.ok){const error=new Error(data.message||"家庭资料暂时无法连接，请稍后再试。");error.status=response.status;throw error}
   return data;
 }
 
-function saveFamilySession(family,invite=state.familyInvite){
+async function familyRequest(action,payload={}){
+  let localLogin=null;
+  if(action==="login"){
+    try{localLogin=await localFamilyRequest("login")}catch(error){/* 邀请码校验仍交给远端或后续本地回退处理 */}
+  }
+  try{
+    const remote=await remoteFamilyRequest(action,payload);
+    if(action==="login"&&localLogin?.family){
+      let family=remote.family;
+      if(remote.needsSetup){
+        const names=localLogin.family.learners.map(learner=>learner.name);
+        const setup=await remoteFamilyRequest("setup",{names});
+        family=setup.family;
+      }
+      const localProgress=await localFamilyRequest("progress:get");
+      if(localProgress.completed.length){
+        await remoteFamilyRequest("progress:save",{completed:localProgress.completed});
+      }
+      return {needsSetup:false,family,storageMode:"server",migrated:true};
+    }
+    remote.storageMode="server";
+    return remote;
+  }catch(error){
+    if(error.status&&!([401,404,503].includes(error.status)))throw error;
+    return localFamilyRequest(action,payload);
+  }
+}
+
+function saveFamilySession(family,invite=state.familyInvite,storageMode="server"){
   state.family=family;
   state.familyInvite=invite;
   state.accessMode="official";
+  state.familyStorageMode=storageMode;
   localStorage.setItem("tiantai-family",JSON.stringify(family));
   localStorage.setItem("tiantai-family-invite",invite);
   localStorage.setItem("tiantai-access","official");
+  localStorage.setItem("tiantai-family-storage",storageMode);
 }
 
 function clearFamilySession(){
   state.family=null;
   state.familyInvite="";
   state.accessMode="";
+  state.familyStorageMode="";
   localStorage.removeItem("tiantai-family");
   localStorage.removeItem("tiantai-family-invite");
   localStorage.removeItem("tiantai-access");
+  localStorage.removeItem("tiantai-family-storage");
 }
 
 async function restoreFamilyProgress(){
   if(!state.familyInvite)return;
   try{
     const data=await familyRequest("progress:get");
+    state.familyStorageMode=data.storageMode||state.familyStorageMode;
+    localStorage.setItem("tiantai-family-storage",state.familyStorageMode);
     state.completed=Array.isArray(data.completed)?data.completed:[];
     localStorage.setItem("tiantai-progress",JSON.stringify(state.completed));
   }catch(error){
@@ -282,7 +366,8 @@ function renderProfile(){
     return;
   }
   const learners=state.family.learners||[];
-  app.innerHTML=`<section class="mission-header"><p class="eyebrow">家庭调查员档案</p><h2>我的游历</h2><p class="muted">一家人共同完成一次任务，以下成员同步记录进度。</p><div class="learner-list">${learners.map(learner=>`<article class="learner-card"><span>${escapeHTML(learner.name)}</span><strong>${escapeHTML(learner.displayCode)}</strong></article>`).join("")}</div><button class="secondary-button" data-family-logout>退出家庭账户</button></section><div class="empty-card"><h2>${state.completed.length}</h2><p>家庭已破解线索</p><p>${learners.length} 位学员同步完成</p></div>`;
+  const storageNote=state.familyStorageMode==="local"?"当前资料暂存在这台设备；云端存储开通后会自动迁移。":"家庭资料已保存在云端。";
+  app.innerHTML=`<section class="mission-header"><p class="eyebrow">家庭调查员档案</p><h2>我的游历</h2><p class="muted">一家人共同完成一次任务，以下成员同步记录进度。</p><p class="muted">${storageNote}</p><div class="learner-list">${learners.map(learner=>`<article class="learner-card"><span>${escapeHTML(learner.name)}</span><strong>${escapeHTML(learner.displayCode)}</strong></article>`).join("")}</div><button class="secondary-button" data-family-logout>退出家庭账户</button></section><div class="empty-card"><h2>${state.completed.length}</h2><p>家庭已破解线索</p><p>${learners.length} 位学员同步完成</p></div>`;
 }
 
 function escapeHTML(value){
@@ -304,7 +389,7 @@ document.addEventListener("click",e=>{
   const audio=e.target.closest("[data-audio]"); if(audio){const small=audio.querySelector("small");const icon=audio.querySelector("b");const bar=audio.querySelector(".audio-progress em");const player=document.querySelector("#prologueAudio");if(player){player.ontimeupdate=()=>{if(bar&&player.duration)bar.style.width=Math.min(100,player.currentTime/player.duration*100)+"%"};player.onended=()=>{audio.classList.remove("playing");if(icon)icon.textContent="▶";if(small)small.textContent="播放完成 · 再听一遍";if(bar)bar.style.width="0%"};if(!player.paused){player.pause();audio.classList.remove("playing");if(small)small.textContent="已暂停 · 再点继续播放";if(icon)icon.textContent="▶";return}player.play().then(()=>{audio.classList.add("playing");if(small)small.textContent="正在播放郭爸讲解 · 点击暂停";if(icon)icon.textContent="Ⅱ"}).catch(()=>{if(small){small.textContent="音频待上传：assets/prologue.mp3";setTimeout(()=>{small.textContent="点击收听 · 音频待上传"},1800)}})}return}
   const access=e.target.closest("[data-access]"); if(access){state.accessMode=access.dataset.access;localStorage.setItem("tiantai-access",state.accessMode);state.activeMission=null;render();return}
   if(e.target.closest("[data-show-code]")){document.querySelector(".code-panel")?.classList.remove("hidden");document.querySelector("#accessCodeInput")?.focus();return}
-  if(e.target.closest("[data-family-login]")){const code=document.querySelector("#accessCodeInput")?.value.trim().toUpperCase();const msg=document.querySelector("#accessFeedback");if(!code){if(msg)msg.textContent="请输入领队发放的家庭邀请码。";return}if(msg)msg.textContent="正在核对家庭报名资料……";state.familyInvite=code;familyRequest("login").then(async data=>{if(data.needsSetup){renderFamilySetup(data.allowedLearners);return}saveFamilySession(data.family,code);await restoreFamilyProgress();render()}).catch(error=>{state.familyInvite="";if(msg)msg.textContent=error.message});return}
+  if(e.target.closest("[data-family-login]")){const code=document.querySelector("#accessCodeInput")?.value.trim().toUpperCase();const msg=document.querySelector("#accessFeedback");if(!code){if(msg)msg.textContent="请输入领队发放的家庭邀请码。";return}if(msg)msg.textContent="正在核对家庭报名资料……";state.familyInvite=code;familyRequest("login").then(async data=>{if(data.needsSetup){state.familyStorageMode=data.storageMode||"local";renderFamilySetup(data.allowedLearners);return}saveFamilySession(data.family,code,data.storageMode);await restoreFamilyProgress();render()}).catch(error=>{state.familyInvite="";if(msg)msg.textContent=error.message});return}
   if(e.target.closest("[data-reset-access]")){state.activeMission=null;if(state.family){state.view="profile";render();return}state.accessMode="";localStorage.removeItem("tiantai-access");render();return}
   if(e.target.closest("[data-family-logout]")){clearFamilySession();state.completed=[];localStorage.removeItem("tiantai-progress");state.view="journey";render();return}
   if(e.target.closest("[data-enter]")){state.view="journey";state.activeMission=null;render();return}
@@ -323,7 +408,7 @@ document.addEventListener("submit",e=>{
   const msg=document.querySelector("#familySetupFeedback");
   if(names.some(name=>!name)){if(msg)msg.textContent="请填写全部报名学员姓名。";return}
   if(msg)msg.textContent="正在创建学员编号……";
-  familyRequest("setup",{names}).then(async data=>{saveFamilySession(data.family);await restoreFamilyProgress();state.view="profile";render()}).catch(error=>{if(msg)msg.textContent=error.message});
+  familyRequest("setup",{names}).then(async data=>{saveFamilySession(data.family,state.familyInvite,data.storageMode);await restoreFamilyProgress();state.view="profile";render()}).catch(error=>{if(msg)msg.textContent=error.message});
 });
 document.querySelector(".dialog-close").addEventListener("click",()=>{
   dialog.close();
