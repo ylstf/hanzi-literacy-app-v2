@@ -7,9 +7,9 @@ const state = {
 };
 
 const missions = [
-  { id:"m1", no:1, date:"7月13日", phase:"线上预热", chapter:"序章 · 天外来信", title:"谁为此山命名？", place:"线上 · 家庭共同完成", hint:"古人认为这座山峰峦高秀，与天上的“台宿”遥相呼应，留下了“上应台宿”的说法。请找到藏在序章中的两个关键字。", action:"亲子共同阅读序章，讨论“天”与“台”的含义，并提交两个字的口令。", answer:"台宿", open:true, prologue:true },
-  { id:"m2", no:2, date:"7月14日", phase:"线上预热", chapter:"第一幕 · 仰观天文", title:"天上有台，地上何处相应？", place:"线上 · 家庭共同完成", hint:"昨日，我们从星空中找到了“台宿”；今天，请把天上的星宿与地上的山川合在一起。答案是两个最常见的字。", action:"和孩子一起完成“仰观与俯察”小游戏，找到连接星空与山川的两个字。", answer:"天地", answers:["天地","天和地"], open:true, day2:true },
-  { id:"m3", no:3, date:"7月15日", phase:"线上预热", chapter:"序章 · 天台初识", title:"在地图上找到天台", place:"线上 · 家庭共同完成", hint:"出发前，先把天台放进中国文化的地图里。", action:"和孩子一起查找天台山、国清寺、石梁飞瀑、桐柏宫的位置，并在旅行手账上画出第一张路线草图。", answer:"天台", open:false },
+  { id:"m1", no:1, date:"7月13日", phase:"线上预热", chapter:"第一幕 · 天之问 · 第1关", title:"谁为此山命名？", place:"线上 · 家庭共同完成", hint:"古人认为这座山峰峦高秀，与天上的“台宿”遥相呼应，留下了“上应台宿”的说法。请找到藏在序章中的两个关键字。", action:"亲子共同阅读序章，讨论“天”与“台”的含义，并提交两个字的口令。", answer:"台宿", open:true, prologue:true },
+  { id:"m2", no:2, date:"7月14日", phase:"线上预热", chapter:"第一幕 · 天之问 · 第2关", title:"天上有台，地上何处相应？", place:"线上 · 家庭共同完成", hint:"昨日，我们从星空中找到了“台宿”；今天，请把天上的星宿与地上的山川合在一起。答案是两个最常见的字。", action:"和孩子一起完成“仰观与俯察”小游戏，找到连接星空与山川的两个字。", answer:"天地", answers:["天地","天和地"], open:true, day2:true },
+  { id:"m3", no:3, date:"7月15日", phase:"线上预热", chapter:"第一幕 · 天之问 · 第3关", title:"天台匣为何开启？", place:"线上 · 家庭共同完成", hint:"前两关是序章，第3关是揭晓。7月21日抵达天台后，我们用什么收纳一路所得？答案是三个字。", action:"亲子共同回顾前两关，认识守台人、寻台人与天台匣，确认这只真实木匣在十五日解谜中的意义。", answer:"天台匣", open:true, day3:true },
   { id:"m4", no:4, date:"7月16日", phase:"线上预热", chapter:"序章 · 唐诗之路", title:"诗人为什么向东南走？", place:"线上 · 家庭共同完成", hint:"天台是浙东唐诗之路的重要终点。", action:"任选一位到过天台的诗人，读一首相关诗歌，写下一个你最想现场验证的画面。", answer:"诗路", open:false },
   { id:"m5", no:5, date:"7月17日", phase:"线上预热", chapter:"序章 · 霞客之志", title:"徐霞客为什么出发？", place:"线上 · 家庭共同完成", hint:"第二天的山水壮游，将以徐霞客为主线。", action:"亲子共读徐霞客相关小故事，写下“我愿意坚持寻找的一个答案”。", answer:"志行", open:false },
   { id:"m6", no:6, date:"7月18日", phase:"线上预热", chapter:"序章 · 和合之门", title:"儒释道为什么都来这里？", place:"线上 · 家庭共同完成", hint:"天台不只是一座山，也是诗、佛、道相会的地方。", action:"用三句话分别写下你理解的诗、佛、道，并想一想它们为什么会在天台相遇。", answer:"和合", open:false },
@@ -297,6 +297,105 @@ function day2HTML(){
     </div>`;
 }
 
+function day3HTML(){
+  return `
+    <div class="prologue-panel day3-panel">
+      <div class="day3-cover">
+        <img class="tiantai-cover-pattern" src="assets/天台山水塔影底纹.png" alt="" aria-hidden="true">
+        <p class="eyebrow">守台人的第三封信</p>
+        <h3><span class="tiantai-box-name">天台匣</span>为何开启？</h3>
+        <p class="cover-subtitle">前两日的答案，原来都在同一个故事里</p>
+        <button class="audio-guide" type="button" data-audio="day3" data-player="day3Audio" data-audio-title="郭爸讲第3关" data-audio-src="assets/day3.mp3">
+          <img src="assets/guoba-portrait.jpg" alt="书法郭爸">
+          <span><strong>郭爸讲第3关</strong><small>点击收听</small><i class="audio-progress"><em></em></i></span>
+          <b>▶</b>
+        </button>
+        <audio id="day3Audio" src="assets/day3.mp3" preload="none"></audio>
+      </div>
+
+      <section class="story-reveal" aria-label="十五日故事揭幕">
+        <p class="reveal-label">第三日 · 故事揭幕</p>
+        <h4>原来，我们从第一天起<br>就已经进入了同一个谜局</h4>
+        <div class="reveal-line" aria-hidden="true"><span></span><b>✦</b><span></span></div>
+        <p class="reveal-intro">守台人的信，引导我们用十五日寻找答案：</p>
+        <blockquote>为什么两千年来，无数诗人、行者、僧人和道者，都不约而同地来到天台？</blockquote>
+        <p>我们将在星空中得到山名，在山水中寻找证据，在历史中遇见来者，最后亲手完成一座微缩天台，并找到自己心中的“心台”。</p>
+      </section>
+
+      <section class="day3-module recap-module">
+        <div class="module-heading"><span>01</span><div><h4>前情回顾</h4></div></div>
+        <div class="recap-clues">
+          <article><span class="clue-day">第1日</span><b>台宿</b><p>从古人的星空中，找到天台山名的第一枚线索。</p></article>
+          <div class="recap-arrow">＋</div>
+          <article><span class="clue-day">第2日</span><b>天地</b><p>发现天上的星宿与地上的山川，可以遥遥相应。</p></article>
+        </div>
+        <p class="recap-conclusion">这两条线索不是两个孤立的答案，它们正一前一后，推开同一只<span class="tiantai-box-name">“天台匣”</span>。</p>
+        <figure class="tiantai-box-figure"><img src="assets/天台匣草图.png" alt="打开的天台匣草图，匣盖绘有星空，匣中放置山石、草木与收集瓶"><figcaption>这只匣子将从线上故事，一步步来到我们手中</figcaption></figure>
+      </section>
+
+      <section class="guardian-invitation">
+        <img class="day3-seal" src="assets/守台.png" alt="守台印">
+        <p class="letter-kicker">致新任寻台人：</p>
+        <p>第三封信终于到了。</p>
+        <p>前两日，你们从星空中找到了“台宿”，又从一上一下之间找到了“天地”。可是，你们可曾想过——我为什么要让你们寻找这些答案？</p>
+        <p>相传，守台人世代守护着一只<span class="tiantai-box-name">“天台匣”</span>。匣中保存着关于天台的三个答案：<strong>天为什么选择这里，地为什么养育这里，人为什么不断来到这里。</strong></p>
+        <p>这些答案从来不是写在一张纸上的。它们藏在日月星辰里，藏在山川草木里，也藏在两千年来无数来者留下的诗文、足迹与故事里。只有亲自仰望星空、走进山水、追寻来者、收集证据的人，才能让<span class="tiantai-box-name">“天台匣”</span>逐渐完整。</p>
+        <p>7月13日，你们收到第一封信，成为新一代“寻台人”。前八天，你们将在云端寻找方向；7月21日抵达天台后，你们将领取实体木匣，把线上得到的答案，一件件装进现实世界。</p>
+        <p>到7月27日，<span class="tiantai-box-name">“天台匣”</span>完成时，你们才能回答整场游戏的总谜题。</p>
+        <p class="letter-sign">——守台人</p>
+      </section>
+
+      <section class="day3-module progress-module">
+        <div class="module-heading"><span>02</span><div><h4><span class="tiantai-box-name">天台匣</span>进度</h4></div></div>
+        <div class="box-progress" aria-label="天台匣三问进度">
+          <article class="current"><i>天</i><div><b>天之问</b><small>第3关 · 即将完成</small></div><strong>100%</strong></article>
+          <article><i>地</i><div><b>地之问</b><small>尚未开启</small></div><strong>0%</strong></article>
+          <article><i>人</i><div><b>人之问</b><small>尚未开启</small></div><strong>0%</strong></article>
+        </div>
+        <div class="archive-count"><span>已归匣</span><b>2</b><em>/ 15 条线索</em></div>
+      </section>
+
+      <section class="day3-module question-module">
+        <div class="module-heading"><span>03</span><div><h4>今日追问</h4></div></div>
+        <p class="big-question">7月21日，我们用什么收纳一路所得？</p>
+        <p>前两关找到方向，第三封信揭晓线索的归处。</p>
+        <div class="box-purpose-clues" aria-label="天台匣的三个作用">
+          <article><span>从线上到实景</span><b>抵达天台后领取真实木匣</b></article>
+          <article><span>从答案到证据</span><b>装入山水草木与一路所得</b></article>
+          <article><span>从天台到心台</span><b>完成微缩天台，回答谜题</b></article>
+        </div>
+        <div class="box-name-riddle"><small>它以我们要去的山为名，是贯穿十五天的核心信物</small><div class="three-answer-slots" aria-label="三个字的答案"><span>？</span><span>？</span><span>？</span></div></div>
+        <p class="answer-nudge">答案就在守台人的第三封信和上面的木匣草图中。</p>
+      </section>
+
+      <section class="family-task day3-task">
+        <h4>亲子小任务｜共读行程手册，准备行李</h4>
+        <div class="handbook-task-content">
+          <img src="assets/天台山行程手册透明底.png" alt="天台山行程手册示意图">
+          <ul>
+            <li><strong>行程安排</strong><span>看看每天要去哪里、做什么。</span></li>
+            <li><strong>行程约定</strong><span>一起约好照顾自己、配合团队。</span></li>
+            <li><strong>行李准备</strong><span>对照清单，逐一装好所需物品。</span></li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="day3-module archive-module">
+        <div class="module-heading"><span>04</span><div><h4>线索归匣</h4></div></div>
+        <div class="archive-preview">
+          <span class="archive-star">✦</span>
+          <p>答对口令后，“天之问”的第三条线索将归入<span class="tiantai-box-name on-dark">“天台匣”</span>。</p>
+        </div>
+        <p class="next-letter">下一封信将带你们低头看向大地：<strong>天台的山水，为什么能成为草木生长、清泉汇聚的福地？</strong></p>
+      </section>
+
+      <div class="day3-final-question">
+        <p class="eyebrow">第3关 · 天台匣揭晓</p>
+        <h4>我们将用什么收纳一路所得？</h4>
+      </div>
+    </div>`;
+}
+
 function poemChar(char,tone){
   return `<span class="poem-char tone-${tone}"><span class="word">${char}</span><span class="tone-mark" aria-hidden="true"></span></span>`;
 }
@@ -311,8 +410,8 @@ function guestUnlockHTML(){
 
 function missionHTML(m){
   const done=state.completed.includes(m.id); const available=m.open || done;
-  const specialContent=m.prologue?prologueHTML():m.day2?day2HTML():`<p class="mission-action"><strong>家庭行动：</strong>${m.action}</p><div class="clue-image">【任务图片占位符】</div>`;
-  return `<article class="mission ${done?"done":available?"active":""} ${m.prologue||m.day2?"prologue-mission":""}"><div class="mission-top"><div><p class="eyebrow">${m.chapter}</p><h3>${m.title}</h3></div><span class="mission-state">${done?"已完成":available?"可调查":"剧情封印"}</span></div><p>地点：${m.place}</p><p>${m.hint}</p>${specialContent}${m.prologue?`<p class="mission-action"><strong>家庭行动：</strong>${m.action}</p>`:""}${done?'<button class="secondary-button" disabled>解谜成功，线索已归档</button>':available?`<button class="primary-button answer-button" data-id="${m.id}">输入答案</button>`:'<button class="secondary-button" disabled>等待领队解锁</button>'}</article>`
+  const specialContent=m.prologue?prologueHTML():m.day2?day2HTML():m.day3?day3HTML():`<p class="mission-action"><strong>家庭行动：</strong>${m.action}</p><div class="clue-image">【任务图片占位符】</div>`;
+  return `<article class="mission ${done?"done":available?"active":""} ${m.prologue||m.day2||m.day3?"prologue-mission":""}"><div class="mission-top"><div><p class="eyebrow">${m.chapter}</p><h3>${m.title}</h3></div><span class="mission-state">${done?"已完成":available?"可调查":"剧情封印"}</span></div><p>地点：${m.place}</p><p>${m.hint}</p>${specialContent}${m.prologue?`<p class="mission-action"><strong>家庭行动：</strong>${m.action}</p>`:""}${done?'<button class="secondary-button" disabled>解谜成功，线索已归档</button>':available?`<button class="primary-button answer-button" data-id="${m.id}">输入答案</button>`:'<button class="secondary-button" disabled>等待领队解锁</button>'}</article>`
 }
 
 function renderProfile(){
