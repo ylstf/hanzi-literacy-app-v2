@@ -450,14 +450,27 @@ const earthDayContent={
     task:"请家长陪孩子重新看一遍上面的五张图，用孩子听得懂的话解释：什么是盆地和高山，雨水为什么会流向不同方向，红色丹霞与花岗岩有什么不同，石梁飞瀑奇在哪里，云锦杜鹃为什么喜欢高山云雾。孩子不需要记住这些名词，只要能从图片中找到一两处自己看懂、感兴趣的地方，再用自己的话讲给家长听。等我们真正走进天台山，就可以把今天看到的图片与眼前的山、水、岩、林一一对照。"
   },
   6:{
-    cover:"葛玄为何来到桐柏山？",subtitle:"一座宫观的选址，藏着古人理解自然的方法",progress:"60%",answer:"洞天福地",next:"明日换一种目光：诗人、学者与旅行家为什么也不断走向天台？",
-    recap:`昨日，山、水、岩、林交出了四份自然证据。今天，守台人把一封旧信放到桐柏山中：很久以前，道者也来到这里。他们从同一片山水里，看见了适合清修与安顿身心的地方。`,
-    question:"葛玄为什么把脚步停在桐柏？",
-    body:`<figure class="earth-story-image"><img src="assets/day6-tongbai.png" alt="群山、溪水与林木环抱中的桐柏宫" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure>
-      <div class="timeline-cards"><article><b>三国吴赤乌年间</b><p>地方志记载葛玄曾在桐柏一带结庐、建法轮院与天台观，留下早期道教活动的故事。</p></article><article><b>唐宋以后</b><p>桐柏宫藏经、修道传统不断发展，后来又成为道教南宗祖庭的重要象征。</p></article><article><b>1958—1960</b><p>因修建桐柏水库，旧宫逐渐沉入水下，道众迁往鸣鹤观；1983年更名为桐柏宫。</p></article><article><b>今天</b><p>新的桐柏宫延续道教文化，也让我们看见一处圣地如何随时代迁移、重建。</p></article></div>
-      <div class="idea-strip"><b>洞天福地</b><span>是道教赞美名山胜境的说法。山水清幽、适合修行，也寄托着人与自然和谐相处的愿望。</span></div>`,
-    taskTitle:"亲子小任务｜听见一处清静",
-    task:"一起闭眼安静一分钟，各自记住三种声音。睁眼后对一对：哪些声音来自自然？为什么清静的地方更容易让人专心？"
+    cover:"谁把天台写进道教地图？",subtitle:"五位隔着千年的来客，给同一片山水取了一个名字",progress:"60%",answer:"洞天福地",next:"明日换一种目光：道者在山中寻找清静，诗人、学者与旅行家又为什么不断走向天台？",
+    recap:`昨日，我们只看自然留下的证据：盆地、高山、分水岭、丹霞、石梁飞瀑和云锦杜鹃。今天，让我们换一双古人的眼睛，看看道者如何理解同一片山水。`,
+    question:"为什么这么多道者选择天台？",
+    body:`<div class="day6-opening"><p>很久以前，没有汽车，也没有平整的山路。人们要进入天台深处，必须沿着溪流、翻过山岭，有时还要在云雾中辨认方向。</p><p>可一代又一代道者仍然来到这里。有人结庐修行，有人开馆讲学，有人整理经典，还有人一住就是几十年。到底是什么吸引了他们？</p></div>
+      <div class="day6-concepts">
+        <article><div class="day6-copy"><span class="day6-label">先认识一个词</span><h6>什么是“洞天”？</h6><p>“洞天”不只是山里有一个洞。古人走进洞穴、峡谷和重重云雾，常觉得群山里面还藏着另一个世界。</p><blockquote>可以把它想成一间藏在群山中的大屋子：山峰是墙，云雾是门，洞穴和山谷是通往里面的路。</blockquote><p>在道教的洞天体系中，天台赤城山的玉京洞被列入十大洞天，常称“第六洞天”。</p></div><figure class="story-image day6-image"><img class="auto-story-image" src="assets/day6-dongtian.png" alt="以山峰为墙、云雾为门的天台赤城洞天示意图" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure></article>
+        <article><div class="day6-copy"><span class="day6-label">再认识一个词</span><h6>什么是“福地”？</h6><p>“福地”也不是走进去就会自动得到好运。它指适合居住、修养和修行的地方：有清洁的水、茂密的草木和安静的环境。</p><blockquote>福地，就是一块能够安顿身体，也能够安静内心的好地方。</blockquote><p>不同道教典籍的名单略有差别，天台的桐柏、司马悔山和灵墟等地，都进入过相关记载。</p></div><figure class="story-image day6-image"><img class="auto-story-image" src="assets/day6-fudi.png" alt="溪水、草木与清静山居共同组成的天台福地示意图" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure></article>
+      </div>
+      <p class="fact-note day6-definition">“洞天福地”不是现代地理学名称，而是道教理解名山、安排神圣空间的一种文化方式。</p>
+      <div class="day6-divider"><span>五位山中来客</span><small>有人亲自住下，也有人用著作写下天台</small></div>
+      <div class="location-story illustrated-location-story day6-people-story">
+        <article><div class="story-copy"><i>1</i><div><b>葛玄｜留下早期道教足迹</b><p>地方史料把桐柏道观的早期历史追溯到三国东吴时期，并将葛玄视为重要开创人物。相传他在赤城、桐柏和华顶一带结庐修道，看重这里的清静、溪水和草木。</p><p class="history-note">他的故事中既有历史记载，也有后世传说。没有可靠名言，就不为他编造一句话。</p></div></div><figure class="story-image"><img class="auto-story-image" src="assets/day6-ge-xuan.png" alt="葛玄在天台桐柏山结庐修道的历史故事图" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure></article>
+        <article><div class="story-copy"><i>2</i><div><b>顾欢｜把山中住处变成课堂</b><p>南朝时，顾欢在天台山开馆授徒，跟随他学习的人常接近百人。他来到山里不只是为了独自清修，还在这里读书、讲学，讨论《老子》和当时的道佛思想。</p><p class="history-note">有人来天台寻找清静，也有人在清静中建立学问。</p></div></div><figure class="story-image"><img class="auto-story-image" src="assets/day6-gu-huan.png" alt="顾欢在天台山开馆授徒的山中课堂故事图" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure></article>
+        <article><div class="story-copy"><i>3</i><div><b>陶弘景｜把天台写进天地秩序</b><p>陶弘景是南朝重要的道教学者。他在《真诰》中记录天台山“上应台宿”的传统解释，把地上的山与古人眼中的星空联系起来。</p><blockquote>“山中何所有？岭上多白云。”</blockquote><p class="history-note">对愿意安静观察的人来说，一片白云也能成为山中珍贵的礼物。</p></div></div><figure class="story-image"><img class="auto-story-image" src="assets/day6-tao-hongjing.png" alt="陶弘景仰观星宿并记录天台山的故事图" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure></article>
+        <article><div class="story-copy"><i>4</i><div><b>司马承祯｜在天台住了三十多年</b><p>唐代道士司马承祯曾长期居住天台。皇帝多次请他出山，他仍愿意回到山中，研究人怎样收回纷乱的心，让自己慢慢安静下来。</p><p>他的《坐忘论》把修习分成敬信、断缘、收心、简事、真观、泰定、得道等层次。“坐忘”可以先理解为：暂时放下喧闹，不急着表现自己，安静地看看自己的心。</p><p class="history-note">他也与洞天福地体系的整理密切相关，不只是住在山中，还帮助后人画出道教理解名山的文化地图。</p></div></div><figure class="story-image"><img class="auto-story-image" src="assets/day6-sima-chengzhen.png" alt="司马承祯在天台山长期修习并整理洞天福地地图的故事图" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure></article>
+        <article><div class="story-copy"><i>5</i><div><b>张伯端｜让天台影响后世内丹学</b><p>北宋天台人张伯端是道教内丹思想的重要人物，后世尊称紫阳真人。天台道教传统将他与桐柏宫紧密联系，他的《悟真篇》对后世内丹学影响很大。</p><blockquote>“一粒灵丹吞入腹，始知我命不由天。”</blockquote><p class="history-note">这里的“灵丹”不能只理解为一颗普通药丸，它也在提醒人们：通过修养和实践，主动改变自己的身心状态。</p></div></div><figure class="story-image"><img class="auto-story-image" src="assets/day6-zhang-boduan.png" alt="张伯端在天台道教传统中著述悟真篇的故事图" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure></article>
+      </div>
+      <div class="day6-reasons"><h6>他们为什么来到天台？</h6><article><b>这里足够安静</b><p>群山、云雾和漫长山路远离喧闹，适合专心读书和修习。</p></article><article><b>这里能够长期生活</b><p>溪流、森林和草木为居住、观察与传统养生实践提供了条件。</p></article><article><b>这里像另一个山中世界</b><p>洞穴、峡谷、重重山岭和云雾，让古人产生“山中另有天地”的感受。</p></article><article><b>前人的足迹吸引后来者</b><p>一个人留下道观、著作或故事，下一代便循着这些线索继续来到天台。</p></article></div>
+      <p class="fact-note">对古人来说，天台不只是可以观看的风景，也是能够居住、学习、修养和思考生命的地方。道者把这样的名山胜境称作“洞天福地”。</p>`,
+    taskTitle:"亲子小任务｜选一位山中来客",
+    task:"请家长和孩子从葛玄、顾欢、陶弘景、司马承祯、张伯端中选择一位。家长根据上面的介绍，用一分钟讲清楚：他为什么来到天台或写下天台、他做了什么、他给后世留下了什么。再请孩子完成一句话：“如果我能在天台遇见______，我想问他：______？”孩子不需要记住所有年代和著作，只要记住一个人物、一个故事和一个想问的问题。"
   },
   7:{
     cover:"为什么诗路走向天台？",subtitle:"有人为山水而来，有人为访友求道而来，也有人为寻找自己而来",progress:"80%",answer:"唐诗之路",next:"明日进入佛门山水：为什么天台山中会出现如此密集的寺院与道场？",
