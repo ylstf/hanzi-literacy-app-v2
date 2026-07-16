@@ -10,11 +10,11 @@ const missions = [
   { id:"m1", no:1, date:"7月13日", phase:"线上预热", chapter:"第一幕 · 天之问 · 第1关", title:"谁为此山命名？", place:"线上 · 家庭共同完成", hint:"古人认为这座山峰峦高秀，与天上的“台宿”遥相呼应，留下了“上应台宿”的说法。请找到藏在序章中的两个关键字。", action:"亲子共同阅读序章，讨论“天”与“台”的含义，并提交两个字的口令。", answer:"台宿", open:true, prologue:true },
   { id:"m2", no:2, date:"7月14日", phase:"线上预热", chapter:"第一幕 · 天之问 · 第2关", title:"天上有台，地上何处相应？", place:"线上 · 家庭共同完成", hint:"昨日，我们从星空中找到了“台宿”；今天，请把天上的星宿与地上的山川合在一起。答案是两个最常见的字。", action:"和孩子一起完成“仰观与俯察”小游戏，找到连接星空与山川的两个字。", answer:"天地", answers:["天地","天和地"], open:true, day2:true },
   { id:"m3", no:3, date:"7月15日", phase:"线上预热", chapter:"第一幕 · 天之问 · 第3关", title:"天台匣为何开启？", place:"线上 · 家庭共同完成", hint:"前两关是序章，第3关是揭晓。7月21日抵达天台后，我们用什么收纳一路所得？答案是三个字。", action:"亲子共同回顾前两关，认识守台人、寻台人与天台匣，确认这只真实木匣在十五日解谜中的意义。", answer:"天台匣", open:true, day3:true },
-  { id:"m4", no:4, date:"7月16日", phase:"线上预热", chapter:"序章 · 唐诗之路", title:"诗人为什么向东南走？", place:"线上 · 家庭共同完成", hint:"天台是浙东唐诗之路的重要终点。", action:"任选一位到过天台的诗人，读一首相关诗歌，写下一个你最想现场验证的画面。", answer:"诗路", open:false },
-  { id:"m5", no:5, date:"7月17日", phase:"线上预热", chapter:"序章 · 霞客之志", title:"徐霞客为什么出发？", place:"线上 · 家庭共同完成", hint:"第二天的山水壮游，将以徐霞客为主线。", action:"亲子共读徐霞客相关小故事，写下“我愿意坚持寻找的一个答案”。", answer:"志行", open:false },
-  { id:"m6", no:6, date:"7月18日", phase:"线上预热", chapter:"序章 · 和合之门", title:"儒释道为什么都来这里？", place:"线上 · 家庭共同完成", hint:"天台不只是一座山，也是诗、佛、道相会的地方。", action:"用三句话分别写下你理解的诗、佛、道，并想一想它们为什么会在天台相遇。", answer:"和合", open:false },
-  { id:"m7", no:7, date:"7月19日", phase:"线上预热", chapter:"序章 · 材料包预备", title:"给未来的自己写一封信", place:"线上 · 家庭共同完成", hint:"真正的材料包将在现场发放，但第一件材料可以从家里开始。", action:"写一封给7月27日自己的短信：希望这次天台之行结束时，我收获了什么？", answer:"初心", open:false },
-  { id:"m8", no:8, date:"7月20日", phase:"线上预热", chapter:"序章 · 启程前夜", title:"三十人即将会师", place:"线上 · 微信群", hint:"明天，线上线索将落到真实山水里。", action:"整理行李、准备手账，在群里发送一张“启程照片”和一句出发口号。", answer:"会师", open:false },
+  { id:"m4", no:4, date:"7月16日", phase:"线上预热", chapter:"第二幕 · 地之问 · 第4关", title:"天台山在中国哪里？", place:"线上 · 家庭共同完成", hint:"浙江在中国东南沿海，天台属于浙江东部的<strong class=\"key-green\">浙东</strong>地区。请用两个字说出天台山的位置。", action:"亲子共同观察中国与浙江地图，找到从自己家到天台山的方向和路线。", answer:"浙东", open:true, earthDay:4 },
+  { id:"m5", no:5, date:"7月17日", phase:"线上预热", chapter:"第二幕 · 地之问 · 第5关", title:"这片山水有何不同？", place:"线上 · 家庭共同完成", hint:"高山、盆地、飞瀑、丹霞与草木共同组成了天台的自然面貌。请用四个字概括它。", action:"亲子共同寻找山、水、岩、林四类证据，拼出天台山水的客观特征。", answer:"山水神秀", open:false, earthDay:5 },
+  { id:"m6", no:6, date:"7月18日", phase:"线上预热", chapter:"第二幕 · 地之问 · 第6关", title:"道门为何选择桐柏？", place:"线上 · 家庭共同完成", hint:"道教把适宜修行、亲近自然的名山胜境称作什么？答案是四个字。", action:"亲子共读葛玄与桐柏宫的故事，观察古人选择修行地时看重的山、水与清静。", answer:"洞天福地", open:false, earthDay:6 },
+  { id:"m7", no:7, date:"7月19日", phase:"线上预热", chapter:"第二幕 · 地之问 · 第7关", title:"文人为何向天台而来？", place:"线上 · 家庭共同完成", hint:"无数诗人循水路入剡、过天姥、登天台，这条文化道路叫什么？答案是四个字。", action:"亲子选择一位来过或向往天台的文人，读一句诗文，寻找他眼中的天台。", answer:"唐诗之路", open:false, earthDay:7 },
+  { id:"m8", no:8, date:"7月20日", phase:"线上预热", chapter:"第二幕 · 地之问 · 第8关", title:"佛门为何扎根天台？", place:"线上 · 家庭共同完成", hint:"智顗在天台山建立的中国化佛教宗派，以山为名。它叫什么？答案是三个字。", action:"亲子共同查看天台寺院示意图，认识国清寺与天台宗的主要人物和传播路线。", answer:"天台宗", open:false, earthDay:8 },
   { id:"m9", no:9, date:"7月21日", phase:"现场第一日", chapter:"第一日 · 会合", title:"三十人的第一张地图", place:"圣爱安养院", hint:"四支小队将在开营仪式中首次会合。", action:"认识队友、确定队名与队印，完成家庭和小队身份卡。", answer:"开营", open:false },
   { id:"m10", no:10, date:"7月22日", phase:"现场第二日", chapter:"第二日 · 霞客之路", title:"把脚步写成答案", place:"石梁景区", hint:"沿着徐霞客的文字与摩崖石刻，从金溪翠谷走向石梁飞瀑。", action:"完成沿途观察、吟诵、拓字与霞客精神任务。", answer:"志行", open:false },
   { id:"m11", no:11, date:"7月23日", phase:"现场第三日", chapter:"第三日 · 以笔入山", title:"把摩崖带回纸上", place:"圣爱安养院", hint:"山上的大字，将在今天成为每个人的作品。", action:"完成摩崖大字、诗文小字、吟诵与夜间展览。", answer:"笔墨", open:false },
@@ -112,12 +112,12 @@ function renderJourney(){
 function renderMissionMap(){
   const done = state.completed.length;
   const isGuest = state.accessMode === "guest";
-  const visibleMissions = isGuest ? missions.slice(0,3) : missions;
+  const visibleMissions = isGuest ? missions.slice(0,8) : missions;
   app.innerHTML = `
     <section class="mission-header map-intro">
       <p class="eyebrow">中国文化之旅 · 编号 021</p>
-      <h2>${isGuest ? "体验秘境" : "天台十五日秘境图"}</h2>
-      <p class="muted">${isGuest ? "你正在体验开放关卡。正式报名后，可解锁从7月13日至7月27日的完整十五关。" : "7月13日，第一封谜笺将在云端开启。接下来的十五天，线索会从屏幕走入山水；直到7月27日，所有答案将在天台完成归档。"}</p>
+      <h2>天台十五日秘境图</h2>
+      <p class="muted">7月13日，第一封谜笺将在云端开启。接下来的十五天，线索会从屏幕走入山水；直到7月27日，所有答案将在天台完成归档。</p>
       <div class="progress-track"><div class="progress-fill" style="width:${done/missions.length*100}%"></div></div>
       <small>${done} / ${missions.length} 条线索已归档</small>
       <div class="access-switch"><span>${isGuest ? "体验游客模式" : "正式学员模式"}</span><button class="secondary-button" data-reset-access>切换身份</button></div>
@@ -132,7 +132,7 @@ function renderMissionMap(){
 function mapNodeHTML(m,index,visible){
   const done=state.completed.includes(m.id);
   const locked=!visible || !m.open;
-  const lockedNote=!visible ? "正式报名后解锁完整十五关" : "剧情封印中";
+  const lockedNote=!visible ? "7月21日起为线下实景游学任务" : "剧情封印中";
   return `<button class="quest-node node-${index+1} ${done?"done":locked?"locked":"open"}" type="button" aria-label="${m.date} ${m.title}" ${locked?`data-note="${lockedNote}"`:`data-open-mission="${m.id}"`}></button>`;
 }
 
@@ -401,17 +401,78 @@ function poemChar(char,tone){
 }
 
 function renderAccessGate(){
-  app.innerHTML = `<section class="access-gate"><div class="access-inner"><p class="eyebrow">进入秘境</p><h2>请选择你的身份</h2><p class="access-lead"><span>如果你还在了解天台山游学，可以先免费体验几关；</span><span>如果你已经报名缴费，请输入活动码解锁完整任务。</span></p><div class="access-options"><button class="access-card guest" data-access="guest"><span>先体验几关</span><small>免注册 · 免费体验 · 感受玩法</small></button><button class="access-card official" data-show-code><span>我是正式学员</span><small>输入活动码 · 解锁全部关卡</small></button></div><div class="code-panel hidden"><input id="accessCodeInput" placeholder="请输入活动码"><button class="primary-button" data-verify-code>解锁完整秘境</button><p class="feedback" id="accessFeedback"></p></div></div></section>`;
+  app.innerHTML = `<section class="access-gate"><div class="access-inner"><p class="eyebrow">进入秘境</p><h2>请选择你的身份</h2><p class="access-lead"><span>欢迎体验7月13日至20日的线上行前内容；</span><span>已报名学员可输入活动码，进入线上线下完整任务。</span></p><div class="access-options"><button class="access-card guest" data-access="guest"><span>体验线上行前内容</span><small>免注册 · 7月13日至20日开放</small></button><button class="access-card official" data-show-code><span>我是正式学员</span><small>输入活动码 · 进入完整游学任务</small></button></div><div class="code-panel hidden"><input id="accessCodeInput" placeholder="请输入活动码"><button class="primary-button" data-verify-code>进入完整秘境</button><p class="feedback" id="accessFeedback"></p></div></div></section>`;
 }
 
 function guestUnlockHTML(){
-  return `<article class="unlock-card"><h3>完整秘境等待解锁</h3><p>你已经进入天台秘境的第一层。正式报名后，将解锁 7 月 13 日线上预热、7 月 21 日起线上线下双线任务、线下材料包和完整结营线索。</p><div class="tag-row"><span class="tag">七天六晚</span><span class="tag">材料包任务</span><span class="tag">亲子实景解谜</span></div><button class="primary-button" data-note="请联系书法郭爸咨询报名，正式学员可获得活动码。">咨询报名 / 解锁完整任务</button></article>`;
+  return `<article class="unlock-card"><h3>期待与你共赴天台</h3><p>线上解谜将通过故事与线索，带我们提前学习天台文化的必备资料；线下则真正走进山水、寺观与古迹，在实景中寻找证据、完成任务。线上与线下彼此照应，才是一场完整的天台文化之旅。若时间允许，期待你加入线下游学，共同体验天台文化与实景解谜的魅力。7月21日起的线下联动任务将在报名后开放。</p><div class="tag-row"><span class="tag">七天六晚</span><span class="tag">实景解谜系列道具</span><span class="tag">亲子实景解谜</span></div><button class="primary-button guest-consult-button" data-note="报名咨询：微信同号18801128162，幼幼老师">报名咨询（微信同号18801128162，幼幼老师）</button></article>`;
+}
+
+const earthDayContent={
+  4:{
+    cover:"沿着中国地图，寻找天台坐标",subtitle:"从自己的家出发，找到我们即将抵达的那一座山",progress:"20%",answer:"浙东",next:"明日继续观察：同在浙东，天台山水为什么与众不同？",
+    recap:`前三关，我们找到台宿、连接天地，并开启“天台匣”。现在，请把目光落到真正的中国地图上。`,
+    question:"从大中国到小天台，要向哪里寻找？",
+    body:`<div class="character-opening"><div class="story-image character-strip"><img class="auto-story-image" src="assets/day4-character.png" alt="脉与山篆书图片" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></div><p>山，地面上由土石构成的隆起部分。脉，本义血管。是长的，有分支的，有高低起伏的。山一般是指独立的、高起的山。山脉则是指有分支的、绵延起伏的群山组。</p></div>
+      <div class="location-story illustrated-location-story"><article><div class="story-copy"><i>1</i><div><b>先找中国的东南沿海</b><p>沿着中国东边的海岸寻找，我们会先找到浙江省。</p></div></div><div class="story-image"><img class="auto-story-image" src="assets/day4-china-map.png" alt="中国东南沿海位置图" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></div></article><article><div class="story-copy"><i>2</i><div><b>再看浙江的东部</b><p>天台属于浙东地区，位于台州市的西北部。</p></div></div><div class="story-image"><img class="auto-story-image" src="assets/day4-zhejiang-map.png" alt="浙江东部位置图" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></div></article><article><div class="story-copy"><i>3</i><div><b>最后找到天台山</b><p>它所在的天台山脉，是浙东丘陵山地的一部分。</p></div></div><div class="story-image"><img class="auto-story-image" src="assets/day4-tiantai-map.png" alt="天台山位置图" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></div></article><article class="location-answer"><div class="story-copy"><i>✓</i><div><b>两个字记住它</b><p>浙江之东，简称“<strong class="key-green">浙东</strong>”。以后别人问天台在哪里，我们就能清楚回答。</p></div></div><div class="story-image"><img class="auto-story-image" src="assets/day4-zhedong-map.png" alt="浙东位置总结图" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></div></article></div>`,
+    task:`<div class="route-task-copy"><span>请家长和孩子一起在地图上找到自己家与天台，查一查两地相距大约多少公里。再找一张A6大小的纸（约为A4纸的四分之一），画出准备乘坐汽车、火车或飞机前往天台的路线。7月21日领取游学手册后，可以把它贴进手册里。</span></div><div class="image-placeholder route-map-placeholder"><img class="auto-story-image" src="assets/day4-route-task.png" alt="我家到天台路线示意图" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></div>`
+  },
+  5:{
+    cover:"山、水、岩、林，谁塑造了天台？",subtitle:"先看自然留下的证据，再听古人如何解释",progress:"40%",answer:"山水神秀",next:"下一封信将走进桐柏：道教为什么把名山胜境称为“洞天福地”？",
+    recap:`昨日，我们确认天台位于浙东丘陵山地，也是三大水系的分水区域。位置找到了，新的问题随之出现：这里的山水究竟特别在哪里？`,
+    question:"是什么让天台成为一座“有层次”的山？",
+    body:`<div class="landscape-layers"><div class="layer-sky">云与雨</div><div class="layer-peak">华顶高山</div><div class="layer-water">溪涧飞瀑</div><div class="layer-rock">赤城丹霞</div></div>
+      <div class="evidence-grid"><article><b>山有层次</b><p>低山、丘陵、河谷盆地与高峰相接，行走中能感到不断抬升和转折。</p></article><article><b>水会落差</b><p>充沛降水沿山谷汇流，遇到陡崖形成石梁飞瀑、天台山大瀑布等水景。</p></article><article><b>岩有颜色</b><p>赤城山以红色岩壁和洞穴著称，是天台辨识度很高的丹霞景观。</p></article><article><b>草木丰茂</b><p>海拔、坡向和湿润气候共同形成多样生境，古人也因此关注这里的茶与药草。</p></article></div>
+      <p class="fact-note">这一关只观察自然本身。“洞天福地”将在下一关作为道教的文化解释正式出现。</p>`,
+    task:"和孩子各选“山、水、岩、林”中的一种，画下它可能留下的自然证据。"
+  },
+  6:{
+    cover:"葛玄为何来到桐柏山？",subtitle:"一座宫观的选址，藏着古人理解自然的方法",progress:"60%",answer:"洞天福地",next:"明日换一种目光：诗人、学者与旅行家为什么也不断走向天台？",
+    recap:`我们先找到天台的地理坐标，又看见高山、溪瀑、丹霞与草木。自然条件并不会自己说话；不同的人，会用不同的思想理解它。`,
+    question:"道教如何把自然山水变成修行之地？",
+    body:`<div class="tongbai-scene"><span>九峰环抱</span><span>溪瀑相随</span><span>林木清幽</span><strong>桐柏宫</strong></div>
+      <div class="timeline-cards"><article><b>三国吴赤乌年间</b><p>地方志记载葛玄曾在桐柏一带结庐、建法轮院与天台观，留下早期道教活动的故事。</p></article><article><b>唐宋以后</b><p>桐柏宫藏经、修道传统不断发展，后来又成为道教南宗祖庭的重要象征。</p></article><article><b>1958—1960</b><p>因修建桐柏水库，旧宫逐渐沉入水下，道众迁往鸣鹤观；1983年更名为桐柏宫。</p></article><article><b>今天</b><p>新的桐柏宫延续道教文化，也让我们看见一处圣地如何随时代迁移、重建。</p></article></div>
+      <div class="idea-strip"><b>道法自然</b><span>不是征服山水，而是在山水的节律中安顿身心。</span></div>`,
+    task:"闭眼安静一分钟，记录你听见的三种声音。想一想：安静为什么也能成为一种学习？"
+  },
+  7:{
+    cover:"为什么诗路走向天台？",subtitle:"有人为山水而来，有人为访友求道而来，也有人为寻找自己而来",progress:"80%",answer:"唐诗之路",next:"明日进入佛门山水：为什么天台山中会出现如此密集的寺院与道场？",
+    recap:`道教把天台看作适合修行的名山。可是来到这里的并不只有道者：诗人、士大夫、书家与旅行家，也把脚步和文字留在山中。`,
+    question:"文人来到天台，究竟在寻找什么？",
+    body:`<div class="poetry-route"><span>钱塘江</span><i>→</i><span>曹娥江</span><i>→</i><span>剡溪</span><i>→</i><span>天姥</span><i>→</i><b>天台</b></div>
+      <div class="traveler-scroll"><article><b>孟浩然</b><p>“欲寻华顶去，不惮恶溪名。”远路与险阻，反而让寻访更有意义。</p></article><article><b>李白</b><p>赤城、华顶和沧海进入诗中，天台成为他寄托自由想象的精神高地。</p></article><article><b>朱熹</b><p>山水不仅可游，也可观物、读书、访贤，在行走中体会天地与人的关系。</p></article><article><b>徐霞客</b><p>两游天台并以天台篇开启《徐霞客游记》，用亲历、观察和记录验证山川。</p></article></div>
+      <p class="fact-note">“浙东唐诗之路”不是一条笔直道路，而是一张由水路、山路、诗篇与人物共同连接的文化网络。</p>`,
+    task:"从四位来者中选一位，说出：如果和他同行，你最想问他什么？"
+  },
+  8:{
+    cover:"佛门为何扎根天台？",subtitle:"从一张寺院图，寻找中国化佛教的一条重要道路",progress:"100%",answer:"天台宗",next:"“地之问”完成。下一幕，我们将追随历代来者，回答“人为什么不断来到这里”。",
+    recap:`五日以来，我们从地理位置走进自然山水，又看见道者与文人如何理解天台。今天，守台人让我们寻找山中另一组密集的坐标：寺院。`,
+    question:"为什么一个佛教宗派，会以一座山命名？",
+    body:`<div class="temple-map" aria-label="天台山主要佛教寺院示意图"><span class="tm-peak">华顶讲寺<small>现存</small></span><span class="tm-fang">方广寺<small>现存·石梁</small></span><span class="tm-gao">高明寺<small>现存·佛陇</small></span><span class="tm-ta">智者塔院<small>现存</small></span><span class="tm-guo">国清寺<small>祖庭</small></span><span class="tm-wan">万年寺<small>现存</small></span><span class="tm-xiu">修禅寺<small>历史遗址</small></span></div>
+      <div class="lineage"><span>慧文</span><i>→</i><span>慧思</span><i>→</i><b>智顗</b><i>→</i><span>灌顶</span><i>→</i><span>湛然</span><i>→</i><span>道邃·行满</span><i>→</i><span>最澄赴日</span></div>
+      <div class="evidence-grid"><article><b>为什么在山中？</b><p>幽静环境有利于禅观、讲学和共同生活；山路又把不同道场连接起来。</p></article><article><b>为什么叫天台宗？</b><p>智顗在天台山长期修学、讲说并建立体系，后人遂以其根本道场所在地命名。</p></article><article><b>国清寺从何而来？</b><p>智顗生前规划寺院，圆寂后由晋王杨广依其遗愿营建，成为天台宗根本道场。</p></article><article><b>如何走向海外？</b><p>唐代日本僧最澄来天台求法，归国后开创日本天台宗，天台由此成为跨海祖庭。</p></article></div>`,
+    task:"在寺院图上找出国清寺、佛陇、石梁和华顶，选择你最想实地寻找的一处。"
+  }
+};
+
+function earthDayHTML(m){
+  const c=earthDayContent[m.earthDay];
+  const completedBefore=Math.max(m.no-1,state.completed.filter(id=>Number(id.slice(1))<m.no).length);
+  const earthPercent=(m.no-3)*20;
+  return `<div class="earth-day-panel prologue-panel">
+    <div class="earth-cover"><p>守台人的第${m.no}封信</p><h3>${c.cover}</h3><span>${c.subtitle}</span><button class="audio-guide" type="button" data-audio data-player="day${m.no}Audio" data-audio-src="assets/day${m.no}.mp3" data-audio-title="郭爸讲第${m.no}关"><img src="assets/guoba-portrait.jpg" alt="书法郭爸"><span><strong>郭爸讲第${m.no}关</strong><small>点击收听 · 音频待上传</small><i class="audio-progress"><em></em></i></span><b>▶</b></button><audio id="day${m.no}Audio" preload="metadata" src="assets/day${m.no}.mp3"></audio></div>
+    <section class="day3-module earth-module recap-module"><div class="module-heading"><span>01</span><div><h4>前情回顾</h4></div></div><p>${c.recap}</p></section>
+    <section class="day3-module earth-module progress-module"><div class="module-heading"><span>02</span><div><h4><span class="tiantai-box-name">天台匣</span>进度</h4></div></div><div class="box-progress" aria-label="天台匣三问进度"><article><i>天</i><div><b>天之问</b><small>第3/3关 · 已完成</small></div><strong>100%</strong></article><article class="current"><i>地</i><div><b>地之问</b><small>第${m.no-3}/5关 · 正在寻找</small></div><strong>${earthPercent}%</strong></article><article><i>人</i><div><b>人之问</b><small>尚未开启</small></div><strong>0%</strong></article></div><div class="archive-count"><span>已归匣</span><b>${completedBefore}</b><em>/ 15 条线索</em></div></section>
+    <section class="day3-module earth-module question-module"><div class="module-heading"><span>03</span><div><h4>今日追问</h4></div></div><h5>${c.question}</h5>${c.body}<div class="earth-answer"><small>${m.no===4?"如果用两个字描述天台山的位置，你会用哪两个字？":"把今天找到的词写入口令"}</small>${[...c.answer].map(()=>"<span>？</span>").join("")}</div></section>
+    <section class="family-task day3-task earth-family-task"><h4>${m.no===4?'亲子小任务｜画一张“我家到天台”的路线图':'亲子小任务'}</h4>${m.no===4?c.task:`<p>${c.task}</p>`}</section>
+    <section class="day3-module earth-module archive-module"><div class="module-heading"><span>04</span><div><h4>线索归匣</h4></div></div><div class="archive-preview"><p>答对口令后，第${m.no}条线索将归入<span class="tiantai-box-name on-dark">“天台匣”</span>。</p></div><p class="next-letter"><strong>${c.next}</strong></p></section>
+  </div>`;
 }
 
 function missionHTML(m){
   const done=state.completed.includes(m.id); const available=m.open || done;
-  const specialContent=m.prologue?prologueHTML():m.day2?day2HTML():m.day3?day3HTML():`<p class="mission-action"><strong>家庭行动：</strong>${m.action}</p><div class="clue-image">【任务图片占位符】</div>`;
-  return `<article class="mission ${done?"done":available?"active":""} ${m.prologue||m.day2||m.day3?"prologue-mission":""}"><div class="mission-top"><div><p class="eyebrow">${m.chapter}</p><h3>${m.title}</h3></div><span class="mission-state">${done?"已完成":available?"可调查":"剧情封印"}</span></div><p>地点：${m.place}</p><p>${m.hint}</p>${specialContent}${m.prologue?`<p class="mission-action"><strong>家庭行动：</strong>${m.action}</p>`:""}${done?'<button class="secondary-button" disabled>解谜成功，线索已归档</button>':available?`<button class="primary-button answer-button" data-id="${m.id}">输入答案</button>`:'<button class="secondary-button" disabled>等待领队解锁</button>'}</article>`
+  const specialContent=m.prologue?prologueHTML():m.day2?day2HTML():m.day3?day3HTML():m.earthDay?earthDayHTML(m):`<p class="mission-action"><strong>家庭行动：</strong>${m.action}</p><div class="clue-image">【任务图片占位符】</div>`;
+  return `<article class="mission ${done?"done":available?"active":""} ${m.prologue||m.day2||m.day3||m.earthDay?"prologue-mission":""}"><div class="mission-top"><div><p class="eyebrow">${m.chapter}</p><h3>${m.title}</h3></div><span class="mission-state">${done?"已完成":available?"可调查":"剧情封印"}</span></div><p>地点：${m.place}</p><p>${m.hint}</p>${specialContent}${m.prologue?`<p class="mission-action"><strong>家庭行动：</strong>${m.action}</p>`:""}${done?'<button class="secondary-button" disabled>解谜成功，线索已归档</button>':available?`<button class="primary-button answer-button" data-id="${m.id}">输入答案</button>`:'<button class="secondary-button" disabled>等待领队解锁</button>'}</article>`
 }
 
 function renderProfile(){
