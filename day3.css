@@ -15,3 +15,4 @@
 .day3-final-question{padding:19px 16px;border-radius:22px;background:linear-gradient(145deg,#6e4d20,#b78d3b);color:#fff;text-align:center}.day3-final-question .eyebrow{color:#f7e2a3!important}.day3-final-question h4{margin:5px 0 0;color:#fff;font-family:"Songti SC","STSong",serif;font-size:18px;white-space:nowrap}
 @media(max-width:370px){.day3-cover h3{font-size:21px!important}.story-reveal h4{font-size:19px}.recap-clues{grid-template-columns:1fr 18px 1fr}.recap-clues article{padding-left:6px;padding-right:6px}}
 .archive-preview p{font-size:11px!important;white-space:nowrap}
+.prologue-panel+.answer-button,.prologue-panel+.secondary-button{width:auto;margin-top:24px}
