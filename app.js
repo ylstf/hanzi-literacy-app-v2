@@ -499,7 +499,7 @@ document.addEventListener("click",e=>{
   if(e.target.closest("[data-reset-access]")){state.accessMode="";state.activeMission=null;localStorage.removeItem("tiantai-access");render();return}
   if(e.target.closest("[data-enter]")){state.view="journey";state.activeMission=null;render();return}
   const openMission=e.target.closest("[data-open-mission]"); if(openMission){state.activeMission=openMission.dataset.openMission;render();return}
-  const answer=e.target.closest(".answer-button"); if(answer){state.answerMission=missions.find(m=>m.id===answer.dataset.id);const form=document.querySelector("#answerForm");const submitButton=form.querySelector("button[type='submit']");document.querySelector("#dialogTitle").textContent=state.answerMission.title;document.querySelector("#dialogHint").textContent="提示："+state.answerMission.hint;input.value="";input.disabled=false;feedback.textContent="";form.classList.remove("answer-correct","answer-wrong");form.dataset.answerState="";submitButton.textContent="验证线索";dialog.showModal();input.focus()}
+  const answer=e.target.closest(".answer-button"); if(answer){state.answerMission=missions.find(m=>m.id===answer.dataset.id);const form=document.querySelector("#answerForm");const submitButton=form.querySelector("button[type='submit']");document.querySelector("#dialogTitle").textContent=state.answerMission.title;document.querySelector("#dialogHint").innerHTML="提示："+state.answerMission.hint;input.value="";input.disabled=false;feedback.textContent="";form.classList.remove("answer-correct","answer-wrong");form.dataset.answerState="";submitButton.textContent="验证线索";dialog.showModal();input.focus()}
 });
 
 document.querySelector("#answerForm").addEventListener("submit",e=>{
