@@ -32,13 +32,13 @@ const missions = [
   { id:"m6", no:6, date:"7月18日", phase:"线上预热", chapter:"第二幕 · 地之问 · 第6关", title:"道门为何选择桐柏？", place:"线上 · 家庭共同完成", hint:"道教把适宜修行、亲近自然的名山胜境称作什么？答案是四个字。", action:"亲子共读葛玄与桐柏宫的故事，观察古人选择修行地时看重的山、水与清静。", answer:"洞天福地", open:false, earthDay:6 },
   { id:"m7", no:7, date:"7月19日", phase:"线上预热", chapter:"第二幕 · 地之问 · 第7关", title:"文人为何向天台而来？", place:"线上 · 家庭共同完成", hint:"无数诗人循水路入剡、过天姥、登天台，这条文化道路叫什么？答案是四个字。", action:"亲子选择一位来过或向往天台的文人，读一句诗文，寻找他眼中的天台。", answer:"唐诗之路", open:false, earthDay:7 },
   { id:"m8", no:8, date:"7月20日", phase:"线上预热", chapter:"第二幕 · 地之问 · 第8关", title:"佛门为何扎根天台？", place:"线上 · 家庭共同完成", hint:"智顗在天台山建立的中国化佛教宗派，以山为名。它叫什么？答案是三个字。", action:"亲子共同查看天台寺院示意图，认识国清寺与天台宗的主要人物和传播路线。", answer:"天台宗", open:false, earthDay:8 },
-  { id:"m9", no:9, date:"7月21日", phase:"现场第一日", chapter:"第三幕 · 人之问 · 第9关", title:"三十人的第一张地图", place:"圣爱安养院", hint:"十五个家庭、四支小队第一次会合。完成身份卡与队印，用两个字说出今天共同开启的仪式。", action:"认识队友、确定队名与队印，完成家庭和小队身份卡。", answer:"开营", open:false, fieldDay:9 },
-  { id:"m10", no:10, date:"7月22日", phase:"现场第二日", chapter:"第三幕 · 人之问 · 第10关", title:"徐霞客为什么走那么远？", place:"石梁景区", hint:"沿着徐霞客的文字走进石梁，用两个字概括支撑他出发并走到底的力量。", action:"完成观察、求证、记录与摩崖辨字任务。", answer:"志行", open:false, fieldDay:10 },
-  { id:"m11", no:11, date:"7月23日", phase:"现场第三日", chapter:"第三幕 · 人之问 · 第11关", title:"怎样把山带回纸上？", place:"圣爱安养院", hint:"把昨日看到的摩崖大字与诗文小字写进作品。答案是书写离不开的两个字。", action:"完成摩崖大字、诗文小字、吟诵与夜间作品展。", answer:"笔墨", open:false, fieldDay:11 },
-  { id:"m12", no:12, date:"7月24日", phase:"现场第四日", chapter:"第三幕 · 人之问 · 第12关", title:"一草一木教会我们什么？", place:"桐柏宫 · 紫凝山", hint:"观察、记录植物，不采挖、不伤害。用两个字说出道家提醒我们尊重的老师。", action:"完成植物观察、标本记录、毛笔标签与经折装。", answer:"自然", open:false, fieldDay:12 },
-  { id:"m13", no:13, date:"7月25日", phase:"现场第五日", chapter:"第三幕 · 人之问 · 第13关", title:"诗从瀑布怎样走来？", place:"天台山大瀑布", hint:"先观察真实瀑布，再读诗人的文字。连接山水、脚步与诗篇的两个字是什么？", action:"观察瀑布，比较诗人意象，完成诗画旅行日记。", answer:"诗路", open:false, fieldDay:13 },
-  { id:"m14", no:14, date:"7月26日", phase:"现场第六日", chapter:"第三幕 · 人之问 · 第14关", title:"寒山与拾得留下什么？", place:"国清寺", hint:"从寒山、拾得与丰干的故事中，找出人与人相互理解、彼此成全的两个字。", action:"观察建筑、匾额和碑刻，完成和合人物与书法任务。", answer:"和合", open:false, fieldDay:14 },
-  { id:"m15", no:15, date:"7月27日", phase:"现场第七日", chapter:"终章 · 天地人和合 · 第15关", title:"我们找到的天台在哪里？", place:"圣爱安养院", hint:"把十五日的答案、作品与故事合在一起。最后的答案不只在山中，也在每个人心里。", action:"完成小队布展、个人分享、纪念册留言和天台匣终局。", answer:"心台", open:false, fieldDay:15 }
+  { id:"m9", no:9, date:"7月21日", phase:"现场第一日", chapter:"第三幕 · 人之问 · 第9关", title:"今天，轮到谁走进天台？", place:"圣爱研学基地", hint:"过去八关，我们一直在认识古代的天台来客。今天，来自全国各地的家庭真正抵达天台。请用三个字说出我们共同获得的新身份。", action:"完成会师、寻台人身份笺和出发问题卡。", answer:"寻台人", open:false, fieldDay:9 },
+  { id:"m10", no:10, date:"7月22日", phase:"现场第二日", chapter:"第三幕 · 人之问 · 第10关", title:"徐霞客为什么走那么远？", place:"石梁景区", hint:"沿小铜壶瀑布、双溪夹径、石梁飞瀑与摩崖石刻行走，寻找让古人在艰难山路上仍不断前行的内在方向。", action:"完成石梁实景观察、霞客行簿和摩崖文字记录。", answer:"心之所向", open:false, fieldDay:10 },
+  { id:"m11", no:11, date:"7月23日", phase:"现场第三日", chapter:"第三幕 · 人之问 · 第11关", title:"怎样与自己好好相处？", place:"桐柏宫 · 紫凝山 · 易筋经小镇", hint:"听懂一个道理只是开始，还要让内心、身体与行动彼此配合。请用两个字概括这种与自己相处的状态。", action:"完成桐柏宫文化学习、植物观察、易学启蒙与易筋经体验。", answer:"人和", open:false, fieldDay:11 },
+  { id:"m12", no:12, date:"7月24日", phase:"现场第四日", chapter:"第三幕 · 人之问 · 第12关", title:"材料怎样变成作品？", place:"圣爱研学基地", hint:"石、纸、墨、竹木与草木来自天地，人的双手、呼吸与心意让它们成为书法、音乐与香。请用四个字概括这种关系。", action:"完成摩崖大字、游记小字、《阴符经》临写及古琴、箫、制香体验。", answer:"天地人和", open:false, fieldDay:12 },
+  { id:"m13", no:13, date:"7月25日", phase:"现场第五日", chapter:"第三幕 · 人之问 · 第13关", title:"诗人的心能走多远？", place:"天台山大瀑布 · 圣爱研学基地", hint:"从真实瀑布出发，看看诗人的想象怎样越过眼前山水，与古人、远方和万里天地相遇。答案是两组四字。", action:"观察大瀑布，对读李白诗文，完成双重记录与旅行日记。", answer:"思接千载视通万里", answers:["思接千载视通万里","思接千载、视通万里","思接千载，视通万里"], open:false, fieldDay:13 },
+  { id:"m14", no:14, date:"7月26日", phase:"现场第六日", chapter:"第三幕 · 人之问 · 第14关", title:"不同的人怎样走进同一扇门？", place:"国清寺 · 圣爱研学基地", hint:"从天台宗传承、国清寺建筑与寒山拾得故事中，找出不同人物、时代和地域彼此相接的两个字。", action:"完成国清寺实景观察、和合坐标卡与下午书法学习。", answer:"和合", open:false, fieldDay:14 },
+  { id:"m15", no:15, date:"7月27日", phase:"现场第七日", chapter:"终章 · 天地人和合 · 第15关", title:"我们找到的天台在哪里？", place:"圣爱研学基地", hint:"把天台匣、书法作品、旅行记录和七日回忆合在一起。最后的天台既在山中，也留在每位寻台人的心里。", action:"完成天台匣展示、作品展览、照片回顾和寻台人最终分享。", answer:"心台", open:false, fieldDay:15 }
 ];
 
 const pastTours = [
@@ -494,14 +494,26 @@ const earthDayContent={
     task:"请家长陪孩子从孙绰、孟浩然和徐霞客中选择一位，先用一分钟讲清楚他怎样认识天台。再一起看上面的图片：孩子说出一处最想亲眼确认的景物，家长帮助把它写成两句话——第一句像诗人一样写感受，第二句像徐霞客一样写清楚看见了什么。到了天台现场，我们再回来核对。"
   },
   8:{
-    cover:"佛门为何扎根天台？",subtitle:"从一张寺院图，寻找中国化佛教的一条重要道路",progress:"100%",answer:"天台宗",next:"“地之问”完成。下一幕，我们将追随历代来者，回答“人为什么不断来到这里”。",
-    recap:`从浙东坐标到山水神秀，从桐柏道者到诗路来客，我们已经看见不同的人怎样走进天台。今天，守台人让我们寻找山中另一组坐标：一座座寺院，以及一个以天台为名的佛教宗派。`,
-    question:"为什么一个佛教宗派，会以一座山命名？",
-    body:`<figure class="earth-story-image"><img src="assets/day8-temple-map.png" alt="标明现存寺院与历史遗址的天台山佛教寺院示意图" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure>
-      <figure class="earth-story-image earth-story-image-compact"><img src="assets/day8-lineage.png" alt="从慧文、慧思、智顗、灌顶、湛然到日本最澄的天台宗传承与传播路线" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure>
-      <div class="evidence-grid"><article><b>为什么在山中？</b><p>幽静环境适合禅观、讲学和共同生活，山路又把不同道场连接起来。</p></article><article><b>为什么以山为名？</b><p>智顗长期在天台山修学、讲说并建立体系，后人便以根本道场所在地称它为“天台宗”。</p></article><article><b>国清寺从何而来？</b><p>智顗生前规划寺院，圆寂后由晋王杨广依其遗愿营建，后来成为天台宗祖庭。</p></article><article><b>怎样传到海外？</b><p>唐代日本僧最澄来中国求法，回国后开创日本天台宗，天台的法脉由此跨海相传。</p></article></div>`,
-    taskTitle:"亲子小任务｜选一处实地坐标",
-    task:"在寺院图上找出国清寺、佛陇、石梁和华顶。每人选一处最想实地寻找的地方，并用一句话说明理由。"
+    cover:"佛门怎样读懂天台？",subtitle:"山水不只围住一座寺院，也陪伴一代代人修习、讲学与传承",progress:"100%",answer:"天台宗",next:"“地之问”完成。下一幕，我们将走进现场，继续追问：人为什么不断来到这里？",
+    recap:`道者在天台寻找洞天福地，读书人沿诗路观察、吟咏和求证。今天，我们跟随佛门人物走进山中：他们为什么选择这里修习？一座山又怎样把师徒、寺院、著作和远方来客连在一起？`,
+    question:"僧人把教法扎根天台，形成什么宗派？",
+    body:`<div class="day6-opening"><p>佛门看山水，并不是只把它当作远离人群的地方。清静的山林适合专心修习，寺院又能让许多人共同生活、听讲、读经和互相照顾。</p><p>当天台山中的实践、讲说与著作被弟子一代代整理下来，山名也渐渐成为一个佛教宗派的名字。</p></div>
+      <div class="day6-concepts">
+        <article><div class="day6-copy"><span class="day6-label">先看山水怎样成为道场</span><h6>清静不是躲开世界，而是练习看清内心</h6><p>云雾溪声让人收回注意；佛门修习还包括读经、讲学、行走与日常生活。</p><blockquote>山林提供安静的环境，真正的功课仍在人怎样观察念头、对待他人与过好每一天。</blockquote></div><figure class="story-image day6-image"><img class="auto-story-image" src="assets/day8-mountain-temples.png" alt="天台山林溪流与寺院共同构成佛门修习道场的示意图" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure></article>
+        <article><div class="day6-copy"><span class="day6-label">再看一座山怎样连起许多人</span><h6>老师讲、弟子记，后来者再解释</h6><p>天台宗不是某一天突然出现的。慧思影响智顗，智顗在天台山长期修习讲说，灌顶记录整理，湛然在唐代重新阐发；日本僧最澄又来到天台求法。</p><blockquote>一条法脉就像山中的溪流：每一代人接住前人的水，又把它送到更远的地方。</blockquote></div><figure class="story-image day6-image"><img class="auto-story-image" src="assets/day8-tiantai-lineage.png" alt="慧思智顗灌顶湛然以及最澄之间的天台宗传承传播示意图" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure></article>
+      </div>
+      <div class="day6-divider"><span>五位接力传灯的人</span><small>有人奠基，有人传承，也有人把教法带过大海</small></div>
+      <div class="location-story illustrated-location-story day6-people-story">
+        <article><div class="story-copy"><i>1</i><div><b>慧思｜把“理解”放回亲身练习</b><p>南岳慧思重视《法华经》和禅观实践，是智顗的重要老师。他没有在天台山建立宗派，却把一套重视定与慧、理解与实践相互配合的方法传给了智顗。</p><p class="history-note">若按“龙树—慧文—慧思—智顗—灌顶”的传统法统计算，慧思常被列为三祖；不同算法的祖师序号会略有差别。</p></div></div><figure class="story-image"><img class="auto-story-image" src="assets/day8-huisi.png" alt="慧思向智顗传授法华禅观方法的故事图" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure></article>
+        <article><div class="story-copy"><i>2</i><div><b>智顗｜把山中修习整理成完整体系</b><p>智顗长期在天台山修行、讲说，被视为佛教天台宗的实际创立者。他不只解释经典，也关心人怎样在每一个念头和行动中练习观察。</p><blockquote>《摩诃止观》：“此三千在一念心。”</blockquote><p class="history-note">这句话所说的“一念”，提醒人们：辽阔世界与复杂生命，也会在当下这颗心里留下关系和变化。</p></div></div><figure class="story-image"><img class="auto-story-image" src="assets/day8-zhiyi.png" alt="智顗在天台山修习讲说并建立天台教观体系的故事图" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure></article>
+        <article><div class="story-copy"><i>3</i><div><b>灌顶｜把老师的讲说留给后来人</b><p>智顗讲学时，弟子灌顶认真记录、整理和传承。今天所说的“天台三大部”——《法华玄义》《法华文句》《摩诃止观》——能够成书并流传，与灌顶的工作密切相关。</p><p>智顗生前规划寺院，圆寂后，灌顶等人依其遗愿推动营建，后来这里成为天台宗根本道场国清寺。</p><p class="history-note">他让我们看到：重要的不只有站在前面讲的人，也有把内容准确记下、整理清楚并交给下一代的人。</p></div></div><figure class="story-image"><img class="auto-story-image" src="assets/day8-guanding.png" alt="灌顶记录智顗讲说并整理天台宗典籍的故事图" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure></article>
+        <article><div class="story-copy"><i>4</i><div><b>湛然｜让沉寂的教法重新被看见</b><p>唐代荆溪湛然为智顗的重要著作作注释和发挥，使天台教观在唐代重新兴盛。他在《金刚錍》等著作中系统讨论草木瓦石与佛性的关系。</p><p class="history-note">这不是简单地说“石头也会思考”，而是在追问：我们理解生命和世界时，能不能只把人放在中心？</p></div></div><figure class="story-image"><img class="auto-story-image" src="assets/day8-zhanran.png" alt="湛然注释天台典籍并思考草木瓦石与佛性关系的故事图" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure></article>
+        <article><div class="story-copy"><i>5</i><div><b>最澄｜越过大海来天台求法</b><p>公元804年，日本僧最澄随遣唐使来到中国，前往天台山，从道邃、行满等僧人学习并带回天台典籍。回国后，他在日本开创日本天台宗。</p><p class="history-note">最澄不是湛然的亲传弟子：他入唐时湛然已经去世二十余年。正因为一代代弟子继续传承，远方来客仍能在天台接上这条法脉。</p></div></div><figure class="story-image"><img class="auto-story-image" src="assets/day8-saicho.png" alt="日本僧最澄渡海来到天台山向道邃行满求法的故事图" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure></article>
+      </div>
+      <div class="day6-reasons"><h6>为什么这个宗派以“天台”为名？</h6><article><b>思想在这里扎根</b><p>智顗长期在天台山修习和讲说，逐渐形成有系统的教观。</p></article><article><b>典籍在这里被记录传承</b><p>灌顶等弟子把老师的讲说整理成书，后来者又不断作注解释。</p></article><article><b>道场在这里延续</b><p>国清寺成为根本道场，使抽象教法有了可以共同生活、学习和传承的地方。</p></article><article><b>法脉从这里走向远方</b><p>最澄等海外来客到天台求法，天台教法由此传播到日本等地。</p></article></div>
+      <p class="fact-note">山水、师徒、寺院与远方来客相互接力，让一套教法以天台为根，向四方传播。</p>`,
+    taskTitle:"亲子小任务｜做一次传灯接力",
+    task:"请家长陪孩子按顺序看慧思、智顗、灌顶、湛然和最澄五张人物图。家长用自己的话解释：有人教方法，有人建立体系，有人负责记录，有人重新解释，还有人把所学带到远方。再请孩子选择自己最愿意承担的一棒，说说为什么。孩子不需要背祖师序号，只要看懂一件重要的事怎样靠许多人接力传下去。"
   }
 };
 
@@ -510,7 +522,7 @@ function earthDayHTML(m){
   const completedBefore=Math.max(m.no-1,state.completed.filter(id=>Number(id.slice(1))<m.no).length);
   const earthPercent=(m.no-3)*20;
   return `<div class="earth-day-panel prologue-panel">
-    <div class="earth-cover"><p>守台人的第${m.no}封信</p><h3>${c.cover}</h3><span>${c.subtitle}</span><button class="audio-guide" type="button" data-audio data-player="day${m.no}Audio" data-audio-src="assets/day${m.no}.mp3" data-audio-title="郭爸讲第${m.no}关"><img src="assets/guoba-portrait.jpg" alt="书法郭爸"><span><strong>郭爸讲第${m.no}关</strong><small>${m.no===6||m.no===7?"点击收听":"点击收听 · 音频待上传"}</small><i class="audio-progress"><em></em></i></span><b>▶</b></button><audio id="day${m.no}Audio" preload="metadata" src="assets/day${m.no}.mp3"></audio></div>
+    <div class="earth-cover"><p>守台人的第${m.no}封信</p><h3>${c.cover}</h3><span>${c.subtitle}</span><button class="audio-guide" type="button" data-audio data-player="day${m.no}Audio" data-audio-src="assets/day${m.no}.mp3" data-audio-title="郭爸讲第${m.no}关"><img src="assets/guoba-portrait.jpg" alt="书法郭爸"><span><strong>郭爸讲第${m.no}关</strong><small>${[5,6,7,8].includes(m.no)?"点击收听":"点击收听 · 音频待上传"}</small><i class="audio-progress"><em></em></i></span><b>▶</b></button><audio id="day${m.no}Audio" preload="metadata" src="assets/day${m.no}.mp3"></audio></div>
     <section class="day3-module earth-module recap-module"><div class="module-heading"><span>01</span><div><h4>前情回顾</h4></div></div><p>${c.recap}</p></section>
     <section class="day3-module earth-module progress-module"><div class="module-heading"><span>02</span><div><h4><span class="tiantai-box-name">天台匣</span>进度</h4></div></div><div class="box-progress" aria-label="天台匣三问进度"><article><i>天</i><div><b>天之问</b><small>第3/3关 · 已完成</small></div><strong>100%</strong></article><article class="current"><i>地</i><div><b>地之问</b><small>第${m.no-3}/5关 · 正在寻找</small></div><strong>${earthPercent}%</strong></article><article><i>人</i><div><b>人之问</b><small>尚未开启</small></div><strong>0%</strong></article></div><div class="archive-count"><span>已归匣</span><b>${completedBefore}</b><em>/ 15 条线索</em></div></section>
     <section class="day3-module earth-module question-module"><div class="module-heading"><span>03</span><div><h4>今日追问</h4></div></div><h5>${c.question}</h5>${c.body}<div class="earth-answer"><small>${m.no===4?"如果用两个字描述天台山的位置，你会用哪两个字？":"把今天找到的词写入口令"}</small>${[...c.answer].map(()=>"<span>？</span>").join("")}</div></section>
@@ -520,33 +532,114 @@ function earthDayHTML(m){
 }
 
 const fieldDayContent={
-  9:{cover:"三十个人，怎样成为一支队伍？",subtitle:"从十五个家庭出发，画出同行者的第一张地图",recap:"前八关，我们在云端完成了“天之问”与“地之问”。今天，寻台人终于在真正的天台会合，“人之问”从彼此认识开始。",question:"陌生的同行者，怎样一起出发？",image:"day9-team-map.png",imageAlt:"十五个家庭组成四支小队的同行地图",clues:[["认识","记住队友的名字，也说出自己想寻找什么。"],["成队","共同确定队名、队印和每个人的任务。"],["立约","约好观察、合作、守时、助人与安全边界。"]],taskTitle:"亲子小任务｜完成家庭身份卡",task:"写下家庭名、各自擅长的事，以及最想在天台找到的一个答案。",next:"明日跟随徐霞客走向石梁：一个人为什么能把志向变成脚下的路？"},
-  10:{cover:"跟着徐霞客，走一条有证据的路",subtitle:"不是赶路比赛，而是练习立志、观察、求证与记录",recap:"昨日，十五个家庭组成四支小队。今天，守台人交来一本“霞客行簿”：脚步只有留下观察与记录，才会成为可以传下去的路。",question:"徐霞客为什么能走那么远？",image:"day10-shiliang-route.png",imageAlt:"徐霞客从金溪翠谷走向石梁飞瀑的观察路线",clues:[["先观察","看水流、山势、树木和石梁，不急着下结论。"],["再求证","把现场所见与游记、题刻和同伴说法相互核对。"],["认真记录","用文字、图画或拓字保存今天的证据。"]],taskTitle:"亲子小任务｜完成一页霞客行簿",task:"选择一处景物，分别写下“我看见什么、我怎样判断、我还想问什么”。",next:"明日把山上的大字带回纸上：脚步得到的答案，将由笔墨继续保存。"},
-  11:{cover:"山上的字，怎样来到纸上？",subtitle:"从摩崖的气势，到一笔一画的亲手表达",recap:"昨日，我们像徐霞客一样观察、求证、记录。今天不再向前赶路，而是把眼睛看到的山势与石刻，慢慢送进手中的笔。",question:"什么能把山的气势留在纸上？",image:"day11-calligraphy.png",imageAlt:"摩崖大字、诗文小字与书法创作过程",clues:[["选一个字","从昨日所见中挑选最能代表天台的字。"],["写一幅作品","大字写气势，小字补上诗文与理由。"],["讲一次选择","在晚间小展中说出这个字与自己的关系。"]],taskTitle:"亲子小任务｜为作品写一句说明",task:"孩子说、家长记，或者交换角色：我们为什么选择这个字？",next:"明日走进桐柏与紫凝山，看一草一木怎样成为另一种老师。"},
-  12:{cover:"一草一木，怎样教人生活？",subtitle:"只观察、拍摄与记录，不采挖、不伤害",recap:"昨日，摩崖化作纸上的笔墨。今天，我们把目光放低：草木不会说话，却用生长的位置、形态与气味记录山中的季节。",question:"人与草木相处，要先学会什么？",image:"day12-plants.png",imageAlt:"桐柏宫与紫凝山植物观察、标本记录和毛笔标签",clues:[["认真辨识","观察叶形、颜色和生长环境，不凭印象乱猜。"],["守住边界","只拾取允许的脱落物，不采挖野生植物。"],["留下记录","用照片、标签与经折装保存观察结果。"]],taskTitle:"亲子小任务｜制作一张植物观察卡",task:"画下或拍下一种植物，记录时间、地点、颜色、形状和你的一个问题。",next:"明日走向大瀑布：先听真实水声，再看看诗人如何把水写进诗里。"},
-  13:{cover:"先看瀑布，再打开诗篇",subtitle:"把自己的眼睛放在诗人的文字前面",recap:"昨日，我们向草木学习如何观察。今天，守台人要求大家暂时收起诗句：先用自己的眼睛和耳朵认识瀑布，再与古人的文字相遇。",question:"山水怎样一步步变成诗？",image:"day13-waterfall.png",imageAlt:"天台山大瀑布的水声、光线、高度与诗歌意象",clues:[["先写所见","记录水声、光线、颜色、高度和身体感受。"],["再读古诗","看看诗人选择了哪些景物，又省略了什么。"],["完成诗画","让自己的观察与一句诗在同一页相遇。"]],taskTitle:"亲子小任务｜收集三个瀑布词",task:"孩子找声音词、家长找形状词，再共同找一个心情词，写进旅行日记。",next:"明日进入国清寺，从寒山、拾得与丰干的故事里寻找“和合”。"},
-  14:{cover:"不同的人，怎样走进同一扇门？",subtitle:"从国清寺的建筑、人物与书法中寻找和合",recap:"昨日，真实瀑布与古人诗篇在旅行日记中相遇。今天，我们来到国清寺，看见不同年代、不同身份的人如何在同一处留下故事。",question:"寒山与拾得为什么被记到今天？",image:"day14-guoqing.png",imageAlt:"国清寺建筑、匾额碑刻与寒山拾得和合故事",clues:[["看建筑","沿开放动线观察古刹如何安放礼仪与日常。"],["找人物","认识丰干、寒山、拾得与济公留下的故事。"],["读书法","从匾额、碑刻和不同书体里寻找时代痕迹。"]],taskTitle:"亲子小任务｜找到一处和合证据",task:"选择一个人物故事、一块匾额或一处建筑，说说它怎样表现彼此理解与成全。",next:"明日打开天台匣，把十五天的线索交还给自己。"},
-  15:{cover:"最后一块答案，藏在谁的心里？",subtitle:"把作品、脚步、同行与十五日线索合在一起",recap:"从台宿到天地，从山水神秀到儒释道来者，我们终于走到第十五封信。天台匣已经装满证据，却还缺少每位寻台人的亲口回答。",question:"这十五天，你为自己搭起了怎样的一座台？",image:"day15-exhibition.png",imageAlt:"天台匣、书法、植物记录、旅行日记与小队终章展览",clues:[["整理所得","把书法、日记、植物记录、队印与照片放进展览。"],["说出改变","用一分钟讲清自己出发前与现在有什么不同。"],["留下祝福","互贴照片、留言盖印，让同行成为答案的一部分。"]],taskTitle:"亲子小任务｜写下最后一封回信",task:"回答守台人：我找到的“心台”是什么？回家以后，我愿意继续做哪一件事？",next:"十五日秘境图已经走完，但真正的心台，要在今后的生活里继续搭建。"}
+  9:{
+    cover:"今天，轮到我们走进天台",subtitle:"过去读他们的故事；从今天起，我们成为故事里的人",recap:"前八关，我们从星空、地图和山水中认识天台，也认识了道者、文人和僧人怎样来到这里。7月21日，来自全国各地的家庭终于在圣爱研学基地会师。“人之问”的主角，从古人变成了我们自己。",question:"今天来到天台的我们，叫什么？",answerGroups:["寻台人"],
+    body:`<div class="field-opening"><p>古人来到天台，有人为了修行，有人为了求学、访友、写诗，也有人为了亲眼考察山川。他们寻找的目标不同，最后得到的答案也不同。</p><p>今天，我们不需要复制任何一位古人的答案。接下来的七天六晚，我们要带着自己的问题走进真实山水，把观察、作品和感受一件件收入天台匣。</p></div>
+      <figure class="story-image field-image"><img class="auto-story-image" src="assets/day9-arrival.png" alt="来自全国各地的家庭在圣爱研学基地会师" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure>
+      <p class="field-action-note">请在你的天台匣中找到“寻台人身份笺”，认真完成上面的所有内容。完成后，找千羽老师盖“寻台人”印章。</p>
+      <figure class="story-image field-image"><img class="auto-story-image" src="assets/day9-family-question.png" alt="亲子家庭写下出发问题与寻访目标" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure>
+      <div class="field-divider"><span>从“他们来”到“我们来”</span><small>今天，我们获得一个共同的新身份</small></div>
+      <div class="field-story-list"><article><i>古</i><div><b>过去的天台来客</b><p>道者寻找清静与修习之地，读书人寻找山水、诗意与真实记录，僧人寻找讲学与传承的道场。</p></div></article><article><i>今</i><div><b>今天的天台来客</b><p>我们带着自己的问题来到这里，走古人走过的路，也留下属于自己的作品与回答。</p></div></article></div>
+      <figure class="story-image field-image"><img class="auto-story-image" src="assets/day9-seeker-timeline.png" alt="从古代天台来客到当代寻台人的时间长卷" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure>
+      <p class="fact-note">每一个时代都有寻访天台的人。今天，我们成为这个时代的“寻台人”。这个词不是提前猜出的谜底，而是完成会师与出发记录后获得的现场身份。</p>`,
+    taskTitle:"亲子小任务｜留下出发问题",task:"家长和孩子分别完成两句话：“我来到天台，是因为……”以及“我最想在这里找到……”。交换答案后，选出一个最重要的词写进寻台人身份笺。七天以后，再回来看看答案有没有改变。",archive:"寻台人身份笺",next:"明日跟随徐霞客进入石梁：心里真正想去的地方，怎样变成脚下的路？"
+  },
+  10:{
+    cover:"侠客问石梁",subtitle:"沿徐霞客走过的峡谷，寻找支撑脚步的内在方向",recap:"昨日，我们成为这个时代的寻台人。今天，守台人交来一页“霞客行簿”：不只要走到石梁飞瀑，还要像徐霞客一样观察道路、山势、水流与石刻。",question:"山路如此艰难，古人为什么仍不断向天台走来？",answerGroups:["心之所向"],
+    body:`<div class="field-opening"><p>在明代，远行意味着缓慢的交通、崎岖的山路和难以预料的天气与食宿。徐霞客仍多次走进天台，并把路线、山势、水流和见闻认真记录下来。</p><p>他最值得学习的，不只是走过很多地方，而是心里始终有明确方向，并愿意为这个方向承受辛苦与风险。</p></div>
+      <figure class="story-image field-image"><img class="auto-story-image" src="assets/day10-shiliang-route.png" alt="小铜壶瀑布至石梁飞瀑与方广寺的实景行走路线" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure>
+      <figure class="story-image field-image"><img class="auto-story-image" src="assets/day10-shiliang-landmarks.png" alt="石梁峡谷沿途主要景观与摩崖文字" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure>
+      <div class="field-divider"><span>石梁实景寻访</span><small>路线以当天领队和景区开放情况为准</small></div>
+      <div class="field-route"><span>小铜壶瀑布</span><span>不二法门</span><span>双溪夹径</span><span>天然石佛</span><span>应真坛</span><span>徐霞客雕像</span><span>石梁飞瀑</span><span>古方广寺</span><span>栖真金界</span></div>
+      <figure class="story-image field-image"><img class="auto-story-image" src="assets/day10-xu-xiake.png" alt="徐霞客在石梁观察山势水流并记录游记" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure>
+      <figure class="story-image field-image"><img class="auto-story-image" src="assets/day10-field-notes.png" alt="亲子完成霞客行簿和摩崖文字记录" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure>
+      <div class="field-story-list"><article><i>1</i><div><b>先观察</b><p>看水从哪里来、山路怎样转折、天然石梁为何横跨两崖，不急着下结论。</p></div></article><article><i>2</i><div><b>再求证</b><p>把现场所见与游记、摩崖文字、领队讲解和同伴发现相互核对。</p></div></article><article><i>3</i><div><b>留下记录</b><p>用文字、图画或摹写保存证据，让没有来到现场的人也能理解。</p></div></article></div>
+      <p class="fact-note">徐霞客、智顗以及历代进入天台的道者，选择的道路并不相同；共同之处是心中有方向，才愿意走过崎岖山路。今天的归匣关键词是“心之所向”。</p>`,
+    taskTitle:"亲子小任务｜完成一页霞客行簿",task:"选择一处现场景物，分别写下“我看见什么、我怎样判断、我还想问什么”。再写一个自己的目标，并补充：“为了走到那里，我愿意先完成……”",archive:"霞客行簿与摩崖文字记录",next:"明日走进桐柏宫与紫凝山：知道方向以后，怎样让身体、内心和行动彼此配合？"
+  },
+  11:{
+    cover:"怎样与自己好好相处？",subtitle:"从听懂道理，到亲自观察、练习和行动",recap:"昨日，徐霞客让我们明白：心中有方向，脚下才有道路。但只有愿望还不够，真正的方向还要落实到每天的学习、行动与身体练习中。",question:"内心、身体与行动彼此配合，叫什么？",answerGroups:["人和"],
+    body:`<div class="field-opening"><p>桐柏宫经历过兴盛、衰落、迁建与复兴。使文化延续下来的，不只是书里的道理，而是一代代真实的人：有人守护道观，有人整理典籍，有人讲学，也有人坚持每天的功课。</p><p>今天的知识分享不是宗教说教，也不是传播玄学，而是帮助我们了解古人怎样认识变化、安排生活、观察身体与内心。</p></div>
+      <figure class="story-image field-image"><img class="auto-story-image" src="assets/day11-tongbai-day.png" alt="桐柏宫历史学习仙鹤观察素餐与植物认识活动" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure>
+      <figure class="story-image field-image"><img class="auto-story-image" src="assets/day11-plants-cranes.png" alt="桐柏宫仙鹤与植物观察记录" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure>
+      <div class="field-divider"><span>上午｜桐柏宫</span><small>听、看、尝、问，把知识放回真实环境</small></div>
+      <div class="field-story-list"><article><i>听</i><div><b>听历史与传统</b><p>认识桐柏宫的发展与复兴，了解一门学问怎样靠一代代人的行动传下去。</p></div></article><article><i>看</i><div><b>观察仙鹤与植物</b><p>在专业人员带领下观察、辨识和记录，不自行采挖、尝食野生植物。</p></div></article><article><i>食</i><div><b>体验素餐</b><p>从一顿饭感受节制、珍惜与共同生活，不把饮食体验解释成宗教要求。</p></div></article></div>
+      <figure class="story-image field-image"><img class="auto-story-image" src="assets/day11-yijinjing-town.png" alt="紫凝山易筋经小镇的易学启蒙与传统身体练习" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure>
+      <figure class="story-image field-image"><img class="auto-story-image" src="assets/day11-body-mind-card.png" alt="亲子记录练习前后的身体与心情变化" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure>
+      <div class="field-divider"><span>下午｜紫凝山·易筋经小镇</span><small>让理性认识与身体体验互相回答</small></div>
+      <div class="field-story-list"><article><i>知</i><div><b>易学启蒙</b><p>了解古人怎样观察变化、关系与秩序，不把传统概念包装成预测未来的工具。</p></div></article><article><i>行</i><div><b>易筋经体验</b><p>在专业指导下观察动作、呼吸和身体感受，比较练习前后的变化。</p></div></article><article><i>和</i><div><b>与自己相处</b><p>既能说清自己的想法，也能听见身体与情绪的信号，逐渐找到适合自己的节奏。</p></div></article></div>
+      <p class="fact-note">“人和”不是永远没有烦恼，也不是一味顺从；它是学习让心里知道的方向、身体感受到的状态与真正采取的行动彼此照应。</p>`,
+    taskTitle:"亲子小任务｜完成一次身心对话",task:"练习前后各说一次：“我的身体现在感觉……”和“我的心情现在感觉……”。家长只帮助孩子把感受说清楚，不急着评价。最后共同找出一个发生变化的地方。",archive:"身心观察卡与合规植物记录",next:"明日回到圣爱研学基地：石、纸、墨、竹木和草木，怎样在人手中变成作品？"
+  },
+  12:{
+    cover:"材料怎样变成作品？",subtitle:"用笔墨、声音和香气体会天地与人的共同完成",recap:"昨日，我们从桐柏宫与易筋经小镇寻找“人和”。今天，我们把前几日所见真正变成作品：把石梁的字带到纸上，让竹木发出声音，让草木香料进入双手。",question:"天地提供材料，人以双手与心意完成作品，这叫什么？",answerGroups:["天地人和"],
+    body:`<div class="field-divider"><span>上午｜三类书法实践</span><small>不求每人全部完成，按年龄和书写能力选择</small></div>
+      <div class="field-story-list"><article><i>大</i><div><b>摩崖大字</b><p>从石梁所见摩崖文字、不二法门等内容中选择一处，体会山崖尺度与纸面书写的不同。</p></div></article><article><i>小</i><div><b>徐霞客游记小字</b><p>从可靠版本的《游天台山日记》中选择适合的片段，完成书写与吟诵。</p></div></article><article><i>临</i><div><b>《阴符经》临写</b><p>使用课程确定的临本片段，观察点画、结构与气息；涉及作者时写“传褚遂良书”，不直接认定为无争议真迹。</p></div></article></div>
+      <figure class="story-image field-image"><img class="auto-story-image" src="assets/day12-calligraphy.png" alt="摩崖大字徐霞客游记小字与阴符经临写作品" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure>
+      <figure class="story-image field-image"><img class="auto-story-image" src="assets/day12-writing-details.png" alt="摩崖大字小字临写与纸墨细节" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure>
+      <div class="field-divider"><span>下午｜箫、古琴与制香</span><small>重点不是一天学会曲子，而是听见材料、呼吸与人的关系</small></div>
+      <div class="field-story-list"><article><i>箫</i><div><b>呼吸进入竹管</b><p>体会气息、指法和倾听怎样共同改变声音。</p></div></article><article><i>琴</i><div><b>手指进入琴弦</b><p>观察材料、力度、节奏和空间怎样共同形成音乐。</p></div></article><article><i>香</i><div><b>草木进入手作</b><p>通过选择、研磨、配伍和制作完成香品。古代礼仪以香表达敬意、洁净空间和寄托心愿，这是文化观念，不作为现代科学事实。</p></div></article></div>
+      <figure class="story-image field-image"><img class="auto-story-image" src="assets/day12-music-incense.png" alt="吹箫古琴与亲子制香的实践过程" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure>
+      <figure class="story-image field-image"><img class="auto-story-image" src="assets/day12-finished-works.png" alt="书法香品与音乐体验完成后的作品记录" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure>
+      <p class="fact-note">天提供时间、气候与节律，地提供石头、纸墨原料、竹木与草木，人用观察、双手、呼吸和心意让它们成为作品。今天的归匣关键词是“天地人和”。</p>`,
+    taskTitle:"亲子小任务｜拆解一件作品",task:"选择当天的一件作品，找出：它用了哪些来自自然的材料？人完成了哪些步骤？哪一步最需要耐心与配合？把三条答案写在同一张作品说明卡上。",archive:"香品记录与书法作品编号卡",next:"明日走向天台山大瀑布：真实的水声，怎样打开诗人的万里想象？"
+  },
+  13:{
+    cover:"诗人的心能走多远？",subtitle:"先看真实瀑布，再让思想越过时间与万里山河",recap:"昨日，我们用双手、呼吸和材料完成书法、音乐与香的实践。今天，我们面对一件由天地写成的巨大作品——天台山大瀑布。",question:"文学想象怎样连接古今与万里？",answerGroups:["思接千载","视通万里"],
+    body:`<div class="field-opening"><p>天台山大瀑布主体总落差325米，被当地文旅资料称为“中华第一高瀑”。我们先从底部观察水声、水雾、光线和落差，按当天安全路线行至规定终点后折返。</p><p>随后再打开李白与琼台、天姥相关的诗文，比较哪些部分来自真实山水，哪些经过夸张、联想、梦境与想象。这里采用“现场对读”，不直接声称诗句描写的就是眼前同一处瀑布。</p></div>
+      <figure class="story-image field-image"><img class="auto-story-image" src="assets/day13-waterfall.png" alt="从天台山大瀑布底部向上观察水声水雾光线与落差" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure>
+      <figure class="story-image field-image"><img class="auto-story-image" src="assets/day13-waterfall-details.png" alt="瀑布水雾岩壁与光线的现场观察细节" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure>
+      <div class="field-story-list"><article><i>实</i><div><b>准确观察</b><p>记录真正看见、听见和感受到的现象，不用诗句代替自己的眼睛。</p></div></article><article><i>虚</i><div><b>展开想象</b><p>把眼前山水与读过的书、听过的故事和自己的情感连接起来。</p></div></article><article><i>合</i><div><b>写成作品</b><p>让真实成为想象的起点，让想象帮助我们看见更辽阔的关系。</p></div></article></div>
+      <figure class="story-image field-image"><img class="auto-story-image" src="assets/day13-li-bai-imagination.png" alt="李白诗心从真实山水穿行到历史星空与万里天地的想象图" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure>
+      <figure class="story-image field-image"><img class="auto-story-image" src="assets/day13-poetry-notes.png" alt="亲子对读李白诗文并完成瀑布双重记录" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure>
+      <blockquote class="field-quote">“思接千载，视通万里。”<small>——《文心雕龙·神思》所表达的文学想象</small></blockquote>
+      <p class="fact-note">想象不是胡编乱造。真正有力量的想象，往往从认真观察真实世界开始，再让思想与古人、远方和天地相遇。</p>`,
+    taskTitle:"亲子小任务｜完成瀑布双重记录",task:"面对同一处瀑布写两句话：第一句准确写出真正看见、听见或感受到的现象；第二句让瀑布变成另一种事物，或者带你去往另一个时空。",archive:"瀑布双重记录卡与旅行日记",next:"明日走进国清寺：不同人物、时代和地域，怎样在一座寺院里彼此相接？"
+  },
+  14:{
+    cover:"不同的人怎样走进同一扇门？",subtitle:"让第8关学过的人物与法脉，在国清寺现场变成可见证据",recap:"昨日，真实瀑布与诗人想象在旅行日记中相遇。今天，我们走进国清寺，不再重复背诵天台宗人物生平，而要在建筑、碑刻与日常空间中寻找“和合”怎样发生。",question:"不同的人与事物能够共处、相接并彼此成全，叫什么？",answerGroups:["和合"],
+    body:`<figure class="story-image field-image"><img class="auto-story-image" src="assets/day14-guoqing-route.png" alt="国清寺二十二处现场观察点与参观路线" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure>
+      <figure class="story-image field-image"><img class="auto-story-image" src="assets/day14-architecture.png" alt="国清寺山水古树塔院与殿堂的空间关系" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure>
+      <div class="field-divider"><span>四条现场线索</span><small>把第8关的知识放回真实寺院</small></div>
+      <div class="field-story-list"><article><i>山</i><div><b>山水与建筑</b><p>观察道路、溪流、古树、塔与殿堂怎样依地形形成秩序。</p></div></article><article><i>人</i><div><b>师徒与传承</b><p>从智顗、灌顶、湛然到后来者，寻找讲说、记录与重新阐释留下的现场痕迹。</p></div></article><article><i>海</i><div><b>中国与海外</b><p>由最澄来天台求法的线索，理解一座寺院怎样成为跨文化交流坐标。</p></div></article><article><i>和</i><div><b>寒山与拾得</b><p>区分历史与后世传说，思考人们为什么把他们塑造成“和合”的象征。</p></div></article></div>
+      <figure class="story-image field-image"><img class="auto-story-image" src="assets/day14-hehe.png" alt="国清寺建筑天台宗传承与寒山拾得和合故事的现场证据" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure>
+      <figure class="story-image field-image"><img class="auto-story-image" src="assets/day14-overseas-lineage.png" alt="天台宗传承与海外文化交流线索" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure>
+      <p class="fact-note">“和”不是所有人变得一样，而是不同的人能够相处；“合”不是消除差异，而是不同力量能够共同完成一件事。</p>`,
+    taskTitle:"亲子小任务｜找到一处和合坐标",task:"在当天参观点中，各自选择一处最能表现“和合”的地方：它连接了哪两种不同的事物？它们为什么能够共存？下午回到圣爱研学基地后，把答案补入书法或观察记录。",archive:"国清寺和合坐标卡",next:"明日打开天台匣：当十五日证据全部聚齐，我们真正带走的天台在哪里？"
+  },
+  15:{
+    cover:"我们找到的天台在哪里？",subtitle:"把星空、山水、作品、同行与七日记忆合在一起",recap:"十五封信即将读完。我们从星空找到台宿，从地图找到浙东，从山水中找到神秀；最后七天，我们不再只读古人的故事，而是亲自成为寻台人。",question:"真实天台留在浙江，我们理解过的天台留在哪里？",answerGroups:["心台"],
+    body:`<div class="field-divider"><span>上午｜打开天台匣</span><small>不是比谁装得最多，而是讲清每件证据怎样得来</small></div>
+      <div class="field-story-list"><article><i>天</i><div><b>星空线索</b><p>三台星、二十八宿、紫微垣与天市垣等内容，组成最初的“天之问”。</p></div></article><article><i>地</i><div><b>天台山水</b><p>微缩天台山与山、石、水、草、土、雾等观察记录，组成“地之问”。</p></div></article><article><i>人</i><div><b>我们的作品</b><p>书法、旅行日记、植物观察、香品、照片和七日关键词，组成“人之问”。</p></div></article></div>
+      <figure class="story-image field-image"><img class="auto-story-image" src="assets/day15-box-exhibition.png" alt="天台匣书法作品旅行记录与七日照片的结营展览" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure>
+      <figure class="story-image field-image"><img class="auto-story-image" src="assets/day15-calligraphy-display.png" alt="结营书法作品与旅行日记展示" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure>
+      <div class="field-divider"><span>把天与地连接起来</span><small>用一根线连接三台星线索与天台山石</small></div>
+      <figure class="story-image field-image"><img class="auto-story-image" src="assets/day15-sky-earth-link.png" alt="以线连接三台星与天台山石的天地对应装置" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure>
+      <figure class="story-image field-image"><img class="auto-story-image" src="assets/day15-final-sharing.png" alt="亲子家庭展示天台匣并完成最终分享" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure>
+      <div class="field-opening"><p>天台是一座真实的山。但十五日以后，我们还会发现另一座天台：它由看过的山水、读过的文字、走过的道路、完成的作品和改变过的内心共同组成。</p><p>真实的天台留在浙江；我们理解过、体验过并愿意带回生活里的那座天台，留在每个人心中。</p></div>
+      <p class="fact-note">最后的关键词是“心台”。它不是唯一标准感受，而是网站用于完成第十五次归档的共同名称。每个家庭对“心台”的解释都可以不同。</p>`,
+    taskTitle:"亲子小任务｜写下最后一封回信",task:"重新读第9关留下的出发问题，分别完成：“我心中的天台，是……”以及“回家以后，我愿意继续……”。家长和孩子可以有不同答案，不互相修改。",archive:"寻台人最终回信与完整天台匣",next:"十五日秘境图已经走完，但真正的心台，要在今后的生活里继续搭建。"
+  }
 };
 
 function fieldDayHTML(m){
   const c=fieldDayContent[m.fieldDay];
   const humanStep=m.no-8;
   const humanPercent=Math.round(humanStep/7*100);
-  return `<div class="earth-day-panel field-day-panel prologue-panel">
+  return `<div class="earth-day-panel field-day-panel day${m.no}-panel prologue-panel">
     <div class="earth-cover"><p>守台人的第${m.no}封信</p><h3>${c.cover}</h3><span>${c.subtitle}</span></div>
     <section class="day3-module earth-module recap-module"><div class="module-heading"><span>01</span><div><h4>前情回顾</h4></div></div><p>${c.recap}</p></section>
     <section class="day3-module earth-module progress-module"><div class="module-heading"><span>02</span><div><h4><span class="tiantai-box-name">天台匣</span>进度</h4></div></div><div class="box-progress" aria-label="天台匣三问进度"><article><i>天</i><div><b>天之问</b><small>第3/3关 · 已完成</small></div><strong>100%</strong></article><article><i>地</i><div><b>地之问</b><small>第5/5关 · 已完成</small></div><strong>100%</strong></article><article class="current"><i>人</i><div><b>人之问</b><small>第${humanStep}/7关 · ${m.no===15?'即将完成':'正在寻找'}</small></div><strong>${humanPercent}%</strong></article></div><div class="archive-count"><span>已归匣</span><b>${m.no-1}</b><em>/ 15 条线索</em></div></section>
-    <section class="day3-module earth-module question-module"><div class="module-heading"><span>03</span><div><h4>今日追问</h4></div></div><h5>${c.question}</h5><figure class="earth-story-image"><img src="assets/${c.image}" alt="${c.imageAlt}" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure><div class="field-clue-list">${c.clues.map((clue,index)=>`<article><i>${index+1}</i><div><b>${clue[0]}</b><p>${clue[1]}</p></div></article>`).join("")}</div><div class="earth-answer"><small>把今天找到的词写入口令</small>${[...m.answer].map(()=>"<span>？</span>").join("")}</div></section>
+    <section class="day3-module earth-module question-module field-question-module"><div class="module-heading"><span>03</span><div><h4>今日追问</h4></div></div><h5>${c.question}</h5>${c.body}<div class="field-keyword-note"><b>线上归档 × 线下证据</b><p>先完成当天实景任务，再把现场找到的总结词输入网站。关键词用于归档，不代替每个家庭自己的观察与答案。</p></div><div class="earth-answer field-answer"><small>把今天的归匣关键词写入口令</small>${c.answerGroups.map(group=>`<span class="field-answer-group">${[...group].map(()=>"<i>？</i>").join("")}</span>`).join("")}</div></section>
     <section class="family-task day3-task earth-family-task"><h4>${c.taskTitle}</h4><p>${c.task}</p></section>
-    <section class="day3-module earth-module archive-module"><div class="module-heading"><span>04</span><div><h4>线索归匣</h4></div></div><div class="archive-preview"><p>答对口令后，第${m.no}条线索将归入<span class="tiantai-box-name on-dark">“天台匣”</span>。</p></div><p class="next-letter"><strong>${c.next}</strong></p></section>
+    <section class="day3-module earth-module archive-module"><div class="module-heading"><span>04</span><div><h4>线索归匣</h4></div></div><div class="archive-preview"><p>${m.no===9?`第9条线索：“${c.archive}”归入<span class="tiantai-box-name on-dark">“天台匣”</span>。`:`完成现场任务并答对关键词后，将“${c.archive}”作为第${m.no}条线索归入<span class="tiantai-box-name on-dark">“天台匣”</span>。`}</p></div><p class="next-letter"><strong>${c.next}</strong></p></section>
   </div>`;
 }
 
 function missionHTML(m){
   const done=state.completed.includes(m.id); const available=isMissionUnlocked(m) || done;
   const specialContent=m.prologue?prologueHTML():m.day2?day2HTML():m.day3?day3HTML():m.earthDay?earthDayHTML(m):m.fieldDay?fieldDayHTML(m):`<p class="mission-action"><strong>家庭行动：</strong>${m.action}</p><div class="clue-image">【任务图片占位符】</div>`;
-  return `<article class="mission ${done?"done":available?"active":""} ${m.prologue||m.day2||m.day3||m.earthDay?"prologue-mission":""}"><div class="mission-top"><div><p class="eyebrow">${m.chapter}</p><h3>${m.title}</h3></div><span class="mission-state">${done?"已完成":available?"可调查":"剧情封印"}</span></div><p>地点：${m.place}</p><p>${m.hint}</p>${specialContent}${m.prologue?`<p class="mission-action"><strong>家庭行动：</strong>${m.action}</p>`:""}${done?'<button class="secondary-button" disabled>解谜成功，线索已归档</button>':available?`<button class="primary-button answer-button" data-id="${m.id}">输入答案</button>`:'<button class="secondary-button" disabled>等待领队解锁</button>'}</article>`
+  return `<article class="mission ${done?"done":available?"active":""} ${m.prologue||m.day2||m.day3||m.earthDay||m.fieldDay?"prologue-mission":""}"><div class="mission-top"><div><p class="eyebrow">${m.chapter}</p><h3>${m.title}</h3></div><span class="mission-state">${done?"已完成":available?"可调查":"剧情封印"}</span></div><p>地点：${m.place}</p><p>${m.hint}</p>${specialContent}${m.prologue?`<p class="mission-action"><strong>家庭行动：</strong>${m.action}</p>`:""}${done?'<button class="secondary-button" disabled>解谜成功，线索已归档</button>':available?`<button class="primary-button answer-button" data-id="${m.id}">输入答案</button>`:'<button class="secondary-button" disabled>等待领队解锁</button>'}</article>`
 }
 
 function renderProfile(){
@@ -588,8 +681,9 @@ document.querySelector("#answerForm").addEventListener("submit",e=>{
     render();
     return;
   }
-  const value=input.value.trim().replace(/\s/g,"");
-  const validAnswers=(state.answerMission.answers||[state.answerMission.answer]).map(answer=>answer.replace(/\s/g,""));
+  const normalizeAnswer=value=>value.trim().replace(/[\s，,、。；;：:！!？?·\-—]/g,"");
+  const value=normalizeAnswer(input.value);
+  const validAnswers=(state.answerMission.answers||[state.answerMission.answer]).map(normalizeAnswer);
   if(validAnswers.includes(value)){
     form.classList.remove("answer-wrong");
     form.classList.add("answer-correct");
