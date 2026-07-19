@@ -473,14 +473,25 @@ const earthDayContent={
     task:"请家长和孩子从葛玄、顾欢、陶弘景、司马承祯、张伯端中选择一位。家长根据上面的介绍，用一分钟讲清楚：他为什么来到天台或写下天台、他做了什么、他给后世留下了什么。再请孩子完成一句话：“如果我能在天台遇见______，我想问他：______？”孩子不需要记住所有年代和著作，只要记住一个人物、一个故事和一个想问的问题。"
   },
   7:{
-    cover:"为什么诗路走向天台？",subtitle:"有人为山水而来，有人为访友求道而来，也有人为寻找自己而来",progress:"80%",answer:"唐诗之路",next:"明日进入佛门山水：为什么天台山中会出现如此密集的寺院与道场？",
-    recap:`道者在桐柏找到修行之地，诗人却沿着水路和山路继续赶来。他们有人真的登上天台，有人在诗里一次次向往天台。脚步不同，最后都把这座山写进了中国人的记忆。`,
-    question:"这么多诗人的脚步，连成了什么路？",
-    body:`<figure class="earth-story-image"><img src="assets/day7-poetry-route.png" alt="从钱塘江、曹娥江、剡溪、天姥通向天台的浙东唐诗之路示意图" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure>
-      <div class="traveler-scroll"><article><b>孟浩然</b><p>“欲寻华顶去，不惮恶溪名。”远路与险阻，反而让寻访更有意义。</p></article><article><b>李白</b><p>赤城、华顶和沧海进入诗中，天台成为他寄托自由想象的精神高地。</p></article><article><b>朱熹</b><p>山水不仅可游，也可观物、读书、访贤，在行走中体会天地与人的关系。</p></article><article><b>徐霞客</b><p>两游天台并以天台篇开启《徐霞客游记》，用亲历、观察和记录验证山川。</p></article></div>
-      <p class="fact-note">它不是铺在地上的一条直路，而是由水路、山路、诗篇和人物共同连成的文化之路。今天的四字口令，就藏在这条路的名字里。</p>`,
-    taskTitle:"亲子小任务｜选一位诗路同伴",
-    task:"从四位来者中选一位当同伴。孩子说最想问他的问题，家长帮忙找一句与天台有关的诗文；把人物、问题和诗句记在同一张小卡上。"
+    cover:"读书人怎样看天台？",subtitle:"有人先在图上想象，有人沿水路来访，也有人把每一步写进日记",progress:"80%",answer:"唐诗之路",next:"明日换一双佛门的眼睛：山水怎样成为修习、讲学和传承的道场？",
+    recap:`昨天，道者把清静、丰茂又适合安顿身心的天台称作“洞天福地”。今天，守台人请来另一群客人：写赋的文人、远行的诗人和认真记录山川的旅行家。他们不只看见风景，还把自己的志向、心情和求知之心写进山水。`,
+    question:"诗文与脚步，连成什么路？",
+    body:`<div class="day6-opening"><p>这里说的“儒者”，采用本次游学的宽口径：包括受传统教育的文人、官员、诗人和旅行家，并不表示每个人都是专门讲授儒学的思想家。</p><p>他们看山水，常常不只问“美不美”，还会问：我能从中看到什么、想到什么，又该把什么留给后来的人？</p></div>
+      <div class="day6-concepts">
+        <article><div class="day6-copy"><span class="day6-label">先看他们怎样读山水</span><h6>山水能寄托心情和志向</h6><p>同一座赤城、同一道石梁飞瀑，在不同的人眼中会变成不同的文字。有人借高山写向往，有人借远路写勇气，也有人在开阔山水中整理自己的心情。</p><blockquote>他们不是把山水当作一张漂亮背景，而是让眼前的景物与心里的感受互相回答。</blockquote></div><figure class="story-image day6-image"><img class="auto-story-image" src="assets/day7-literati-landscape.png?v=20260719-all1" alt="文人面对赤城、华顶与石梁山水吟咏记录的示意图" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure></article>
+        <article><div class="day6-copy"><span class="day6-label">再看他们怎样走进天台</span><h6>水路、山路与诗篇连成一条路</h6><p>古人从钱塘江边进入浙东，沿运河、曹娥江和剡溪前行，再经过天姥山走向天台。有人乘船，有人骑马，有人步行；沿途的唱和、送别和游览诗篇，后来连成一条由诗文标记的文化道路。</p><blockquote>这不是一条只有起点和终点的直路，而是一张由真实道路、人物交往与诗文共同组成的文化地图。</blockquote></div><figure class="story-image day6-image"><img class="auto-story-image" src="assets/day7-poetry-route.png?v=20260719-all1" alt="从钱塘江、西兴、绍兴、剡溪、天姥山通往天台石梁的诗文文化路线示意图" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure></article>
+      </div>
+      <div class="day6-divider"><span>四位写下天台的读书人</span><small>有人神游，有人循诗，也有人实地求证</small></div>
+      <div class="location-story illustrated-location-story day6-people-story">
+        <article><div class="story-copy"><i>1</i><div><b>孙绰｜没有到场，也能让天下向往</b><p>孙绰依据图画和传闻写成《游天台山赋》。他未曾实地登山，而是在案前“卧游”天台。</p><blockquote>“天台山者，盖山岳之神秀者也。”</blockquote><p class="history-note">他把天台写成值得向往的精神远方，也提醒我们：读图和想象可以打开一座山，但亲眼观察仍能带来新的答案。</p></div></div><figure class="story-image"><img class="auto-story-image" src="assets/day7-sun-chuo.png?v=20260719-all1" alt="孙绰观看天台山图并构思游天台山赋的故事图" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure></article>
+        <article><div class="story-copy"><i>2</i><div><b>孟浩然｜不怕路远，也要寻找华顶</b><p>盛唐诗人孟浩然写下《寻天台山》。诗中既有赤城、华顶和石梁，也有歇马、乘船与远望，像一张用八句诗画出的旅行路线。</p><blockquote>“欲寻华顶去，不惮恶溪名。”</blockquote><p class="history-note">“不惮”就是不害怕。吸引他的，不只是一个景点，而是穿过溪流与云山、亲自寻找的过程。</p></div></div><figure class="story-image"><img class="auto-story-image" src="assets/day7-meng-haoran.png?v=20260719-all1" alt="孟浩然沿水路和山路寻访华顶石梁的故事图" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure></article>
+        <article><div class="story-copy"><i>3</i><div><b>诗路来客｜一首诗会引来下一位来者</b><p>唐代许多诗人写到赤城、华顶、石梁、国清和桐柏。他们有的亲自来到天台，有的在送别诗中把友人送往天台，还有的沿着前人的诗句继续想象。</p><p class="history-note">这不是某一个人的专属路线，而是一场跨越年代的接力：前人留下地名和诗句，后来者带着它们再次出发。</p></div></div><figure class="story-image"><img class="auto-story-image" src="assets/day7-poetry-travelers.png?v=20260719-all1" alt="不同年代诗人沿浙东水路山路接力走向天台的故事图" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure></article>
+        <article><div class="story-copy"><i>4</i><div><b>徐霞客｜不用想象代替亲眼求证</b><p>明代旅行家徐霞客多次登临天台，写下前后两篇天台山日记。《游天台山日记》后来被放在《徐霞客游记》开篇。</p><p>徐霞客记录路线、天气、溪流与山崖，也比较道路和水流，用亲眼所见核对山水。</p><p class="history-note">从孙绰的“图上神游”到徐霞客的“实地求证”，我们看见读书人面对山水的两种方法：先让文字带我们出发，再让亲眼所见修正文字。</p></div></div><figure class="story-image"><img class="auto-story-image" src="assets/day7-xu-xiake.png?v=20260719-all1" alt="徐霞客在天台山实地行走并记录路线水流与山崖的故事图" onload="this.parentElement.classList.add('has-image')" onerror="this.hidden=true"></figure></article>
+      </div>
+      <div class="day6-reasons"><h6>他们为什么不断走向天台？</h6><article><b>这里有可以入诗的山水</b><p>赤城霞、华顶云、石梁瀑，都能入诗。</p></article><article><b>这里有可以寻访的人与故事</b><p>寺院、道观、隐者和前代诗文，让一次看山也成为一次访友、求学和追寻。</p></article><article><b>这里也经得起亲眼观察</b><p>真实的山路、水系和岩石，使旅行者能够比较、记录并留下可供后来人核对的文字。</p></article></div>
+      <p class="fact-note">前人留下诗文，后来者循诗出发；水路、山路与作品连成一条跨越年代的文化路线。</p>`,
+    taskTitle:"亲子小任务｜同一座山，两种记录法",
+    task:"请家长陪孩子从孙绰、孟浩然和徐霞客中选择一位，先用一分钟讲清楚他怎样认识天台。再一起看上面的图片：孩子说出一处最想亲眼确认的景物，家长帮助把它写成两句话——第一句像诗人一样写感受，第二句像徐霞客一样写清楚看见了什么。到了天台现场，我们再回来核对。"
   },
   8:{
     cover:"佛门为何扎根天台？",subtitle:"从一张寺院图，寻找中国化佛教的一条重要道路",progress:"100%",answer:"天台宗",next:"“地之问”完成。下一幕，我们将追随历代来者，回答“人为什么不断来到这里”。",
@@ -499,7 +510,7 @@ function earthDayHTML(m){
   const completedBefore=Math.max(m.no-1,state.completed.filter(id=>Number(id.slice(1))<m.no).length);
   const earthPercent=(m.no-3)*20;
   return `<div class="earth-day-panel prologue-panel">
-    <div class="earth-cover"><p>守台人的第${m.no}封信</p><h3>${c.cover}</h3><span>${c.subtitle}</span><button class="audio-guide" type="button" data-audio data-player="day${m.no}Audio" data-audio-src="assets/day${m.no}.mp3" data-audio-title="郭爸讲第${m.no}关"><img src="assets/guoba-portrait.jpg" alt="书法郭爸"><span><strong>郭爸讲第${m.no}关</strong><small>${m.no===6?"点击收听":"点击收听 · 音频待上传"}</small><i class="audio-progress"><em></em></i></span><b>▶</b></button><audio id="day${m.no}Audio" preload="metadata" src="assets/day${m.no}.mp3"></audio></div>
+    <div class="earth-cover"><p>守台人的第${m.no}封信</p><h3>${c.cover}</h3><span>${c.subtitle}</span><button class="audio-guide" type="button" data-audio data-player="day${m.no}Audio" data-audio-src="assets/day${m.no}.mp3" data-audio-title="郭爸讲第${m.no}关"><img src="assets/guoba-portrait.jpg" alt="书法郭爸"><span><strong>郭爸讲第${m.no}关</strong><small>${m.no===6||m.no===7?"点击收听":"点击收听 · 音频待上传"}</small><i class="audio-progress"><em></em></i></span><b>▶</b></button><audio id="day${m.no}Audio" preload="metadata" src="assets/day${m.no}.mp3"></audio></div>
     <section class="day3-module earth-module recap-module"><div class="module-heading"><span>01</span><div><h4>前情回顾</h4></div></div><p>${c.recap}</p></section>
     <section class="day3-module earth-module progress-module"><div class="module-heading"><span>02</span><div><h4><span class="tiantai-box-name">天台匣</span>进度</h4></div></div><div class="box-progress" aria-label="天台匣三问进度"><article><i>天</i><div><b>天之问</b><small>第3/3关 · 已完成</small></div><strong>100%</strong></article><article class="current"><i>地</i><div><b>地之问</b><small>第${m.no-3}/5关 · 正在寻找</small></div><strong>${earthPercent}%</strong></article><article><i>人</i><div><b>人之问</b><small>尚未开启</small></div><strong>0%</strong></article></div><div class="archive-count"><span>已归匣</span><b>${completedBefore}</b><em>/ 15 条线索</em></div></section>
     <section class="day3-module earth-module question-module"><div class="module-heading"><span>03</span><div><h4>今日追问</h4></div></div><h5>${c.question}</h5>${c.body}<div class="earth-answer"><small>${m.no===4?"如果用两个字描述天台山的位置，你会用哪两个字？":"把今天找到的词写入口令"}</small>${[...c.answer].map(()=>"<span>？</span>").join("")}</div></section>
