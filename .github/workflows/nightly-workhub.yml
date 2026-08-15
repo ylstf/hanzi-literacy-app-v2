@@ -1,0 +1,29 @@
+name: Nightly work hub snapshot
+on:
+  schedule:
+    - cron: "30 18 * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Build Feishu snapshot
+        env:
+          FEISHU_APP_ID: ${{ secrets.FEISHU_APP_ID }}
+          FEISHU_APP_SECRET: ${{ secrets.FEISHU_APP_SECRET }}
+          FEISHU_BASE_TOKEN: ${{ secrets.FEISHU_BASE_TOKEN }}
+          FEISHU_TASK_TABLE_ID: ${{ secrets.FEISHU_TASK_TABLE_ID }}
+        run: node scripts/build-workhub-snapshot.mjs
+      - name: Publish changed snapshot
+        run: |
+          git config user.name "郭爸工作中枢"
+          git config user.email "workhub@beijingheshiedu.com"
+          git add workhub/data/snapshot.json
+          git diff --cached --quiet || git commit -m "Update nightly work hub snapshot"
+          git push

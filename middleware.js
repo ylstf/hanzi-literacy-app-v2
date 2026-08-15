@@ -1,0 +1,5 @@
+const encoder=new TextEncoder();
+async function sign(value,secret){const key=await crypto.subtle.importKey("raw",encoder.encode(secret),{name:"HMAC",hash:"SHA-256"},false,["sign"]);const buf=await crypto.subtle.sign("HMAC",key,encoder.encode(value));return btoa(String.fromCharCode(...new Uint8Array(buf))).replaceAll("+","-").replaceAll("/","_").replaceAll("=","")}
+function cookie(headers,name){const raw=headers.get("cookie")||"";return raw.split(";").map(x=>x.trim()).find(x=>x.startsWith(name+"="))?.slice(name.length+1)}
+export const config={matcher:["/workhub/:path*","/api/workhub/:path*"]};
+export async function middleware(context){const url=new URL(context.request.url);if(url.pathname==="/workhub/login.html"||url.pathname==="/api/workhub/login"||url.pathname==="/api/workhub/logout")return context.next();const token=cookie(context.request.headers,"guoba_work_session");if(token&&context.env.WORKHUB_SESSION_SECRET){const [expiry,sig]=token.split(".");if(Number(expiry)>Date.now()&&sig===await sign(expiry,context.env.WORKHUB_SESSION_SECRET))return context.next()}return Response.redirect(new URL("/workhub/login.html",url),303)}

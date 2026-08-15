@@ -1,0 +1,40 @@
+{
+  "snapshotNo": 1,
+  "updatedAt": "2026-08-15 02:30",
+  "summary": {"projects":11,"tasks":67,"doing":15,"waiting":3,"done":0},
+  "today": {
+    "urgent": [
+      {"name":"整理拆迁与律师沟通全部资料","project":"山西老房拆迁","owner":"郭建伟","next":"按时间、证据类型和用途归档","due":"08-16"},
+      {"name":"与律师进行第一轮沟通","project":"山西老房拆迁","owner":"郭建伟","next":"准备案情摘要、问题清单和证据","due":"08-17"}
+    ],
+    "advanced": [
+      {"name":"整理杭州实地考察资料","project":"定居杭州","owner":"刘幼","update":"正在整理小学、学区房及紫金港资料"},
+      {"name":"第21期天台山游学问题复盘","project":"游学项目","owner":"共同协作","update":"正在梳理问题、原因和改进办法"}
+    ],
+    "waiting": [
+      {"name":"跟踪各家律师回复","project":"山西老房拆迁","owner":"郭建伟","next":"等待各家律师回复并记录方案"},
+      {"name":"配合刘幼发布十一天台山游学","project":"游学项目","owner":"共同协作","next":"明确产品、文案、素材和发布分工"}
+    ],
+    "blocked": []
+  },
+  "milestones": [
+    {"date":"08.16","name":"拆迁资料整理","position":2},
+    {"date":"08.17","name":"律师首轮沟通","position":7},
+    {"date":"09.30","name":"西湖区落户","position":30},
+    {"date":"10.31","name":"拆迁法律推进","position":55},
+    {"date":"12.31","name":"紫金学区房筛选","position":88}
+  ],
+  "projects": [
+    {"name":"山西老房拆迁","owner":"郭建伟","collaborative":false,"progress":18,"doing":1,"tasks":6,"next":"完成资料整理并启动律师沟通","risk":"8月16—17日为最近节点"},
+    {"name":"日常课程交付","owner":"郭建伟","collaborative":true,"progress":12,"doing":1,"tasks":8,"next":"明确本人和协作事项的责任边界","risk":"课程类型较多"},
+    {"name":"个人专著","owner":"郭建伟","collaborative":false,"progress":5,"doing":0,"tasks":5,"next":"确定读者、目录和写作节奏","risk":"尚未明确时间节点"},
+    {"name":"短视频","owner":"刘幼","collaborative":true,"progress":28,"doing":4,"tasks":6,"next":"制定一周发布日历并保持生产节奏","risk":"需形成稳定生产流程"},
+    {"name":"定居杭州","owner":"刘幼","collaborative":true,"progress":14,"doing":1,"tasks":8,"next":"整理学校、学区房和考察信息","risk":"9月底前完成落户规划"},
+    {"name":"游学项目","owner":"共同协作","collaborative":true,"progress":24,"doing":2,"tasks":7,"next":"完成21期复盘、成本利润与SOP","risk":"需明确十一游学分工"},
+    {"name":"寒假集训","owner":"共同协作","collaborative":true,"progress":6,"doing":0,"tasks":6,"next":"寻找杭州场地和合作地点","risk":"场地和招生时间未定"},
+    {"name":"网站完善","owner":"共同协作","collaborative":true,"progress":10,"doing":1,"tasks":6,"next":"列出未完成板块和素材清单","risk":"缺少完整内容清单"},
+    {"name":"浙江大学博士申请","owner":"郭建伟","collaborative":false,"progress":5,"doing":0,"tasks":6,"next":"筛选博导并准备沟通","risk":"时间线和考试要求待核实"},
+    {"name":"教材与物料升级","owner":"郭建伟","collaborative":true,"progress":12,"doing":1,"tasks":4,"next":"核对品名、数量、版本和供应商","risk":"多个采购项需逐项确认"},
+    {"name":"浙江副高职称申请","owner":"郭建伟","collaborative":false,"progress":4,"doing":0,"tasks":5,"next":"核实申报条件和可认可比赛","risk":"需依据最新政策倒排"}
+  ]
+}

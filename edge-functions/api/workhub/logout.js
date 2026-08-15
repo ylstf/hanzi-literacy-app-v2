@@ -1,0 +1,1 @@
+export function onRequestGet(context){return new Response(null,{status:302,headers:{"location":"/workhub/login.html","set-cookie":"guoba_work_session=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0"}})}
