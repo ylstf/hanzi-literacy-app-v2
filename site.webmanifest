@@ -1,0 +1,22 @@
+{
+  "name": "书法郭爸共学社群",
+  "short_name": "郭爸共学社群",
+  "description": "书法郭爸共学社群｜诗文吟诵、字源识字、写字书法、经典研读与中国文化之旅",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f2f0e8",
+  "theme_color": "#195a48",
+  "icons": [
+    {
+      "src": "assets/apple-touch-icon-20260817.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/site-icon-512-20260817.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
